@@ -1,0 +1,254 @@
+@charset "utf-8";
+/* CSS Document */
+body {
+	font: 100%/1.4 Verdana, Arial, Helvetica, sans-serif;
+	font-size:12px;
+	margin: 0;
+	padding: 0;
+	color: #000;
+	background-color:#fff;
+}
+
+/* ~~ Element/tag selectors ~~ */
+ul, ol, dl { /* Due to variations between browsers, it's best practices to zero padding and margin on lists. For consistency, you can either specify the amounts you want here, or on the list items (LI, DT, DD) they contain. Remember that what you do here will cascade to the .nav list unless you write a more specific selector. */
+	padding: 0;
+	margin: 0;
+}
+h1, h2, h3, h4, h5, h6, p {
+	margin-top: 0;	 /* removing the top margin gets around an issue where margins can escape from their containing div. The remaining bottom margin will hold it away from any elements that follow. */
+	padding-right: 15px;
+	padding-left: 15px; /* adding the padding to the sides of the elements within the divs, instead of the divs themselves, gets rid of any box model math. A nested div with side padding can also be used as an alternate method. */
+}
+a img { /* this selector removes the default blue border displayed in some browsers around an image when it is surrounded by a link */
+	border: none;
+}
+
+/* ~~ Styling for your site's links must remain in this order - including the group of selectors that create the hover effect. ~~ */
+a:link {
+	color: #42413C;
+	text-decoration: underline;
+	font-weight:bold;
+}
+a:visited {
+	color: #6E6C64;
+	text-decoration: underline;
+	font-weight:bold;
+}
+a:hover, a:active, a:focus { /* this group of selectors will give a keyboard navigator the same hover experience as the person using a mouse. */
+	text-decoration: underline;
+	font-weight:bold;
+}
+
+/* ~~ This fixed width container surrounds all other divs ~~ */
+.container {
+	width: 960px;
+	background: #FFFFFF;
+	border:#FFF 10px solid;
+	margin: 0 auto; /* the auto value on the sides, coupled with the width, centers the layout */
+}
+
+/* ~~ The header is not given a width. It will extend the full width of your layout. It contains an image placeholder that should be replaced with your own linked logo. ~~ */
+.header {
+	background: #FFF;
+	border-bottom:#999 1px solid;
+}
+.sidebar1 {
+	float: left;
+	width: 182px;
+	background: #fff;
+	padding-bottom: 10px;
+}
+.indsidebar1 {
+	float: left;
+	width: 1px;
+	background: #fff;
+	padding-bottom: 10px;
+}
+.content {
+
+	margin-left:10px;
+	padding: 10px 0;
+	width: 640px;
+	float: left;
+}
+.manVidContent {
+
+	margin-left:10px;
+	padding: 10px 0;
+	width: 768px;
+	float: left;
+}
+
+.friendContent {
+	margin-left:10px;
+	padding: 10px 0;
+	width: 500px;
+	float: left;
+}
+.sidebar2 {
+	float: left;
+	width: 128px;
+	background: #fff;
+	padding: 10px 0;
+}
+.indexsidebar2 {
+	float: left;
+	width: 300px;
+	background: #fff;
+	padding: 10px 0;
+}
+.friendSidebar2 {
+	float: left;
+	width: 268px;
+	background: #fff;
+	padding: 10px 0;
+}
+.manVidsidebar2{
+	width:0px;
+}
+
+/* ~~ This grouped selector gives the lists in the .content area space ~~ */
+.content ul, .content ol { 
+	padding: 0 15px 15px 40px; /* this padding mirrors the right padding in the headings and paragraph rule above. Padding was placed on the bottom for space between other elements on the lists and on the left to create the indention. These may be adjusted as you wish. */
+}
+
+/* ~~ The navigation list styles (can be removed if you choose to use a premade flyout menu like Spry) ~~ */
+ul.nav {
+	list-style: none; /* this removes the list marker */
+	border-top: 1px solid #666; /* this creates the top border for the links - all others are placed using a bottom border on the LI */
+	margin-bottom: 15px; /* this creates the space between the navigation on the content below */
+	color:#FFF;
+}
+ul.nav li {
+	border-bottom: 1px solid #fff; /* this creates the button separation */
+	border-right: 1px solid #000; 
+	border-left: 1px solid #000; 
+	color: #FFF;
+}
+ul.nav a, ul.nav a:visited { 
+	padding: 5px 5px 5px 15px;
+	display: block; /* this gives the anchor block properties so it fills out the whole LI that contains it so that the entire area reacts to a mouse click. */
+	width: 160px;  /*this width makes the entire button clickable for IE6. If you don't need to support IE6, it can be removed. Calculate the proper width by subtracting the padding on this link from the width of your sidebar container. */
+	text-decoration: none;
+	background:#000;
+	color: #FFF;
+}
+ul.nav a:hover, ul.nav a:active, ul.nav a:focus { /* this changes the background and text color for both mouse and keyboard navigators */
+	background: #999;
+	color: #FFF;
+}
+
+/* ~~ The footer styles ~~ */
+.footer {
+	padding: 10px 0;
+	font-size:9px;
+	border-top: 1px solid #999;
+	background: #FFF;
+	position: relative;/* this gives IE6 hasLayout to properly clear */
+	clear: both; /* this clear property forces the .container to understand where the columns end and contain them */
+}
+
+/* ~~ Miscellaneous float/clear classes ~~ */
+.fltrt {  /* this class can be used to float an element right in your page. The floated element must precede the element it should be next to on the page. */
+	float: right;
+	margin-left: 8px;
+}
+.fltlft { /* this class can be used to float an element left in your page. The floated element must precede the element it should be next to on the page. */
+	float: left;
+	margin-right: 8px;
+}
+.clearfloat { /* this class can be placed on a <br /> or empty div as the final element following the last floated div (within the .container) if the .footer is removed or taken out of the .container */
+	clear:both;
+	height:0;
+	font-size: 1px;
+	line-height: 0px;
+}
+#friendsTable{
+	font-size:9px;
+}
+#friendsTable th{
+	font-weight:bold;
+}
+#editFriendsTable{
+	width: 500px;
+}
+#editFriendsTable td{
+	border-bottom: 1px #CCC solid;
+	height: 58px;
+}
+#editFriendsTable th{
+	font-weight:bold;
+}
+#friendReqTable{
+	width: 267px;
+	border-bottom: 1px solid #ccc;
+}
+#friendReqTable td{
+	height: 55px;
+}
+#manVidTable {
+    width: 767px;
+}
+#manVidTable th{
+	font-weight:bold;
+}
+#manVidTable td{
+text-align:left;
+border-bottom:#CCC 1px solid;
+}
+#latestTable {
+	border-left: 1px solid #999;
+	border-right: 1px solid #999;
+}
+.motto{
+	font-size:9px;
+}
+-->
+#videoTable{
+	font-size:9px;
+	width: 120px;
+	margin-left: 10px;
+}
+#videoTable td{
+	text-align:center;
+}
+#videoTable th{
+	font-weight:bold;
+}
+#indexvideoTable{
+	font-size:9px;
+	width: 300px;
+	margin-left: 10px;
+}
+#indexvideoTable td{
+	text-align:left;
+	border-bottom:#CCC 1px solid;
+}
+#indexvideoTable th{
+	font-weight:bold;
+}
+#accountTable{
+	width: 400px;
+}
+#headmenu{
+	float:right;
+	position: relative;
+	top: 45px;
+}
+.small{
+	font-size: 9px;
+	margin-left:20px;
+	font-weight: bold;
+}
+#upload_button{
+	width: 182px;
+}
+.custom{
+	width: 150px;
+}
+.transform{
+	width: 150px;
+}
+#transformList{
+	width: 800px;
+}
