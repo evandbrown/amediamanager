@@ -19,7 +19,7 @@
 
 <script type="text/javascript">
 //<![CDATA[
-var errorMessage = "";
+
 function refreshRecentVideos() {
 	$.ajax({
 				type : "GET",
@@ -142,11 +142,10 @@ $(document).ready(function() {
 	}, function() {
 		$(this).removeClass('ui-state-hover');
 	});
-
-	// Determine if there is an error message on the query string
-	// and open the error dialog if one exists
-	if (errorMessage != "") {
-		$("#errorDialog").html(errorMessage).dialog('open');
+	
+	// Display error if it exists
+	if($('#errorDialog').length != 0) {
+		$('#errorDialog').dialog('open');
 	}
 
 	//setTimeout(refreshRecentVideos(), 1000);
@@ -263,7 +262,7 @@ ul#icons span.ui-icon {
 	</div>
 
 	<!-- Error message dialog -->
-	<div id="errorDialog" title="An Error Has Occurred!"></div>
+	<div id="errorDialog" title="An Error Has Occurred!" th:if="${not #strings.isEmpty(error)}" th:text="${error}"></div>
 
 </body>
 </html>
