@@ -1,5 +1,59 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"></meta>
+<title>aMediaManager</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
+<meta name="description" content=""></meta>
+<meta name="author" content=""></meta>
+<link href="http://bootswatch.com/united/bootstrap.min.css"
+	rel="stylesheet"></link>
+<link
+	href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0-rc2/css/bootstrap-glyphicons.css"
+	rel="stylesheet"></link>
+<style type="text/css">
+body {
+	padding-top: 75px;
+}
+</style>
+</head>
+
 <body>
-<h2 th:text="${message}"></h2>
+	<div class="navbar navbar-default navbar-fixed-top">
+		<div class="container">
+			<div class="navbar-header">
+				<a href="../" class="navbar-brand">aMediaManager</a>
+				<button class="navbar-toggle" type="button" data-toggle="collapse"
+					data-target="#navbar-main">
+					<span class="icon-bar"></span> <span class="icon-bar"></span> <span
+						class="icon-bar"></span>
+				</button>
+			</div>
+			<div class="navbar-collapse collapse" id="navbar-main">
+
+				<div th:include="navigation"></div>
+
+			</div>
+		</div>
+	</div>
+
+	<div class="container">
+		<!--  Error message include -->
+		<div th:include="error"></div>
+
+		<!-- Main template body to render -->
+		<div th:if="${not #strings.isEmpty(templateName)}">
+			<div th:include="${templateName}"></div>
+		</div>
+	</div>
+	<script
+		src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js">
+		
+	</script>
+	<script
+		src="https://netdna.bootstrapcdn.com/bootstrap/3.0.0-rc2/js/bootstrap.min.js">
+		
+	</script>
 </body>
+
 </html>

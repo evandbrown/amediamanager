@@ -9,5 +9,5 @@ public interface UserService {
 
 	public void update(User user) throws UserDoesNotExistException, DataSourceTableDoesNotExistException;;
 
-	public User find (String email);
+	public User find (String email) throws DataSourceTableDoesNotExistException;
 }

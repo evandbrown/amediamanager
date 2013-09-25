@@ -21,4 +21,17 @@ package com.amediamanager.exceptions;
  */
 public class DataSourceTableDoesNotExistException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
+	public String dataSourceName;
+	
+	public DataSourceTableDoesNotExistException(){}
+	public DataSourceTableDoesNotExistException(String dataSourceName) {
+		this.dataSourceName = dataSourceName;
+	}
+	public String getDataSourceName() {
+		return dataSourceName;
+	}
+	@Override
+	public String getMessage() {
+		return "The data source " + this.dataSourceName + " does not exist.";
+	}
 }

@@ -62,7 +62,7 @@ public class DynamoDbUserDaoImpl implements UserDao {
 			// Save user
 			client.putItem(putItemRequest);
 		} catch (ResourceNotFoundException rnfe) {
-			throw new DataSourceTableDoesNotExistException();
+			throw new DataSourceTableDoesNotExistException(configs.getProperty(ConfigurationSettings.ConfigProps.DDB_USERS_TABLE));
 		} catch (AmazonServiceException ase) {
 			throw ase;
 		}
@@ -90,7 +90,7 @@ public class DynamoDbUserDaoImpl implements UserDao {
 			// Save user
 			client.putItem(putItemRequest);
 		} catch (ResourceNotFoundException rnfe) {
-			throw new DataSourceTableDoesNotExistException();
+			throw new DataSourceTableDoesNotExistException(configs.getProperty(ConfigurationSettings.ConfigProps.DDB_USERS_TABLE));
 		} catch (AmazonServiceException ase) {
 			throw ase;
 		}
@@ -131,7 +131,7 @@ public class DynamoDbUserDaoImpl implements UserDao {
 			// custom, more specific DataSourceTableDoesNotExistException that
 			// users
 			// of this DAO understand.
-			throw new DataSourceTableDoesNotExistException();
+			throw new DataSourceTableDoesNotExistException(configs.getProperty(ConfigurationSettings.ConfigProps.DDB_USERS_TABLE));
 		}
 	}
 

@@ -40,14 +40,11 @@ public class UserController {
 					  new UsernamePasswordAuthenticationToken(user.getEmail(), null, grantedAuths);
 
 					SecurityContextHolder.getContext().setAuthentication(auth);
-		} catch (DataSourceTableDoesNotExistException e) {
-			attr.addFlashAttribute("error", "The Users table does not exist.");
-			e.printStackTrace();
 		} catch (UserExistsException e) {
 			attr.addFlashAttribute("error", "That user already exists.");
 			e.printStackTrace();
 		}
 	
-	return "redirect:/home";
+	return "redirect:/welcome";
 	}
 }

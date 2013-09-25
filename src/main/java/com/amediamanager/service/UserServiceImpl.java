@@ -39,7 +39,15 @@ public class UserServiceImpl
 	
 	@Override
 	public User find(String email) {
-		return userDao.find(email);
+		User user = null;
+		try {
+			user = userDao.find(email);
+		} catch (DataSourceTableDoesNotExistException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			throw e;
+		}
+		return user;
 	}
 	
 	@Override
