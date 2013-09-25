@@ -12,10 +12,12 @@
 	<http pattern="/static/**" security="none" />	
 	
 	<http auto-config="true" use-expressions="true">
-		<form-login login-page="/home" default-target-url="/home" authentication-failure-url="/loginfailed" />
+		<form-login login-page="/welcome" default-target-url="/home" authentication-failure-url="/login-failed" />
 		<logout logout-success-url="/logout" />
-		<intercept-url pattern="/home" access="hasRole('ROLE_ANONYMOUS')"/>
+		<intercept-url pattern="/welcome" access="hasRole('ROLE_ANONYMOUS')"/>
 		<intercept-url pattern="/register" access="hasRole('ROLE_ANONYMOUS')"/>
+		<intercept-url pattern="/login-failed" access="hasRole('ROLE_ANONYMOUS')"/>
+		<intercept-url pattern="/error" access="hasRole('ROLE_ANONYMOUS')"/>
 		<intercept-url pattern="/**" access="hasRole('ROLE_USER')" />
 	</http>
 </beans:beans>

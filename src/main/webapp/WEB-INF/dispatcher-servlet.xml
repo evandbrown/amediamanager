@@ -12,7 +12,13 @@
 
 	<!-- ANNOTATION PROCESSING -->
 	<mvc:annotation-driven />
-	<context:component-scan base-package="com.amediamanager" />
+	<context:component-scan base-package="com.amediamanager" use-default-filters="false">
+		<context:include-filter expression="org.springframework.stereotype.Component" type="annotation" />
+		<context:include-filter expression="org.springframework.stereotype.Controller" type="annotation" />
+		<context:include-filter expression="org.springframework.stereotype.Repository" type="annotation" />
+		<context:include-filter expression="org.springframework.stereotype.Service" type="annotation" />
+		<context:include-filter type="annotation" expression="org.springframework.web.bind.annotation.ControllerAdvice" />
+	</context:component-scan>
 
 	<!-- RESOURCE FOLDERS CONFIGURATION -->
 	<mvc:resources location="/static/" mapping="/static/**" />
