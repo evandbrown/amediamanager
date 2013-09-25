@@ -22,6 +22,7 @@
 
 	<!-- RESOURCE FOLDERS CONFIGURATION -->
 	<mvc:resources location="/static/" mapping="/static/**" />
+	<mvc:resources location="/favicon.ico" mapping="/favicon.ico" />
 
 	<!-- THYMELEAF -->
     <bean id="templateResolver" class="org.thymeleaf.templateresolver.ServletContextTemplateResolver">
