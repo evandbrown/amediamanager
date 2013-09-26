@@ -9,11 +9,6 @@ import com.amediamanager.exceptions.DataSourceTableDoesNotExistException;
  
 @Controller
 public class LoginController {
-	@RequestMapping(value={"/", "/home"}, method = RequestMethod.GET)
-	public String home(ModelMap model) {
-		model.addAttribute("templateName", "empty");
-		return "base";
-	}
 	
 	@RequestMapping(value="/welcome", method = RequestMethod.GET)
 	public String welcome(ModelMap model) {

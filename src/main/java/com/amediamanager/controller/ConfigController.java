@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.amediamanager.config.ConfigurationSettings;
-import com.amediamanager.config.ConfigurationSettings.ConfigSource;
 
 @Controller
 public class ConfigController {
@@ -17,8 +16,9 @@ public class ConfigController {
 		
 		model.addAttribute("templateName", "config");
 		model.addAttribute("configLoadedFrom", config.getReadableConfigSource());
-		model.addAttribute("appConfig", config.getPropertiesAsString());
-		model.addAttribute("credsConfig", "empty");
+		model.addAttribute("appConfig", config.toString());
+		model.addAttribute("accessKey", config.getAWSCredentials().getAWSAccessKeyId());
+		model.addAttribute("secretKey", config.getObfuscatedSecretKey());
 		return "base";
 	}
 }
