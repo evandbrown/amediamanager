@@ -124,7 +124,7 @@ public class ConfigurationSettings {
         System.out.println("---------------------");
         System.out.println("Effective AWS credential config:");
         System.out.println("Access Key=" + this.getAWSCredentials().getAWSAccessKeyId());
-        System.out.println("Secret Key=" + this.getAWSCredentials().getAWSSecretKey().substring(0, 4) + "******************" + this.getAWSCredentials().getAWSSecretKey().substring(this.getAWSCredentials().getAWSSecretKey().length()-4, this.getAWSCredentials().getAWSSecretKey().length()-1));
+        System.out.println("Secret Key=" + this.getObfuscatedSecretKey());
 		
 	}
 	
@@ -157,6 +157,10 @@ public class ConfigurationSettings {
 		return this.configSource;
 	}
 	
+	/**
+	 * Print readable ini-style config
+	 * @return
+	 */
 	public String getReadableConfigSource() {
 		switch(this.configSource) {
 		case FROM_FILE: return "file (" + System.getProperty(PROPS_FILE_PATH_ENV_VAR) + ")";
@@ -174,6 +178,10 @@ public class ConfigurationSettings {
 		return credsProvider.getCredentials();
 	}
 	
+	public String getObfuscatedSecretKey() {
+		return this.getAWSCredentials().getAWSSecretKey().substring(0, 4) + "******************" + this.getAWSCredentials().getAWSSecretKey().substring(this.getAWSCredentials().getAWSSecretKey().length()-4, this.getAWSCredentials().getAWSSecretKey().length()-1);
+	}
+	
 	/**
 	 * Accessor for the various properties in the configuration.
 	 * 
@@ -188,14 +196,17 @@ public class ConfigurationSettings {
 	 * Print effective config as a key=values\n string
 	 * @return
 	 */
-	public String getPropertiesAsString() {
+	public String getPropertiesAsString(Properties props) {
 		StringBuilder sb = new StringBuilder();
-		for(ConfigurationSettings.ConfigProps val : ConfigurationSettings.ConfigProps.values()) { 
-			sb.append(val.name());
+		Enumeration<?> e = props.propertyNames();
+		while (e.hasMoreElements()){ 
+			String key = (String) e.nextElement();
+			sb.append(key);
 			sb.append("=");
-			sb.append(ConfigurationSettings.getInstance().getProperty(val));
+			sb.append(props.getProperty(key));
 			sb.append("\n");
 		}
+		
 		return sb.toString();
 	}
 	
@@ -204,13 +215,6 @@ public class ConfigurationSettings {
 	 * @return	aMediaManager configuration parameters from running environment.
 	 */
 	public String toString() {
-		String props_string = new String();
-		// Construct String of Properties
-	    Enumeration<?> e = props.propertyNames();
-	    while (e.hasMoreElements()){
-	      String key = (String) e.nextElement();
-	      props_string += (key +"=" + props.getProperty(key));
-	    }
-		return props_string;
+		return getPropertiesAsString(this.props);
 	}
 }

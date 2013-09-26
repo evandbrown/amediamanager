@@ -10,9 +10,21 @@
 					</label>
 					<textarea class="form-control" th:text="${appConfig}" rows="15"></textarea>
 				</div>
+				<hr />
 				<div class="form-group">
 					<label> AWS Credentials </label>
-					<textarea class="form-control" th:text="${credsConfig}"></textarea>
+					<table class="table">
+						<tbody>
+							<tr>
+								<td>Access Key</td>
+								<td th:text="${accessKey}"></td>
+							</tr>
+							<tr>
+								<td>Secret Key</td>
+								<td th:text="${secretKey}"></td>
+							</tr>
+						</tbody>
+					</table>
 				</div>
 			</div>
 		</div>
