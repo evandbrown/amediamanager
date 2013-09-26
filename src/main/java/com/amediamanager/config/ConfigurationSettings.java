@@ -30,6 +30,7 @@ import com.amazonaws.auth.*;
 public class ConfigurationSettings {
 	
 	private static ConfigurationSettings configSettings = new ConfigurationSettings();
+	private ConfigSource configSource;
 	
 	/** Constants **/
 	private static final String PROPS_FILE_PATH_ENV_VAR = "APP_CONFIG_FILE";
@@ -52,6 +53,11 @@ public class ConfigurationSettings {
 		AWS_REGION
 	}
 	
+	public static enum ConfigSource {
+		FROM_FILE,
+		FROM_WAR
+	}
+	
 	/** Provider for AWS credentials (Access Key and Secret Key) **/
 	private AWSCredentialsProvider credsProvider = new AWSCredentialsProviderChain(
 			new SystemPropertiesCredentialsProvider(),
@@ -64,12 +70,14 @@ public class ConfigurationSettings {
 	 */
 	private ConfigurationSettings() {
 		
-		// Create a properties from the system settings.
+		// Get any system properties
 		Properties sysProps = System.getProperties();
 		
-		// Get properties from file if they exist
+		// Prepare to get other properties from a file
 		Properties fileProps = new Properties();
+		
         try {
+        	// Determine path of properties file to load
         	String configFileToLoad = this.getAppConfigFilePath();
         	
         	// If a aMediaManager.properties file is present then use those properties
@@ -79,8 +87,10 @@ public class ConfigurationSettings {
         	// from the classloader. Otherwise, load from a standard file
         	if(configFileToLoad.equals(DEFAULT_CONFIG_FILE_PATH)) {
         		resourceFile = this.getClass().getResourceAsStream(configFileToLoad);
+        		this.configSource = ConfigSource.FROM_WAR;
         	} else {
         		resourceFile = new java.io.FileInputStream(configFileToLoad);
+        		this.configSource = ConfigSource.FROM_FILE;
         	}
         	
         	fileProps = new Properties();
@@ -139,6 +149,24 @@ public class ConfigurationSettings {
 	}
 	
 	/**
+	 * Indicates where configuration for this application came from (either
+	 * a file bundled with the app WAR or a file elsewhere on the FS)
+	 * @return
+	 */
+	public ConfigSource getConfigSource() {
+		return this.configSource;
+	}
+	
+	public String getReadableConfigSource() {
+		switch(this.configSource) {
+		case FROM_FILE: return "file (" + System.getProperty(PROPS_FILE_PATH_ENV_VAR) + ")";
+		case FROM_WAR: return "WAR (" + DEFAULT_CONFIG_FILE_PATH + ")";
+		default: return "Unknown";
+		}
+		
+	}
+	
+	/**
 	 * This method returns the AWS credentials object.
 	 * @return	AWS credentials taken from the properties and user-data.
 	 */
@@ -154,6 +182,21 @@ public class ConfigurationSettings {
 	 */
 	public String getProperty(ConfigurationSettings.ConfigProps property_name) {
 		return props.getProperty(property_name.name());
+	}
+	
+	/**
+	 * Print effective config as a key=values\n string
+	 * @return
+	 */
+	public String getPropertiesAsString() {
+		StringBuilder sb = new StringBuilder();
+		for(ConfigurationSettings.ConfigProps val : ConfigurationSettings.ConfigProps.values()) { 
+			sb.append(val.name());
+			sb.append("=");
+			sb.append(ConfigurationSettings.getInstance().getProperty(val));
+			sb.append("\n");
+		}
+		return sb.toString();
 	}
 	
 	/**
