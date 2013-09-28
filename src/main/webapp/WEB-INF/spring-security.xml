@@ -19,6 +19,7 @@
 		<intercept-url pattern="/register" access="hasAnyRole('ROLE_ANONYMOUS', 'ROLE_USER')"/>
 		<intercept-url pattern="/login-failed" access="hasAnyRole('ROLE_ANONYMOUS', 'ROLE_USER')"/>
 		<intercept-url pattern="/error" access="hasAnyRole('ROLE_ANONYMOUS', 'ROLE_USER')"/>
+		<intercept-url pattern="/not-found" access="hasAnyRole('ROLE_ANONYMOUS', 'ROLE_USER')"/>
 		<intercept-url pattern="/**" access="hasRole('ROLE_USER')" />
 	</http>
 </beans:beans>

@@ -16,11 +16,6 @@ public class LoginController {
 		return "base";
 	}
 	
-	@RequestMapping(value="/error", method = RequestMethod.GET)
-	public String error(ModelMap model) {
-  		throw new DataSourceTableDoesNotExistException();
-	}
-	
 	@RequestMapping(value="/login-failed", method = RequestMethod.GET)
 	public String loginerror(ModelMap model) {
 		model.addAttribute("error", "Login failed.");

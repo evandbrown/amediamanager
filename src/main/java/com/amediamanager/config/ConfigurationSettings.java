@@ -21,16 +21,16 @@ import java.net.UnknownHostException;
 import java.util.Enumeration;
 import java.util.Properties;
 
+import org.springframework.stereotype.Component;
+
 import com.amazonaws.auth.*;
 
 /**
  * The ConfigurationSettings class is a singleton class that retrieves the settings from the 
  * aMediaManager.properties file or from the EC2 Metadata URL or Elastic Beanstalk Environment Metadata.
  */
+@Component
 public class ConfigurationSettings {
-	
-	private static ConfigurationSettings configSettings = new ConfigurationSettings();
-	private ConfigSource configSource;
 	
 	/** Constants **/
 	private static final String PROPS_FILE_PATH_ENV_VAR = "APP_CONFIG_FILE";
@@ -53,10 +53,13 @@ public class ConfigurationSettings {
 		AWS_REGION
 	}
 	
+	/** Where config vals came frome **/
 	public static enum ConfigSource {
 		FROM_FILE,
 		FROM_WAR
 	}
+	
+	private ConfigSource configSource;
 	
 	/** Provider for AWS credentials (Access Key and Secret Key) **/
 	private AWSCredentialsProvider credsProvider = new AWSCredentialsProviderChain(
@@ -65,6 +68,7 @@ public class ConfigurationSettings {
 			);
 	
 	private Properties props = null;
+	
 	/**
 	 * Private constructor that is called by getInstance if the singleton does not exist.
 	 */
@@ -97,7 +101,7 @@ public class ConfigurationSettings {
         	fileProps.load(resourceFile);
 			resourceFile.close();
         } catch(NullPointerException e) {
-        	System.err.println("## Error loading configuration file: " + this.getAppConfigFilePath() + ". Confirm that this file exists.");
+        	System.err.println("Error loading configuration file: " + this.getAppConfigFilePath() + ". Confirm that this file exists.");
         } catch(UnknownHostException e) {
         	System.err.println(e.getMessage());
         } catch (IOException e) {
@@ -138,14 +142,6 @@ public class ConfigurationSettings {
 		String filePath = (System.getProperty(PROPS_FILE_PATH_ENV_VAR) != null) ? System.getProperty(PROPS_FILE_PATH_ENV_VAR) : DEFAULT_CONFIG_FILE_PATH;
 		
 		return filePath;
-	}
-	
-	/**
-	 * This is a static accessor to return the singleton instance of this class.
-	 * @return	the singleton instance of ConfigurationSettings is returned.
-	 */
-	public static final ConfigurationSettings getInstance() {
-		return configSettings;
 	}
 	
 	/**

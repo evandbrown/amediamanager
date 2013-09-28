@@ -33,7 +33,21 @@ public class ExceptionHandlerController {
 		modelAndView
 				.addObject(
 						"error",
-						"A required data source table does not exist. Check your application's configuration.");
+						"An unhandled exception was thrown. The full stack trace is below.");
+		modelAndView.addObject("exMessage", ex.getMessage());
+		modelAndView.addObject("stackTrace",
+				Arrays.toString(ex.getStackTrace()));
+		return modelAndView;
+	}
+	
+	@ExceptionHandler({ RuntimeException.class })
+	public ModelAndView handleException(RuntimeException ex) {
+		ModelAndView modelAndView = new ModelAndView();
+		modelAndView.setViewName("base");
+		modelAndView
+				.addObject(
+						"error",
+						"An unchecked runtime exception was thrown. The full stack trace is below.");
 		modelAndView.addObject("exMessage", ex.getMessage());
 		modelAndView.addObject("stackTrace",
 				Arrays.toString(ex.getStackTrace()));

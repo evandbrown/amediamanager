@@ -29,7 +29,6 @@ public class User {
 	private String nickname;
 	private String tagline;
 	private String profilePicKey;
-	private Boolean alertOnNewContent;
 
 	public String getId() {
 		return this.id;

@@ -3,6 +3,9 @@ package com.amediamanager.dao;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.amazonaws.AmazonServiceException;
@@ -20,7 +23,9 @@ import com.amediamanager.exceptions.*;
 @Repository
 public class DynamoDbUserDaoImpl implements UserDao {
 
-	private ConfigurationSettings configs;
+	@Autowired
+	private ConfigurationSettings config;
+	
 	private AmazonDynamoDBClient client;
 
 	/** DynamoDB config **/
@@ -32,10 +37,10 @@ public class DynamoDbUserDaoImpl implements UserDao {
 	public static final String PROFILE_PIC_KEY_ATTR = "ProfilePicKey";
 	public static final String ALERT_ON_NEW_CONTENT_ATTR = "AlertOnNewContent";
 
-	public DynamoDbUserDaoImpl() {
-		configs = ConfigurationSettings.getInstance();
+	@PostConstruct
+	public void init() {
 		// Get a DynamoDB client
-		client = new AmazonDynamoDBClient(configs.getAWSCredentials());
+		client = new AmazonDynamoDBClient(config.getAWSCredentials());
 	}
 
 	@Override
@@ -56,13 +61,13 @@ public class DynamoDbUserDaoImpl implements UserDao {
 			
 			// Create a request to save and return the user
 			PutItemRequest putItemRequest = new PutItemRequest()
-												.withTableName(configs.getProperty(ConfigurationSettings.ConfigProps.DDB_USERS_TABLE))
+												.withTableName(config.getProperty(ConfigurationSettings.ConfigProps.DDB_USERS_TABLE))
 												.withItem(userItem);
 			
 			// Save user
 			client.putItem(putItemRequest);
 		} catch (ResourceNotFoundException rnfe) {
-			throw new DataSourceTableDoesNotExistException(configs.getProperty(ConfigurationSettings.ConfigProps.DDB_USERS_TABLE));
+			throw new DataSourceTableDoesNotExistException(config.getProperty(ConfigurationSettings.ConfigProps.DDB_USERS_TABLE));
 		} catch (AmazonServiceException ase) {
 			throw ase;
 		}
@@ -85,12 +90,12 @@ public class DynamoDbUserDaoImpl implements UserDao {
 			// Create a request to save and return the user
 			PutItemRequest putItemRequest = new PutItemRequest()
 												.withItem(userItem)
-												.withTableName(configs.getProperty(ConfigurationSettings.ConfigProps.DDB_USERS_TABLE));
+												.withTableName(config.getProperty(ConfigurationSettings.ConfigProps.DDB_USERS_TABLE));
 			
 			// Save user
 			client.putItem(putItemRequest);
 		} catch (ResourceNotFoundException rnfe) {
-			throw new DataSourceTableDoesNotExistException(configs.getProperty(ConfigurationSettings.ConfigProps.DDB_USERS_TABLE));
+			throw new DataSourceTableDoesNotExistException(config.getProperty(ConfigurationSettings.ConfigProps.DDB_USERS_TABLE));
 		} catch (AmazonServiceException ase) {
 			throw ase;
 		}
@@ -106,7 +111,7 @@ public class DynamoDbUserDaoImpl implements UserDao {
 			// Create a request to find a User by email address
 			GetItemRequest getItemRequest = new GetItemRequest()
 					.withTableName(
-							configs.getProperty(ConfigurationSettings.ConfigProps.DDB_USERS_TABLE))
+							config.getProperty(ConfigurationSettings.ConfigProps.DDB_USERS_TABLE))
 					.addKeyEntry(HASH_KEY_NAME, new AttributeValue(email));
 
 			// Issue the request to find the User in DynamoDB
@@ -131,7 +136,7 @@ public class DynamoDbUserDaoImpl implements UserDao {
 			// custom, more specific DataSourceTableDoesNotExistException that
 			// users
 			// of this DAO understand.
-			throw new DataSourceTableDoesNotExistException(configs.getProperty(ConfigurationSettings.ConfigProps.DDB_USERS_TABLE));
+			throw new DataSourceTableDoesNotExistException(config.getProperty(ConfigurationSettings.ConfigProps.DDB_USERS_TABLE));
 		}
 	}
 

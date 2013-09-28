@@ -1,5 +1,5 @@
 <div class="row">
-	<div class="col-md-6">
+	<div class="col-md-8">
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h3 class="panel-title">Application Configuration</h3>
@@ -29,5 +29,38 @@
 			</div>
 		</div>
 	</div>
-	<div class="col-md-6"></div>
+	<div class="col-md-4">
+		<div class="panel panel-warning">
+			<div class="panel-heading">
+				<h3 class="panel-title">Configurable Items</h3>
+			</div>
+			<div class="panel-body">
+				<div th:unless="${#lists.isEmpty(prs)}" th:each="pr : ${prs}">
+					<div class="configurable-item">
+						<div class="row">
+							<div class="col-md-8">
+								<p>
+									<strong th:text="${pr.getName()}"></strong>
+								</p>
+							</div>
+							<div class="col-md-4">
+								<div th:switch="${pr.getState().name()}">
+									<button th:case="'UNPROVISIONED'" type="submit"
+										class="btn pull-right btn-info">Create</button>
+									<button th:case="'PROVISIONING'" type="submit"
+										class="btn pull-right btn-info disabled">Create</button>
+									<button th:case="'PROVISIONED'" type="submit"
+										class="btn pull-right btn-success disabled">Create</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<hr />
+				</div>
+				<div th:if="${#lists.isEmpty(prs)}">
+					<p>There are no configurable items to display</p>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>

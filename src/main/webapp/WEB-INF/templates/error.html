@@ -1,6 +1,6 @@
 <div class="alert alert-danger" th:if="${error != null}">
-	<h3 th:text="${error}">Error Title</h3>
-	<p th:if="${exMessage != null}" th:text="${exMessage}">Exception Message</p>
+	<h3 th:if="${exMessage != null}" th:text="${exMessage}">Exception Message</h3>
+	<p th:text="${error}">Error Title</p>
 </div>
 <div class="well" th:if="${not #strings.isEmpty(stackTrace)}">
 	<h3>Stack Trace</h3>
