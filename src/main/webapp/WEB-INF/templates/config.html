@@ -35,22 +35,22 @@
 				<h3 class="panel-title">Configurable Items</h3>
 			</div>
 			<div class="panel-body">
-				<div th:unless="${#lists.isEmpty(prs)}" th:each="pr : ${prs}">
+				<div th:unless="${#maps.isEmpty(prs)}" th:each="pr : ${prs}">
 					<div class="configurable-item">
 						<div class="row">
 							<div class="col-md-8">
 								<p>
-									<strong th:text="${pr.getName()}"></strong>
+									<strong th:text="${pr.value.getName()}"></strong>
 								</p>
 							</div>
 							<div class="col-md-4">
-								<div th:switch="${pr.getState().name()}">
-									<button th:case="'UNPROVISIONED'" type="submit"
-										class="btn pull-right btn-info">Create</button>
-									<button th:case="'PROVISIONING'" type="submit"
-										class="btn pull-right btn-info disabled">Create</button>
-									<button th:case="'PROVISIONED'" type="submit"
-										class="btn pull-right btn-success disabled">Create</button>
+								<div th:switch="${pr.value.getState().name()}">
+									<a th:case="'UNPROVISIONED'" type="submit" th:href="@{/config/provision/} + ${pr.key}"
+										class="btn pull-right btn-info">Create</a>
+									<a th:case="'PROVISIONING'" type="submit"
+										class="btn pull-right btn-info disabled">Creating</a>
+									<a th:case="'PROVISIONED'" type="submit"
+										class="btn pull-right btn-success disabled">OK</a>
 								</div>
 							</div>
 						</div>
