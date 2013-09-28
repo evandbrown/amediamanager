@@ -1,0 +1,257 @@
+
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "AWS CloudFormation Sample Template ElasticBeanstalk_Simple: Configure and launch an AWS Elastic Beanstalk application that connects to an Amazon RDS database instance. Monitoring is setup on the database. **WARNING** This template creates one or more Amazon EC2 instances and an Amazon Relational Database Service database instance. You will be billed for the AWS resources used if you create a stack from this template.",
+
+  "Parameters" : {
+
+    "DatabaseUser": {
+      "Default": "admin",
+      "NoEcho": "true",
+      "Type": "String",
+      "Description" : "Database admin account name",
+      "MinLength": "1",
+      "MaxLength": "16",
+      "AllowedPattern" : "[a-zA-Z][a-zA-Z0-9]*",
+      "ConstraintDescription" : "must begin with a letter and contain only alphanumeric characters."
+    },
+    "DatabasePassword": {
+      "Default": "admin",
+      "NoEcho": "true",
+      "Type": "String",
+      "Description" : "Database admin account password",
+      "MinLength": "1",
+      "MaxLength": "41",
+      "AllowedPattern" : "[a-zA-Z0-9]*",
+      "ConstraintDescription" : "must contain only alphanumeric characters."
+    },
+    "WarBucket": {
+      "Description": "The S3 bucket where the application WAR is located",
+      "Type": "String"
+    },
+    "WarKey": {
+      "Description": "The key of the application WAR file in the WarBucket",
+      "Type": "String"
+    },
+    "EC2KeyName": {
+      "Description": "The Key Pair to launch instances with",
+      "Type": "String"
+    },
+    "InstanceType": {
+      "Description": "The Key Pair to launch instances with",
+      "Type": "String",
+      "Default" : "m1.small",
+      "AllowedValues" : [ "t1.micro", "m1.small", "m1.medium", "m1.large" ]
+    },
+"ApplicationName": {
+      "Description": "The name of the Elastic Beanstalk Application",
+      "Type": "String",
+      "Default" : " amediamanager"
+    }
+  },
+
+  "Resources" : {
+    "Application" : {
+      "Type" : "AWS::ElasticBeanstalk::Application",
+      "Properties" : {
+        "Description" : { "Ref" : "ApplicationName" },
+        "ApplicationVersions" : [{
+          "VersionLabel" : "Initial Version",
+          "Description" : "Initial Version",
+          "SourceBundle" : {
+             "S3Bucket" :  { "Ref" : "WarBucket" },
+             "S3Key" : { "Ref" : "WarKey" }
+          }
+        }],
+        "ConfigurationTemplates" : [{
+          "TemplateName" : "DefaultConfiguration",
+          "Description" : "Default Configuration Version 1.0 - with SSH access",
+          "SolutionStackName" : "64bit Amazon Linux running Tomcat 7",
+          "OptionSettings" : [
+            {
+              "Namespace" : "aws:elasticbeanstalk:application:environment",
+              "OptionName" : "RDS_INSTANCEID",
+              "Value" : { "Ref": "Database" }
+            },
+            {
+              "Namespace" : "aws:elasticbeanstalk:application:environment",
+              "OptionName" : "RDS_DATABASE",
+              "Value" : { "Ref" : "ApplicationName" }
+            },
+            {
+              "Namespace" : "aws:elasticbeanstalk:application:environment",
+              "OptionName" : "RDS_USERNAME",
+              "Value" : { "Ref" : "DatabaseUser" }
+            },
+            {
+              "Namespace" : "aws:elasticbeanstalk:application:environment",
+              "OptionName" : "RDS_PASSWORD",
+              "Value" : { "Ref" : "DatabasePassword" }
+            },
+            {
+              "Namespace" : "aws:elasticbeanstalk:application:environment",
+              "OptionName" : "S3_UPLOAD_BUCKET",
+              "Value" : { "Ref" : "UserContentBucket" }
+            },
+            {
+              "Namespace" : "aws:elasticbeanstalk:application:environment",
+              "OptionName" : "DDB_USERS_TABLE",
+              "Value" : { "Ref" : "UsersTable" }
+            },
+            {
+              "Namespace" : "aws:autoscaling:launchconfiguration",
+              "OptionName" : "EC2KeyName",
+              "Value" : { "Ref" : "EC2KeyName" }
+            },
+            {
+              "Namespace" : "aws:autoscaling:launchconfiguration",
+              "OptionName" : "IamInstanceProfile",
+              "Value" : { "Ref" : "EbAppInstanceProfile" }
+            },
+            {
+              "Namespace" : "aws:autoscaling:launchconfiguration",
+              "OptionName" : "InstanceType",
+              "Value" : { "Ref" : "InstanceType" }
+            }
+          ]
+        }]
+      }
+    },
+
+    "Environment" : {
+      "Type" : "AWS::ElasticBeanstalk::Environment",
+      "Properties" : {
+        "ApplicationName" : { "Ref" : "Application" },
+         "Description" :  "Deployment Environment",
+         "TemplateName" : "DefaultConfiguration",
+         "VersionLabel" : "Initial Version"
+      }
+    },
+
+    "UserContentBucket": {
+      "Type": "AWS::S3::Bucket"
+    }, 
+    "UsersTable": {
+      "Type": "AWS::DynamoDB::Table", 
+      "Properties": {
+        "KeySchema": {
+          "HashKeyElement": {
+            "AttributeName": "EMail", 
+            "AttributeType": "S"
+          }
+        }, 
+        "ProvisionedThroughput": {
+          "WriteCapacityUnits": 1, 
+          "ReadCapacityUnits": 1
+        }
+      }
+    },
+
+    "DBSecurityGroup": {
+      "Type": "AWS::RDS::DBSecurityGroup",
+      "Properties": {
+        "DBSecurityGroupIngress": {
+          "EC2SecurityGroupName": "elasticbeanstalk-default"
+        },
+        "GroupDescription": "Database access"
+      }
+    },
+
+    "Database": {
+      "Type": "AWS::RDS::DBInstance",
+      "Properties": {
+        "Engine": "MySQL",
+        "DBName": { "Ref" : "ApplicationName" },
+        "MasterUsername": { "Ref": "DatabaseUser" },
+        "DBInstanceClass": "db.m1.small",
+        "DBSecurityGroups": [{ "Ref": "DBSecurityGroup" }],
+        "AllocatedStorage": "5",
+        "MasterUserPassword": { "Ref": "DatabasePassword" }
+      }
+    },
+
+    "AlarmTopic": {
+      "Type": "AWS::SNS::Topic"
+    },
+
+    "CPUAlarmHigh": {
+      "Type" : "AWS::CloudWatch::Alarm",
+      "Properties": {
+        "EvaluationPeriods": "10",
+        "Statistic": "Average",
+        "Threshold": "50",
+        "AlarmDescription": "Alarm if CPU too high or metric disappears indicating the RDS database instance is having issues",
+        "Period": "60",
+        "Namespace": "AWS/RDS",
+        "MetricName": "CPUUtilization",
+        "Dimensions": [ {
+            "Name": "DBInstanceIdentifier",
+            "Value": { "Ref": "Database" }
+        } ],
+        "ComparisonOperator": "GreaterThanThreshold",
+        "AlarmActions": [ { "Ref": "AlarmTopic" } ],
+        "InsufficientDataActions": [ { "Ref": "AlarmTopic" } ]
+      }
+    },
+    "EbAppRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": [
+                                    "ec2.amazonaws.com"
+                                ]
+                            },
+                            "Action": [
+                                "sts:AssumeRole"
+                            ]
+                        }
+                    ]
+                },
+                "Path": "/"
+            }
+        },
+        "RolePolicies": {
+            "Type": "AWS::IAM::Policy",
+            "Properties": {
+                "PolicyName": "EbApp",
+                "PolicyDocument": {
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Action": "*",
+                            "Resource": "*"
+                        }
+                    ]
+                },
+                "Roles": [
+                    {
+                        "Ref": "EbAppRole"
+                    }
+                ]
+            }
+        },
+        "EbAppInstanceProfile": {
+            "Type": "AWS::IAM::InstanceProfile",
+            "Properties": {
+                "Path": "/",
+                "Roles": [
+                    {
+                        "Ref": "EbAppRole"
+                    }
+                ]
+            }
+        }
+  },
+
+  "Outputs" : {
+    "URL" : {
+      "Description" : "URL of the AWS Elastic Beanstalk Environment",
+      "Value" : { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : [ "Environment", "EndpointURL" ] }]]}
+    }
+  }
+}

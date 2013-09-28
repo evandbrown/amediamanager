@@ -1,0 +1,18 @@
+[
+  {
+    "ParameterKey": "WarBucket",
+    "ParameterValue": "evbrown"
+  },
+  {
+    "ParameterKey": "WarKey",
+    "ParameterValue": "public/amediamanager.war"
+  },
+  {
+    "ParameterKey": "EC2KeyName",
+    "ParameterValue": "evbrown-amazon"
+  },
+  {
+    "ParameterKey": "InstanceType",
+    "ParameterValue": "m1.medium"
+  }
+]
