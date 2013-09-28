@@ -1,19 +1,13 @@
-
-<div class="span2" style="float:left;margin-left:25px">
+<div class="col-md-4">
 	<img
-		src="http://thetransformedmale.files.wordpress.com/2011/06/bruce-wayne-armani.jpg"
-		alt="" class="img-rounded" width="100px"></img>
+		th:src="${session.user.profilePicKey}"
+		alt="" class="img-rounded" width="75px"></img>
 </div>
-<div class="span4" style="float:right">
+<div class="col-md-6">
 	<blockquote>
-		<p>Bruce Wayne</p>
-		<small><cite title="Source Title">Gotham, United
-				Kingdom <i class="icon-map-marker"></i>
+		<p th:text="${session.user.nickname}">Nickname</p>
+		<small><cite title="Source Title" th:text="${session.user.tagline}">Motto<i
+				class="icon-map-marker"></i>
 		</cite></small>
 	</blockquote>
-	<p>
-		<i class="icon-envelope"></i> masterwayne@batman.com <br /> <i
-			class="icon-globe"></i> www.bootsnipp.com <br /> <i class="icon-gift"></i>
-		January 30, 1974
-	</p>
 </div>

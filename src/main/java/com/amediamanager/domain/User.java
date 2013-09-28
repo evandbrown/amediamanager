@@ -26,8 +26,8 @@ public class User {
 	private String id;
 	private String email;
 	private String password;
-	private String nickname;
-	private String tagline;
+	private String nickname = "Nickname"; // Default to empty string
+	private String tagline = "Carpe Diem!"; //  Default to empty string
 	private String profilePicKey;
 
 	public String getId() {

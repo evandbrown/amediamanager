@@ -14,6 +14,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
 
+import com.amediamanager.config.ConfigurationSettings;
 import com.amediamanager.domain.User;
 import com.amediamanager.dao.ConnectionManager;
 import com.amediamanager.dao.UserDao;
@@ -26,12 +27,20 @@ public class UserServiceImpl
 	@Autowired
 	private UserDao userDao;
 	
-	@Autowired private ConnectionManager connectionManager;
+	@Autowired
+	private ConnectionManager connectionManager;
+	
+	@Autowired
+	private ConfigurationSettings configurationSettings;
 	
 	@Override
 	public void save(User user) throws DataSourceTableDoesNotExistException, UserExistsException {
 		// MD5 password
 		user.setPassword(User.MD5HashPassword(user.getPassword()));
+		
+		// Default profile pic URL
+		user.setProfilePicKey("http://" + configurationSettings.getProperty(ConfigurationSettings.ConfigProps.S3_UPLOAD_BUCKET) + ".s3.amazonaws.com/" + configurationSettings.getProperty(ConfigurationSettings.ConfigProps.DEFAULT_PROFILE_PIC_KEY));
+		
 		userDao.save(user);
 	}
 
