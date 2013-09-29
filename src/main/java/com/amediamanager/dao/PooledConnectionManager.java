@@ -34,7 +34,8 @@ public class PooledConnectionManager implements ConnectionManager {
 	public void init() {
 		refreshDataSource();	
 		
-		new Thread(new Runnable() {
+		// Uncomment to auto-detect Read Replicas every 60 seconds.
+		/*new Thread(new Runnable() {
             public void run() {
                 while(true) {
         			try {
@@ -46,7 +47,7 @@ public class PooledConnectionManager implements ConnectionManager {
 					}
                 }
             }
-        }).start();	
+        }).start();	*/
 	}
 	
 	public Connection getConnection() throws SQLException {
@@ -101,6 +102,7 @@ public class PooledConnectionManager implements ConnectionManager {
 					basicDataSource.setDefaultReadOnly(false);
 					basicDataSource.setUsername(config.getProperty(ConfigurationSettings.ConfigProps.RDS_USERNAME));
 					basicDataSource.setPassword(config.getProperty(ConfigurationSettings.ConfigProps.RDS_PASSWORD));
+					basicDataSource.setMaxWait(10);
 					basicDataSource.setMaxActive(100);
 					basicDataSource.setMaxIdle(25);
 					basicDataSource.setInitialSize(10);
