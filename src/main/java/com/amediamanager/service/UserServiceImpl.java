@@ -36,7 +36,7 @@ public class UserServiceImpl
 	@Override
 	public void save(User user) throws DataSourceTableDoesNotExistException, UserExistsException {
 		// MD5 password
-		user.setPassword(User.MD5HashPassword(user.getPassword()));
+		user.setPassword(MD5HashPassword(user.getPassword()));
 		
 		// Default profile pic URL
 		user.setProfilePicKey("http://" + configurationSettings.getProperty(ConfigurationSettings.ConfigProps.S3_UPLOAD_BUCKET) + ".s3.amazonaws.com/" + configurationSettings.getProperty(ConfigurationSettings.ConfigProps.DEFAULT_PROFILE_PIC_KEY));
@@ -71,7 +71,7 @@ public class UserServiceImpl
 	    
 	    User user = find(username);	
 	    
-	    if(null == user || (! user.getPassword().equals(User.MD5HashPassword(password)))) {
+	    if(null == user || (! user.getPassword().equals(MD5HashPassword(password)))) {
 	    	throw new BadCredentialsException("Invalid username or password");
 	    }
 	    
@@ -80,6 +80,19 @@ public class UserServiceImpl
         return new UsernamePasswordAuthenticationToken(username, null, grantedAuths);
 	}
 
+	/**
+	 * Convert a plain-text password string to an MD5 hex string
+	 * 
+	 * @param plainTextPassword
+	 *            The plain-text password to be encoded as an MD5 hex string
+	 * 
+	 * @return MD5-encoded hex string of the provided password.
+	 */
+	public static String MD5HashPassword(String plainTextPassword) {
+		return org.apache.commons.codec.digest.DigestUtils
+				.md5Hex(plainTextPassword);
+	}
+	
 	@Override
 	public boolean supports(Class<?> arg0) {
 		return true;
