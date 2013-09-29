@@ -1,0 +1,1 @@
+aws cloudformation create-stack --stack-name amediamanager-dev-4 --template-body file://launch-app.json --parameters file://launch-params.json --capabilities CAPABILITY_IAM

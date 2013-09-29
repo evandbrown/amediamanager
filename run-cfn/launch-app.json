@@ -2,7 +2,7 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
 
-  "Description" : "AWS CloudFormation Sample Template ElasticBeanstalk_Simple: Configure and launch an AWS Elastic Beanstalk application that connects to an Amazon RDS database instance. Monitoring is setup on the database. **WARNING** This template creates one or more Amazon EC2 instances and an Amazon Relational Database Service database instance. You will be billed for the AWS resources used if you create a stack from this template.",
+  "Description" : "Launch the aMediaManager Java Web App on AWS Elastic Beanstalk.",
 
   "Parameters" : {
 
@@ -113,7 +113,12 @@
               "Namespace" : "aws:autoscaling:launchconfiguration",
               "OptionName" : "InstanceType",
               "Value" : { "Ref" : "InstanceType" }
-            }
+            },
+						{
+							"Namespace": "aws:autoscaling:launchconfiguration",
+							"OptionName": "SecurityGroups",
+							"Value": "elasticbeanstalk-default"
+						}
           ]
         }]
       }
@@ -252,6 +257,22 @@
     "URL" : {
       "Description" : "URL of the AWS Elastic Beanstalk Environment",
       "Value" : { "Fn::Join" : [ "", [ "http://", { "Fn::GetAtt" : [ "Environment", "EndpointURL" ] }]]}
-    }
+    },
+		"AppConfig" : {
+      "Description" : "The environment config provided via the DeafultConfiguration template. ",
+      "Value" : { 
+				"Fn::Join" : 
+					[ "", 
+						[ "RDS_INSTANCEID=", { "Ref": "Database" }, "\n",
+							"RDS_DATABASE=", { "Ref" : "ApplicationName" }, "\n",
+							"RDS_USERNAME=", { "Ref" : "DatabaseUser" }, "\n",
+							"RDS_PASSWORD=", { "Ref" : "DatabasePassword" }, "\n",
+							"S3_UPLOAD_BUCKET=", { "Ref" : "UserContentBucket" }, "\n",
+							"DDB_USERS_TABLE=", { "Ref" : "UsersTable" }, "\n"
+						]
+					]
+				}
+			}
+		}
   }
-}
+
