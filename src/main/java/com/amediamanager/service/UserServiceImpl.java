@@ -69,7 +69,7 @@ public class UserServiceImpl
 	    String username = String.valueOf(auth.getPrincipal());
 	    String password = String.valueOf(auth.getCredentials());
 	    
-	    User user = find(username);	
+	    User user = find(username);
 	    
 	    if(null == user || (! user.getPassword().equals(MD5HashPassword(password)))) {
 	    	throw new BadCredentialsException("Invalid username or password");

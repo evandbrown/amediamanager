@@ -15,14 +15,17 @@
 
 package com.amediamanager.domain;
 
+import java.io.Serializable;
+
 /**
  * DefaultUser is an implementation of the User interface. The password property
  * for this type of user should be MD5 hashed before setting the value. This
  * class provides a static method to perform the hash.
  */
 
-public class User {
-
+public class User implements Serializable {
+	private static final long serialVersionUID = -1210678236518532231L;
+	
 	private String id;
 	private String email;
 	private String password;
@@ -81,22 +84,5 @@ public class User {
 	public void setProfilePicKey(String profilePicKey) {
 		this.profilePicKey = profilePicKey;
 
-	}
-
-	private Boolean passwordMatches(String plainTextPassword) {
-		return MD5HashPassword(plainTextPassword).equals((this.getPassword()));
-	}
-
-	/**
-	 * Convert a plain-text password string to an MD5 hex string
-	 * 
-	 * @param plainTextPassword
-	 *            The plain-text password to be encoded as an MD5 hex string
-	 * 
-	 * @return MD5-encoded hex string of the provided password.
-	 */
-	public static String MD5HashPassword(String plainTextPassword) {
-		return org.apache.commons.codec.digest.DigestUtils
-				.md5Hex(plainTextPassword);
 	}
 }

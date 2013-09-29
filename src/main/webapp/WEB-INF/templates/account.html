@@ -1,13 +1,11 @@
 <div class="col-md-4">
 	<img
 		th:src="${session.user.profilePicKey}"
-		alt="" class="img-rounded" width="75px"></img>
+		alt="" class="img-rounded" width="100px"></img>
 </div>
-<div class="col-md-6">
+<div class="col-md-8">
 	<blockquote>
 		<p th:text="${session.user.nickname}">Nickname</p>
-		<small><cite title="Source Title" th:text="${session.user.tagline}">Motto<i
-				class="icon-map-marker"></i>
-		</cite></small>
+		<cite style="font-size:85%" title="Source Title" th:text="${session.user.tagline}">Motto</cite>
 	</blockquote>
 </div>
