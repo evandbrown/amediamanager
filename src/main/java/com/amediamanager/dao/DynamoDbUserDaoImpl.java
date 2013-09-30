@@ -240,6 +240,6 @@ public class DynamoDbUserDaoImpl implements UserDao {
 		awsClientService.getS3Client().putObject(putObject);
 		awsClientService.getS3Client().setObjectAcl(s3bucket, s3Key, CannedAccessControlList.PublicRead);
 		
-		return "http://s3.amazonaws.com/" + s3bucket + "/" + s3Key;
+		return "http://" + s3bucket + ".s3.amazonaws.com/" + s3Key;
     }
 }
