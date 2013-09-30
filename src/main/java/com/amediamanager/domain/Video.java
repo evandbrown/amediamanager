@@ -21,9 +21,7 @@ public class Video {
 	private String thumbnailKey;
 	private String previewKey;
 
-	public Video(String s3Key, String owner) {
-		this.s3Key = s3Key;
-		this.owner = owner;
+	public Video() {
 	}
 
 	public void setTitle(String title) {
