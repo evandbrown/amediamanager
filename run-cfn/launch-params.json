@@ -1,7 +1,7 @@
 [
   {
-    "ParameterKey": "WarBucket",
-    "ParameterValue": "evbrown"
+    "ParameterKey": "WarBucketPrefix",
+    "ParameterValue": "amm-"
   },
   {
     "ParameterKey": "WarKey",
