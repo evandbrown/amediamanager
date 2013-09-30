@@ -15,6 +15,7 @@ import com.amazonaws.services.rds.model.DescribeDBInstancesResult;
 import com.amazonaws.services.rds.model.Endpoint;
 
 import com.amediamanager.config.ConfigurationSettings;
+import com.amediamanager.service.AwsClientService;
 
 /**
  * @author evbrown
@@ -26,11 +27,14 @@ public class RdsDbEndpointRetriever implements DbEndpointRetriever {
 	@Autowired
 	private ConfigurationSettings config;
 	
+	@Autowired
+	private AwsClientService awsClientService;
+	
 	private AmazonRDSClient rds;
 	
 	@PostConstruct
 	public void init() {
-		rds = new AmazonRDSClient(config.getAWSCredentials());
+		rds = awsClientService.getAmazonRdsClient();
 	}
 
 	/* (non-Javadoc)
