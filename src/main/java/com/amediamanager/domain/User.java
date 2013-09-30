@@ -17,6 +17,8 @@ package com.amediamanager.domain;
 
 import java.io.Serializable;
 
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
+
 /**
  * DefaultUser is an implementation of the User interface. The password property
  * for this type of user should be MD5 hashed before setting the value. This
@@ -29,9 +31,10 @@ public class User implements Serializable {
 	private String id;
 	private String email;
 	private String password;
-	private String nickname = "Nickname"; // Default to empty string
-	private String tagline = "Carpe Diem!"; //  Default to empty string
+	private String nickname;
+	private String tagline;
 	private String profilePicKey;
+	private CommonsMultipartFile profilePicData;
 
 	public String getId() {
 		return this.id;
@@ -85,4 +88,14 @@ public class User implements Serializable {
 		this.profilePicKey = profilePicKey;
 
 	}
+	
+	public CommonsMultipartFile getprofilePicData()
+	  {
+	    return profilePicData;
+	  }
+	 
+	  public void setprofilePicData(CommonsMultipartFile profilePicData)
+	  {
+	    this.profilePicData = profilePicData;
+	  }
 }

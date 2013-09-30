@@ -39,13 +39,36 @@ public class UserServiceImpl
 		user.setPassword(MD5HashPassword(user.getPassword()));
 		
 		// Default profile pic URL
-		user.setProfilePicKey("http://" + configurationSettings.getProperty(ConfigurationSettings.ConfigProps.S3_UPLOAD_BUCKET) + ".s3.amazonaws.com/" + configurationSettings.getProperty(ConfigurationSettings.ConfigProps.DEFAULT_PROFILE_PIC_KEY));
+		user.setProfilePicKey(getDefaultProfilePicKey());
 		
 		userDao.save(user);
 	}
 
 	@Override
 	public void update(User user) {
+		// Make sure the user exists
+		User existing = this.find(user.getEmail());
+		
+		// If the user does not exist, throw an exception
+		if(null == existing) {
+			throw new UserDoesNotExistException();
+		}
+		
+		// Don't allow empty password
+		if(user.getPassword() == null || user.getPassword().isEmpty()) {
+			user.setPassword(existing.getPassword());
+		} else {
+			// Otherwise MD5 password
+			user.setPassword(MD5HashPassword(user.getPassword()));
+		}
+		
+		// Don't allow empty profile pic
+		if(user.getProfilePicKey() == null || user.getProfilePicKey() == "") {
+			user.setProfilePicKey(existing.getProfilePicKey());
+		}
+		
+		// Upload pic to S3 if it exists
+		
 		userDao.update(user);
 	}
 	
@@ -96,5 +119,13 @@ public class UserServiceImpl
 	@Override
 	public boolean supports(Class<?> arg0) {
 		return true;
+	}
+	
+	/**
+	 * Default placeholder image for profile pic
+	 * @return
+	 */
+	private String getDefaultProfilePicKey() {
+		return "http://" + configurationSettings.getProperty(ConfigurationSettings.ConfigProps.S3_UPLOAD_BUCKET) + ".s3.amazonaws.com/" + configurationSettings.getProperty(ConfigurationSettings.ConfigProps.DEFAULT_PROFILE_PIC_KEY);
 	}
 }

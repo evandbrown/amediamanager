@@ -3,6 +3,8 @@ package com.amediamanager.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -10,6 +12,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -43,5 +47,27 @@ public class UserController {
 		}
 	
 	return "redirect:/welcome";
+	}
+	
+	@RequestMapping(value="/user", method = RequestMethod.GET)
+	public String userGet(ModelMap model, HttpSession session) {
+		User user = (User)session.getAttribute("user");
+		model.addAttribute("user", user);
+		model.addAttribute("templateName", "user");
+		return "base";
+	}
+	
+	@RequestMapping(value="/user", method = RequestMethod.POST)
+	public String userPost(@ModelAttribute User user, BindingResult result, RedirectAttributes attr, HttpSession session) {
+		// Don't allow user name changes
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		user.setId(auth.getName());
+		user.setEmail(auth.getName());
+		
+		// Update user and re-set val in session
+		userService.update(user);
+		session.setAttribute("user", user);
+	
+		return "redirect:/user";
 	}
 }
