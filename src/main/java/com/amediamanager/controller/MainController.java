@@ -1,5 +1,7 @@
 package com.amediamanager.controller;
 
+import java.util.List;
+
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,13 +13,18 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.amediamanager.domain.Video;
 import com.amediamanager.exceptions.DataSourceTableDoesNotExistException;
 import com.amediamanager.service.UserService;
+import com.amediamanager.service.VideoService;
 
 @Controller
 public class MainController {
 	@Autowired
 	UserService userService;
+	
+	@Autowired
+	VideoService videoService;
 	
 	@RequestMapping(value={"/", "/home", "/welcome"}, method = RequestMethod.GET)
 	public String home(ModelMap model, HttpSession session) {
@@ -31,14 +38,13 @@ public class MainController {
 			if(session.getAttribute("user") == null) {
 			    session.setAttribute("user", userService.find(auth.getName()));
 			}
+			
+			// Get user's videos
+			List<Video> videos = videoService.findByUserEmail(auth.getName());
+			
+			model.addAttribute("videos", videos);
 			model.addAttribute("templateName", "home");
 		}
-		return "base";
-	}
-	
-	@RequestMapping(value="/videos", method = RequestMethod.GET)
-	public String videos(ModelMap model) {
-		model.addAttribute("templateName", "only_videos");
 		return "base";
 	}
 	
