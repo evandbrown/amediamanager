@@ -42,7 +42,7 @@ public class VideoServiceImpl implements VideoService {
 		v.setDescription("I took this video with my iPhone!");
 		v.setThumbnailKey("https://amm.s3.amazonaws.com/output/evbrown/web/eb-console-cap-00001.png");
 		v.setPrivacy(Privacy.Private);
-		v.setPreviewKey("");
+		v.setPreviewKey("https://amm.s3.amazonaws.com/output/evbrown/web/eb-console-cap.mp4");
 		v.setTitle("My cool video");
 		
 		List<Video> videos = new ArrayList<Video>();
