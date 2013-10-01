@@ -1,36 +1,49 @@
 <style>
-.thumbnail {
-	margin-right: 30px;
-	margin-bottom: 50px;
+.video-js {
+	margin-top: 10px;
+	margin-left: auto;
+	margin-right: auto;
+}
+.vjs-default-skin .vjs-big-play-button
+{
+top: 50%;
+left: 50%;
+margin: -4em auto auto -6em;
+background-color: 255,0,0,0;
 }
 </style>
 
-<div class="row" th:unless="${#lists.isEmpty(videos)}">
+<div class="row section-preview" th:unless="${#lists.isEmpty(videos)}">
 <div th:each="video : ${videos}">
-	<div class="col-md-4">
-		<div class="thumbnail" style="width:210px;margin-left: 0 auto; margin-right: 0 auto">
-			<img th:src="${video.thumbnailKey}" src="http://placehold.it/320x200"
-				th:alt="${video.title}"></img>
-			<div class="caption" style="text-align: center">
-				<h4 th:text="${video.title}">Video Title</h4>
-				<div class="btn-group btn-group-xs">
-					<div class="btn-group btn-group-xs">
-						<a type="button" class="btn btn-default dropdown-toggle"
-							data-toggle="dropdown">
-							<span class="glyphicon glyphicon-circle-arrow-down"></span>
-						</a>
-						<ul class="dropdown-menu" style="text-align: left">
-							<li><a href="#">Original</a></li>
-							<li><a href="#">Web</a></li>
-							<li><a href="#">IPhone</a></li>
-						</ul>
-					</div>
-					<a type="button" class="btn btn-default"><span class="glyphicon glyphicon-pencil"></span></a>
-					<a type="button" class="btn btn-default"><span class="glyphicon glyphicon-trash"></span></a>
-				</div>
-			</div>
-		</div>
-	</div>
+<div class="col-lg-4 col-sm-6">
+            <div class="preview">
+              
+                                <video id="example_video_1" class="video-js vjs-default-skin"
+  controls="true" preload="auto"
+  poster="https://amm.s3.amazonaws.com/output/evbrown/web/eb-console-cap-00001.png"
+  data-setup='{"example_option":true}'>
+ <source src="https://amm.s3.amazonaws.com/output/evbrown/web/eb-console-cap.mp4" type='video/mp4' />
+</video>
+
+              <div class="options">
+                <h3 th:text="${video.title}">Video title</h3>
+                <p th:text="${video.description}">Video description</p>
+                <div class="btn-group"><a class="btn btn-info" href="#"><span class="glyphicon glyphicon-pencil"></span></a></div>
+                <div class="btn-group">
+                  <a class="btn btn-info" target="_blank" href="#">Download</a>
+                  <a class="btn btn-info dropdown-toggle" data-toggle="dropdown" href="#">
+                    <span class="caret"></span>
+                  </a>
+                  <ul class="dropdown-menu">
+                    <li><a target="_blank" href="#">Original</a></li>
+                    <li><a target="_blank" href="#">Web</a></li>
+                    <li><a target="_blank" href="#">iPhone</a></li>
+                  </ul>
+                </div>
+                <div class="btn-group"><a class="btn btn-info" href="#"><span class="glyphicon glyphicon-trash"></span></a></div>
+              </div>
+            </div>
+          </div>
 	</div>
 </div>
 <div class="row">
