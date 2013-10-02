@@ -1,0 +1,128 @@
+/*
+ * Copyright 2011 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"). You may not 
+ * use this file except in compliance with the License. A copy of the License 
+ * is located at
+ * 
+ *      http://aws.amazon.com/apache2.0/
+ * 
+ * or in the "LICENSE" file accompanying this file. This file is distributed 
+ * on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either 
+ * express or implied. See the License for the specific language governing 
+ * permissions and limitations under the License.
+ */
+
+package com.amediamanager.util;
+
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import org.apache.commons.codec.binary.Base64;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
+import com.amazonaws.auth.AWSCredentials;
+import com.amediamanager.config.ConfigurationSettings;
+
+/**
+ * The AWSS3Signer class is a helper class create to assist with the generation of pre-signed URLs
+ * for S3 upload forms.  The AmazonS3Client.generatePresignedUrl method cannot be used in this case
+ * because it does not have an option for signing S3 policies, which are required for form-based upload.
+ * More on the S3 form upload approach can be read here: 
+ * http://docs.amazonwebservices.com/AmazonS3/latest/dev/index.html?UsingHTTPPOST.html
+ * 
+ */
+@Component
+public class AWSS3Signer {
+
+	@Autowired
+	ConfigurationSettings config;
+	
+	/**
+	 * The SignRequest method takes a set of AWS credentials and the S3 upload policy string and returns the encoded policy and the signature.
+	 * 
+	 * @param creds		the AWS credentials to be used for signing the request
+	 * @param policy	the policy file to applied to the upload
+	 * @return			an array of strings containing the base 64 encoded policy (index 0) and the signature (index 1).
+	 */
+	public static String[] signRequest(AWSCredentials creds, String policy) {
+		
+		String[] policyAndSignature = new String[2];
+		
+		try{
+			// Create a Base64 encoded version of the policy string for placement in the form and 
+			// for use in signature generation.  Returns are stripped out from the policy string.
+			String encodedPolicy = new String(Base64.encodeBase64(
+					policy.replaceAll("\n","").replaceAll("\r","")
+					.getBytes("UTF-8")));
+
+			// AWS signatures are generated using SHA1 HMAC signing. 
+			Mac hmac = Mac.getInstance("HmacSHA1");
+
+			// Generate the signature using the Secret Key from the AWS credentials
+			hmac.init(new SecretKeySpec(creds.getAWSSecretKey().getBytes("UTF-8"), "HmacSHA1"));
+			
+			String signature = new String(Base64.encodeBase64(
+					hmac.doFinal(encodedPolicy.getBytes("UTF-8"))));
+
+			// Pack the encoded policy and the signature into a string array
+			policyAndSignature[0] = encodedPolicy;
+			policyAndSignature[1] = signature;
+			
+		} catch (UnsupportedEncodingException e) {
+			System.err.print("Unsupport encoding: " + e.getMessage());
+		} catch (NoSuchAlgorithmException e) {
+			System.err.print("No such algorithm: " + e.getMessage());
+		} catch (InvalidKeyException e) {
+			System.err.print("Invalid key: " + e.getMessage());
+		} 
+		
+		return policyAndSignature;
+	}
+
+	/**
+	 * The UploadPolicy method creates the S3 upload policy for the aMediaManager application.
+	 * Much of this is hard coded and would have to change with any changes to the fields in the S3
+	 * upload form.
+	 * 
+	 * @param key			this is not currently used.
+	 * @param redirectUrl	this is the URL to which S3 will redirect the browser on successful upload.
+	 * @return				the upload policy string is returned.
+	 */
+	public String generateUploadPolicy(String key, String redirectUrl) {
+		
+		Calendar dateTime = Calendar.getInstance();
+		// add the offset from UTC
+		dateTime.add(Calendar.MILLISECOND, -dateTime.getTimeZone().getOffset(dateTime.getTimeInMillis()));
+		// add 15 minutes more for skew
+		dateTime.add(Calendar.MINUTE, 15);
+		SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+		
+		String expirationDate = dateFormatter.format(dateTime.getTime());
+		
+		//System.err.print(expirationDate);
+		
+		StringBuilder sb = new StringBuilder();
+		sb.append("{ \"expiration\": \"" + expirationDate + "\",");
+		sb.append("\"conditions\": [ { \"bucket\": \"" + config.getProperty(ConfigurationSettings.ConfigProps.S3_UPLOAD_BUCKET)  + "\" }, ");
+		sb.append("[\"starts-with\", \"$key\", \"" + config.getProperty(ConfigurationSettings.ConfigProps.S3_UPLOAD_PREFIX) + "/\"], ");
+		sb.append("{ \"success_action_redirect\": \"" + redirectUrl + "\" },");
+		sb.append("[\"starts-with\", \"$x-amz-meta-owner\", \"\"], ");
+		sb.append("[\"starts-with\", \"$x-amz-meta-title\", \"\"], ");
+		sb.append("[\"starts-with\", \"$x-amz-meta-tags\", \"\"], ");
+		sb.append("[\"starts-with\", \"$x-amz-meta-description\", \"\"], ");
+		sb.append("[\"starts-with\", \"$Content-Type\", \"video/\"], ");
+		sb.append("[\"starts-with\", \"$x-amz-meta-create-date\", \"\"], ");
+		sb.append("[\"starts-with\", \"$x-amz-meta-privacy\", \"\"], ");
+		sb.append("[\"content-length-range\", 0, 1073741824] ] }");
+		return sb.toString();
+	}
+
+
+}
