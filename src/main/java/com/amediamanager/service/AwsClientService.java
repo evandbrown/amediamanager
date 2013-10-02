@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
+import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.rds.AmazonRDSClient;
@@ -22,6 +23,7 @@ public class AwsClientService {
 	private AmazonDynamoDBClient dynamoDbClient;
 	private AmazonS3Client s3Client;
 	private AmazonRDSClient amazonRdsClient;
+	private AmazonCloudWatchClient cloudWatchClient;
 	private Region region;
 	
 	@PostConstruct
@@ -39,6 +41,10 @@ public class AwsClientService {
 		// RDS
 		amazonRdsClient = new AmazonRDSClient();
 		amazonRdsClient.setRegion(region);
+		
+		// CloudWatch
+		cloudWatchClient = new AmazonCloudWatchClient();
+		cloudWatchClient.setRegion(region);
 	}
 
 	public AmazonDynamoDBClient getDynamoDbClient() {
@@ -64,7 +70,15 @@ public class AwsClientService {
 	public void setAmazonRdsClient(AmazonRDSClient amazonRdsClient) {
 		this.amazonRdsClient = amazonRdsClient;
 	}
-
+	
+	public AmazonCloudWatchClient getCloudWatchClient() {
+		return cloudWatchClient;
+	}
+	
+	public void setCloudWatchClient(AmazonCloudWatchClient client) {
+		this.cloudWatchClient = client;
+	}
+	
 	public Region getRegion() {
 		return region;
 	}
