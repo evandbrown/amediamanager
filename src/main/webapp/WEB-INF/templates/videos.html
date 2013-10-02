@@ -4,46 +4,56 @@
 	margin-left: auto;
 	margin-right: auto;
 }
-.vjs-default-skin .vjs-big-play-button
-{
-top: 50%;
-left: 50%;
-margin: -4em auto auto -6em;
-background-color: 255,0,0,0;
+
+.vjs-default-skin .vjs-big-play-button {
+	top: 50%;
+	left: 50%;
+	margin: -4em auto auto -6em;
+	background-color: rgba(255, 0, 0, 0);
 }
 </style>
 
 <div class="row section-preview" th:unless="${#lists.isEmpty(videos)}">
-<div th:each="video : ${videos}">
-<div class="col-lg-4 col-sm-6">
-            <div class="preview">
-              
-                                <video id="example_video_1" class="video-js vjs-default-skin"
-  controls="true" preload="auto"
-  poster="https://amm.s3.amazonaws.com/output/evbrown/web/eb-console-cap-00001.png"
-  data-setup='{"example_option":true}'>
- <source src="https://amm.s3.amazonaws.com/output/evbrown/web/eb-console-cap.mp4" type='video/mp4' />
-</video>
-
-              <div class="options">
-                <h3 th:text="${video.title}">Video title</h3>
-                <p th:text="${video.description}">Video description</p>
-                <div class="btn-group"><a class="btn btn-info" href="#"><span class="glyphicon glyphicon-pencil"></span></a></div>
-                <div class="btn-group">
-                  <a class="btn btn-info" target="_blank" href="#">Download</a>
-                  <a class="btn btn-info dropdown-toggle" data-toggle="dropdown" href="#">
-                    <span class="caret"></span>
-                  </a>
-                  <ul class="dropdown-menu">
-                    <li><a target="_blank" href="#">Original</a></li>
-                    <li><a target="_blank" href="#">Web</a></li>
-                    <li><a target="_blank" href="#">iPhone</a></li>
-                  </ul>
-                </div>
-                <div class="btn-group"><a class="btn btn-info" href="#"><span class="glyphicon glyphicon-trash"></span></a></div>
-              </div>
-            </div>
-          </div>
+<div id="legend">
+						<legend>Your Videos</legend>
+					</div>
+	<div th:each="video,iterStat : ${videos}">
+		<div class="col-lg-4 col-sm-6">
+			<div class="preview">
+				<span>
+					
+					<video th:id="'example_video_' + ${iterStat.count}" class="video-js vjs-default-skin"
+						controls="true" preload="auto"
+						th:poster="${video.thumbnailKey}"
+						data-setup='{"example_option":true}'>
+						<source th:src="${video.previewKey}" type='video/mp4' />
+					</video>
+				</span>
+				<div class="options">
+					<h3 th:text="${video.title}">Video title</h3>
+					<p th:text="${video.description}">Video description</p>
+					<div class="btn-group">
+						<a class="btn btn-info" href="#"><span
+							class="glyphicon glyphicon-pencil"></span></a>
+					</div>
+					<div class="btn-group">
+						<a class="btn btn-info" target="_blank" href="#">Download</a> <a
+							class="btn btn-info dropdown-toggle" data-toggle="dropdown"
+							href="#"> <span class="caret"></span>
+						</a>
+						<ul class="dropdown-menu">
+							<li><a target="_blank" href="#">Original</a></li>
+							<li><a target="_blank" href="#">Web</a></li>
+							<li><a target="_blank" href="#">iPhone</a></li>
+						</ul>
+					</div>
+					<div class="btn-group">
+						<a class="btn btn-info" href="#"><span
+							class="glyphicon glyphicon-trash"></span></a>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 </div>
 <div class="row">

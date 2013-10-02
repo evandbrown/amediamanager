@@ -43,7 +43,7 @@ public class MainController {
 			List<Video> videos = videoService.findByUserEmail(auth.getName());
 			
 			model.addAttribute("videos", videos);
-			model.addAttribute("templateName", "home");
+			model.addAttribute("templateName", "only_videos");
 		}
 		return "base";
 	}
