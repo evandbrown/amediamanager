@@ -33,7 +33,7 @@
 					<h3 th:text="${video.title}">Video title</h3>
 					<p th:text="${video.description}">Video description</p>
 					<div class="btn-group">
-						<a class="btn btn-info" href="#"><span
+						<a class="btn btn-info" href="#" th:href="@{/video/} + ${video.s3Key}"><span
 							class="glyphicon glyphicon-pencil"></span></a>
 					</div>
 					<div class="btn-group">

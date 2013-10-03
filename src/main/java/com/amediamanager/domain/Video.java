@@ -1,23 +1,20 @@
 package com.amediamanager.domain;
 
 import java.util.Date;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
 public class Video {
 
-	public enum Privacy {
-		Public, Private, Shared
-	};
-	
-	private String s3Key;
 	private String owner;
-	private Date uploadedDate;
+	private String s3Key;
 	private String title;
-	private Privacy privacy = Privacy.Private;;
 	private String description;
+	private Date uploadedDate;
 	private Date createdDate;
-	private String tags;
+	private Privacy privacy = Privacy.PRIVATE;
+	private TagSet<String> tags;
 	private String thumbnailKey;
 	private String previewKey;
 
@@ -32,8 +29,8 @@ public class Video {
 		this.description = StringUtils.stripToNull(description);
 	}
 
-	public void setTags(String tags) {
-		this.tags = StringUtils.stripToNull(tags);
+	public void setTags(TagSet<String> tags) {
+		this.tags = tags;
 	}
 	
 	public void setCreatedDate(Date createdDate) {
@@ -42,6 +39,14 @@ public class Video {
 
 	protected void setUploadedDate(Date uploadedDate) {
 		this.uploadedDate = uploadedDate;		
+	}
+
+	public void setS3Key(String s3Key) {
+		this.s3Key = s3Key;
+	}
+
+	public void setOwner(String owner) {
+		this.owner = owner;
 	}
 	
 	public String getKey() {
@@ -68,7 +73,7 @@ public class Video {
 		return description;
 	}
 
-	public String getTags() {
+	public TagSet<String> getTags() {
 		return tags;
 	}
 
@@ -94,6 +99,10 @@ public class Video {
 
 	public void setPrivacy(Privacy privacy) {
 		this.privacy = privacy;
+	}
+	
+	public String getS3Key() {
+		return s3Key;
 	}
 
 }

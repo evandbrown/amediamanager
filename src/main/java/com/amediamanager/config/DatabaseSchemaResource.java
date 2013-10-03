@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.amediamanager.dao.ConnectionManager;
+import com.amediamanager.domain.Privacy;
 import com.amediamanager.domain.Video;
 
 @Component
@@ -120,7 +121,7 @@ public class DatabaseSchemaResource implements ProvisionableResource {
 			+ COLUMN_NAME_KEY + " VARCHAR(255) NOT NULL, "
 			+ COLUMN_NAME_OWNER + " VARCHAR(255) NOT NULL, " 
 			+ COLUMN_NAME_UPLOADED_DATE + " TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, "
-			+ COLUMN_NAME_PRIVACY + " VARCHAR(8) NOT NULL DEFAULT '" + Video.Privacy.Private.name() + "', "
+			+ COLUMN_NAME_PRIVACY + " VARCHAR(8) NOT NULL DEFAULT '" + Privacy.PRIVATE.name() + "', "
 			+ COLUMN_NAME_TITLE + " VARCHAR(255), "
 			+ COLUMN_NAME_DESCRIPTION + " VARCHAR(255), "
 			+ COLUMN_NAME_TAGS + " VARCHAR(255), "
