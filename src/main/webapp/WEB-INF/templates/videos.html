@@ -13,46 +13,71 @@
 }
 </style>
 
-<div class="row section-preview" th:unless="${#lists.isEmpty(videos)}">
-<div id="legend">
-						<legend>Your Videos</legend>
-					</div>
-	<div th:each="video,iterStat : ${videos}">
-		<div class="col-lg-4 col-sm-6">
-			<div class="preview">
-				<span>
-					
-					<video th:id="'example_video_' + ${iterStat.count}" class="video-js vjs-default-skin"
-						controls="true" preload="auto"
-						th:poster="${video.thumbnailKey}"
-						data-setup='{"example_option":true}'>
-						<source th:src="${video.previewKey}" type='video/mp4' />
-					</video>
-				</span>
-				<div class="options">
-					<h3 th:text="${video.title}">Video title</h3>
-					<p th:text="${video.description}">Video description</p>
-					<div class="btn-group">
-						<a class="btn btn-info" href="#" th:href="@{/video/} + ${video.s3Key}"><span
-							class="glyphicon glyphicon-pencil"></span></a>
-					</div>
-					<div class="btn-group">
-						<a class="btn btn-info" target="_blank" href="#">Download</a> <a
-							class="btn btn-info dropdown-toggle" data-toggle="dropdown"
-							href="#"> <span class="caret"></span>
-						</a>
-						<ul class="dropdown-menu">
-							<li><a target="_blank" href="#">Original</a></li>
-							<li><a target="_blank" href="#">Web</a></li>
-							<li><a target="_blank" href="#">iPhone</a></li>
-						</ul>
-					</div>
-					<div class="btn-group">
-						<a class="btn btn-info" href="#"><span
-							class="glyphicon glyphicon-trash"></span></a>
+<div class="row">
+	<div class="col-md-9 section-preview"
+		th:unless="${#lists.isEmpty(videos)}">
+		<div id="legend">
+			<legend>Your Videos</legend>
+		</div>
+		<div th:each="video,iterStat : ${videos}">
+			<div class="col-md-6">
+				<div class="preview">
+					<span> <video th:id="'example_video_' + ${iterStat.count}"
+							class="video-js vjs-default-skin" controls="true" preload="auto"
+							th:poster="${video.thumbnailKey}"
+							data-setup='{"example_option":true}'>
+							<source th:src="${video.previewKey}" type='video/mp4' />
+						</video>
+					</span>
+					<div class="options">
+						<h3 th:text="${video.title}">Video title</h3>
+						<p th:text="${video.description}">Video description</p>
+						<div class="btn-group">
+							<a class="btn btn-info" href="#"
+								th:href="@{/video/} + ${video.s3Key}"><span
+								class="glyphicon glyphicon-pencil"></span></a>
+						</div>
+						<div class="btn-group">
+							<a class="btn btn-info" target="_blank" href="#"><span
+								class="glyphicon glyphicon-cloud-download"></span></a> <a
+								class="btn btn-info dropdown-toggle" data-toggle="dropdown"
+								href="#"> <span class="caret"></span>
+							</a>
+							<ul class="dropdown-menu">
+								<li><a target="_blank" href="#">Original</a></li>
+								<li><a target="_blank" href="#">Web</a></li>
+								<li><a target="_blank" href="#">iPhone</a></li>
+							</ul>
+						</div>
+						<div class="btn-group">
+							<a class="btn btn-info" href="#"><span
+								class="glyphicon glyphicon-trash"></span></a>
+						</div>
 					</div>
 				</div>
 			</div>
+		</div>
+	</div>
+	<div class="col-md-3">
+		<div id="empty">
+			<legend>Upload New Video</legend>
+		</div>
+		<button type="button" class="btn btn-success btn-lg btn-block">
+			<span class="glyphicon glyphicon-cloud-upload"></span>
+		</button>
+		<br />
+		<div id="legend">
+			<legend>Tags</legend>
+			<ul class="nav nav-pills">
+				<li><a href="#">vacation<span class="badge">42</span></a></li>
+				<li><a href="#">monkeys<span class="badge">15</span></a></li>
+				<li><a href="#">yolo<span class="badge">21</span></a></li>
+				<li><a href="#">futurama<span class="badge">5</span></a></li>
+				<li><a href="#">cylons<span class="badge">75</span></a></li>
+				<li><a href="#">bacon<span class="badge">12</span></a></li>
+				<li><a href="#">cats<span class="badge">13</span></a></li>
+				<li><a href="#">goesallthewayto<span class="badge">11</span></a></li>
+			</ul>
 		</div>
 	</div>
 </div>

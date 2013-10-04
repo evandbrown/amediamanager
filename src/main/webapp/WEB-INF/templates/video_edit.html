@@ -11,8 +11,11 @@
 				th:action="@{/video/} + ${video.s3Key}"
 				enctype="multipart/form-data">
 				<div id="legend">
-					<legend>Edit Video</legend>
+					<legend th:text="${video.title}">Edit Video</legend>
 				</div>
+				<img th:src="${video.thumbnailKey}" alt=""
+					class="img-rounded img-responsive"></img>
+					<hr/>
 				<div class="form-group">
 					<label for="title">Title</label>
 					<div class="input-group">
@@ -41,9 +44,10 @@
 					</div>
 				</div>
 				<div>
-					<label for="privacy">Privacy</label>
-					<select class="form-control" th:field="*{privacy}">
-						<option th:each="privacyLevel : ${allPrivacy}" th:value="${privacyLevel}" th:text="${privacyLevel}">PRIVATE</option>
+					<label for="privacy">Privacy</label> <select class="form-control"
+						th:field="*{privacy}">
+						<option th:each="privacyLevel : ${allPrivacy}"
+							th:value="${privacyLevel}" th:text="${privacyLevel}">PRIVATE</option>
 					</select>
 				</div>
 				<div class="form-group">
