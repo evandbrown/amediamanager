@@ -15,21 +15,27 @@
 
 package com.amediamanager.config;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.UnknownHostException;
 import java.util.Enumeration;
 import java.util.Properties;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.amazonaws.auth.*;
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.AWSCredentialsProvider;
 
 /**
  * The ConfigurationSettings class is a singleton class that retrieves the settings from the 
  * aMediaManager.properties file or from the EC2 Metadata URL or Elastic Beanstalk Environment Metadata.
  */
 @Component
+@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class ConfigurationSettings {
 	
 	/** Constants **/
@@ -52,64 +58,61 @@ public class ConfigurationSettings {
 	
 	/** Where config vals came frome **/
 	public static enum ConfigSource {
-		FROM_FILE,
-		FROM_WAR
+		FROM_FILE {
+			@Override
+			public InputStream getResourceStream(String file) {
+				try {
+					return new FileInputStream(file);
+				} catch (FileNotFoundException e) {
+					throw new IllegalArgumentException("Could not open properties file: " + file, e);
+				}
+			}
+		},
+		FROM_WAR {
+			@Override
+			public InputStream getResourceStream(String file) {
+				return getClass().getResourceAsStream(file);
+			}
+		};
+
+		public abstract InputStream getResourceStream(String file);
+
+		public static ConfigSource determineConfigSource(String configFileToLoad) {
+			return DEFAULT_CONFIG_FILE_PATH.equals(configFileToLoad) ? FROM_WAR :FROM_FILE;
+		}
 	}
 	
-	private ConfigSource configSource;
+	private final AWSCredentialsProvider credsProvider;
+	private final ConfigSource configSource;
+	private final Properties props;
 	
-	/** Provider for AWS credentials (Access Key and Secret Key) **/
-	private AWSCredentialsProvider credsProvider = new AWSCredentialsProviderChain(
-			new SystemPropertiesCredentialsProvider(),
-			new InstanceProfileCredentialsProvider()
-			);
-	
-	private Properties props = null;
-	
-	/**
-	 * Private constructor that is called by getInstance if the singleton does not exist.
-	 */
-	private ConfigurationSettings() {
-		
-		// Get any system properties
-		Properties sysProps = System.getProperties();
+	@Autowired
+	public ConfigurationSettings(final AWSCredentialsProvider credsProvider) throws IOException {
+		this.credsProvider = credsProvider;
 		
 		// Prepare to get other properties from a file
-		Properties fileProps = new Properties();
+		final Properties fileProps = new Properties();
 		
-        try {
-        	// Determine path of properties file to load
-        	String configFileToLoad = this.getAppConfigFilePath();
-        	
-        	// If a aMediaManager.properties file is present then use those properties
-        	InputStream resourceFile = null;
-        	
-        	// If we're loading the default configuration, it must be retrieved as a resource
-        	// from the classloader. Otherwise, load from a standard file
-        	if(configFileToLoad.equals(DEFAULT_CONFIG_FILE_PATH)) {
-        		resourceFile = this.getClass().getResourceAsStream(configFileToLoad);
-        		this.configSource = ConfigSource.FROM_WAR;
-        	} else {
-        		resourceFile = new java.io.FileInputStream(configFileToLoad);
-        		this.configSource = ConfigSource.FROM_FILE;
-        	}
-        	
-        	fileProps = new Properties();
-        	fileProps.load(resourceFile);
-			resourceFile.close();
-        } catch(NullPointerException e) {
-        	System.err.println("Error loading configuration file: " + this.getAppConfigFilePath() + ". Confirm that this file exists.");
-        } catch(UnknownHostException e) {
-        	System.err.println(e.getMessage());
-        } catch (IOException e) {
-			System.err.println(e.getMessage());
-		}
+    	// Determine path of properties file to load
+    	final String configFileToLoad = getAppConfigFilePath();
+    	
+    	configSource = ConfigSource.determineConfigSource(configFileToLoad);
+    	final InputStream resourceStream = configSource.getResourceStream(configFileToLoad);
+    	try {
+    		fileProps.load(resourceStream);
+    	} finally {
+    		try {
+    			resourceStream.close();
+    		} catch (IOException e) {
+    			// don't care
+    		}
+    	}
         
         // Merge the properties, with system properties taking precedence. This will allow file-based
         // config to be overridden with system props.
         Properties merged = new Properties();
         merged.putAll(fileProps);
-        merged.putAll(sysProps);
+        merged.putAll(System.getProperties());
         
         props = new Properties();
         
@@ -120,7 +123,7 @@ public class ConfigurationSettings {
         	}
         }
         
-        System.out.println("Effective app config (loaded from " + this.getAppConfigFilePath() + "):");
+        System.out.println("Effective app config (loaded from " + configFileToLoad + "):");
         props.list(System.out);
         System.out.println("---------------------");
         System.out.println("Effective AWS credential config:");
@@ -207,6 +210,7 @@ public class ConfigurationSettings {
 	 * This method returns aMediaManager configuration settings as a string of key-value pairs.
 	 * @return	aMediaManager configuration parameters from running environment.
 	 */
+	@Override
 	public String toString() {
 		return getPropertiesAsString(this.props);
 	}

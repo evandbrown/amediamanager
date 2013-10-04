@@ -13,22 +13,21 @@ import org.springframework.stereotype.Repository;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 import com.amazonaws.AmazonServiceException;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.GetItemRequest;
 import com.amazonaws.services.dynamodbv2.model.GetItemResult;
 import com.amazonaws.services.dynamodbv2.model.PutItemRequest;
 import com.amazonaws.services.dynamodbv2.model.ResourceNotFoundException;
-import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-
 import com.amediamanager.config.ConfigurationSettings;
 import com.amediamanager.config.ConfigurationSettings.ConfigProps;
 import com.amediamanager.domain.User;
-import com.amediamanager.exceptions.*;
-import com.amediamanager.service.AwsClientService;
+import com.amediamanager.exceptions.DataSourceTableDoesNotExistException;
+import com.amediamanager.exceptions.UserExistsException;
 
 @Repository
 public class DynamoDbUserDaoImpl implements UserDao {
@@ -37,7 +36,10 @@ public class DynamoDbUserDaoImpl implements UserDao {
 	private ConfigurationSettings config;
 	
 	@Autowired
-	private AwsClientService awsClientService;
+	private AmazonDynamoDB dynamoClient;
+	
+	@Autowired
+	private AmazonS3 s3Client;
 
 	/** DynamoDB config **/
 	public static final String HASH_KEY_NAME = "EMail";
@@ -74,7 +76,7 @@ public class DynamoDbUserDaoImpl implements UserDao {
 												.withItem(userItem);
 			
 			// Save user
-			awsClientService.getDynamoDbClient().putItem(putItemRequest);
+			dynamoClient.putItem(putItemRequest);
 		} catch (ResourceNotFoundException rnfe) {
 			throw new DataSourceTableDoesNotExistException(config.getProperty(ConfigurationSettings.ConfigProps.DDB_USERS_TABLE));
 		} catch (AmazonServiceException ase) {
@@ -105,7 +107,7 @@ public class DynamoDbUserDaoImpl implements UserDao {
 												.withTableName(config.getProperty(ConfigurationSettings.ConfigProps.DDB_USERS_TABLE));
 			
 			// Save user
-			awsClientService.getDynamoDbClient().putItem(putItemRequest);
+			dynamoClient.putItem(putItemRequest);
 		} catch (ResourceNotFoundException rnfe) {
 			throw new DataSourceTableDoesNotExistException(config.getProperty(ConfigurationSettings.ConfigProps.DDB_USERS_TABLE));
 		} catch (AmazonServiceException ase) {
@@ -127,7 +129,7 @@ public class DynamoDbUserDaoImpl implements UserDao {
 					.addKeyEntry(HASH_KEY_NAME, new AttributeValue(email));
 
 			// Issue the request to find the User in DynamoDB
-			GetItemResult getItemResult = awsClientService.getDynamoDbClient().getItem(getItemRequest);
+			GetItemResult getItemResult = dynamoClient.getItem(getItemRequest);
 
 			// If an item was found
 			if (getItemResult.getItem() != null) {
@@ -237,8 +239,8 @@ public class DynamoDbUserDaoImpl implements UserDao {
 		PutObjectRequest putObject = new PutObjectRequest(s3bucket, s3Key, profilePic.getInputStream(), metadata);
 		
 		// Put the image into S3
-		awsClientService.getS3Client().putObject(putObject);
-		awsClientService.getS3Client().setObjectAcl(s3bucket, s3Key, CannedAccessControlList.PublicRead);
+		s3Client.putObject(putObject);
+		s3Client.setObjectAcl(s3bucket, s3Key, CannedAccessControlList.PublicRead);
 		
 		return "http://" + s3bucket + ".s3.amazonaws.com/" + s3Key;
     }
