@@ -28,6 +28,8 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
 import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.BasicSessionCredentials;
 import com.amediamanager.config.ConfigurationSettings;
 
 /**
@@ -38,11 +40,7 @@ import com.amediamanager.config.ConfigurationSettings;
  * http://docs.amazonwebservices.com/AmazonS3/latest/dev/index.html?UsingHTTPPOST.html
  * 
  */
-@Component
-public class AWSS3Signer {
-
-	@Autowired
-	ConfigurationSettings config;
+public abstract class S3FormSigner {
 	
 	/**
 	 * The SignRequest method takes a set of AWS credentials and the S3 upload policy string and returns the encoded policy and the signature.
@@ -51,7 +49,7 @@ public class AWSS3Signer {
 	 * @param policy	the policy file to applied to the upload
 	 * @return			an array of strings containing the base 64 encoded policy (index 0) and the signature (index 1).
 	 */
-	public static String[] signRequest(AWSCredentials creds, String policy) {
+	 String[] signRequest(AWSCredentialsProvider credsProvider, String policy) {
 		
 		String[] policyAndSignature = new String[2];
 		
@@ -66,7 +64,7 @@ public class AWSS3Signer {
 			Mac hmac = Mac.getInstance("HmacSHA1");
 
 			// Generate the signature using the Secret Key from the AWS credentials
-			hmac.init(new SecretKeySpec(creds.getAWSSecretKey().getBytes("UTF-8"), "HmacSHA1"));
+			hmac.init(new SecretKeySpec(credsProvider.getCredentials().getAWSSecretKey().getBytes("UTF-8"), "HmacSHA1"));
 			
 			String signature = new String(Base64.encodeBase64(
 					hmac.doFinal(encodedPolicy.getBytes("UTF-8"))));
@@ -95,7 +93,7 @@ public class AWSS3Signer {
 	 * @param redirectUrl	this is the URL to which S3 will redirect the browser on successful upload.
 	 * @return				the upload policy string is returned.
 	 */
-	public String generateUploadPolicy(String key, String redirectUrl) {
+     String generateUploadPolicy(String s3BucketName, String keyPrefix, AWSCredentialsProvider credsProvider, String redirectUrl) {
 		
 		Calendar dateTime = Calendar.getInstance();
 		// add the offset from UTC
@@ -106,20 +104,24 @@ public class AWSS3Signer {
 		
 		String expirationDate = dateFormatter.format(dateTime.getTime());
 		
-		//System.err.print(expirationDate);
 		
 		StringBuilder sb = new StringBuilder();
 		sb.append("{ \"expiration\": \"" + expirationDate + "\",");
-		sb.append("\"conditions\": [ { \"bucket\": \"" + config.getProperty(ConfigurationSettings.ConfigProps.S3_UPLOAD_BUCKET)  + "\" }, ");
-		sb.append("[\"starts-with\", \"$key\", \"" + config.getProperty(ConfigurationSettings.ConfigProps.S3_UPLOAD_PREFIX) + "/\"], ");
+		sb.append("\"conditions\": [ { \"bucket\": \"" + s3BucketName  + "\" }, ");
+		sb.append("[\"starts-with\", \"$key\", \"" + keyPrefix + "/\"], ");
 		sb.append("{ \"success_action_redirect\": \"" + redirectUrl + "\" },");
 		sb.append("[\"starts-with\", \"$x-amz-meta-owner\", \"\"], ");
 		sb.append("[\"starts-with\", \"$x-amz-meta-title\", \"\"], ");
 		sb.append("[\"starts-with\", \"$x-amz-meta-tags\", \"\"], ");
+		sb.append("[\"starts-with\", \"$x-amz-meta-createdDate\", \"\"], ");
 		sb.append("[\"starts-with\", \"$x-amz-meta-description\", \"\"], ");
-		sb.append("[\"starts-with\", \"$Content-Type\", \"video/\"], ");
-		sb.append("[\"starts-with\", \"$x-amz-meta-create-date\", \"\"], ");
 		sb.append("[\"starts-with\", \"$x-amz-meta-privacy\", \"\"], ");
+		sb.append("[\"starts-with\", \"$Content-Type\", \"video/\"], ");
+		
+		if(credsProvider.getCredentials() instanceof BasicSessionCredentials) {
+			sb.append("[\"starts-with\", \"$x-amz-security-token\", \"\"], ");
+		}
+		
 		sb.append("[\"content-length-range\", 0, 1073741824] ] }");
 		return sb.toString();
 	}

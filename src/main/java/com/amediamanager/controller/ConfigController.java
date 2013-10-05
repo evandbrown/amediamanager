@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.context.WebApplicationContext;
 
+import com.amazonaws.auth.BasicSessionCredentials;
 import com.amediamanager.config.*;
 
 @Controller
@@ -26,8 +27,13 @@ public class ConfigController {
 		model.addAttribute("templateName", "config");
 		model.addAttribute("configLoadedFrom", config.getReadableConfigSource());
 		model.addAttribute("appConfig", config.toString());
-		model.addAttribute("accessKey", config.getAWSCredentials().getAWSAccessKeyId());
+		model.addAttribute("accessKey", config.getAWSCredentialsProvider().getCredentials().getAWSAccessKeyId());
 		model.addAttribute("secretKey", config.getObfuscatedSecretKey());
+		model.addAttribute("isToken", config.getAWSCredentialsProvider().getCredentials() instanceof BasicSessionCredentials);
+		
+		if(config.getAWSCredentialsProvider().getCredentials() instanceof BasicSessionCredentials) {
+			model.addAttribute("sessionToken", ((BasicSessionCredentials)config.getAWSCredentialsProvider().getCredentials()).getSessionToken());
+		}
 
 		Map<String, ProvisionableResource> provisionableResources = context.getBeansOfType(ProvisionableResource.class);
 		
