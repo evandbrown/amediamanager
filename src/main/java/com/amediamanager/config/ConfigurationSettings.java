@@ -131,7 +131,7 @@ public class ConfigurationSettings {
         props.list(System.out);
         System.out.println("---------------------");
         System.out.println("Effective AWS credential config:");
-        System.out.println("Access Key=" + this.getAWSCredentials().getAWSAccessKeyId());
+        System.out.println("Access Key=" + this.getAWSCredentialsProvider().getCredentials().getAWSAccessKeyId());
         System.out.println("Secret Key=" + this.getObfuscatedSecretKey());
 		
 	}
@@ -174,12 +174,12 @@ public class ConfigurationSettings {
 	 * This method returns the AWS credentials object.
 	 * @return	AWS credentials taken from the properties and user-data.
 	 */
-	public AWSCredentials getAWSCredentials() {
-		return credsProvider.getCredentials();
+	public AWSCredentialsProvider getAWSCredentialsProvider() {
+		return credsProvider;
 	}
 	
 	public String getObfuscatedSecretKey() {
-		return this.getAWSCredentials().getAWSSecretKey().substring(0, 4) + "******************" + this.getAWSCredentials().getAWSSecretKey().substring(this.getAWSCredentials().getAWSSecretKey().length()-4, this.getAWSCredentials().getAWSSecretKey().length()-1);
+		return this.getAWSCredentialsProvider().getCredentials().getAWSSecretKey().substring(0, 4) + "******************" + this.getAWSCredentialsProvider().getCredentials().getAWSSecretKey().substring(this.getAWSCredentialsProvider().getCredentials().getAWSSecretKey().length()-4, this.getAWSCredentialsProvider().getCredentials().getAWSSecretKey().length()-1);
 	}
 	
 	/**
