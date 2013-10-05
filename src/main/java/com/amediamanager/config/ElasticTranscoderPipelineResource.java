@@ -6,8 +6,6 @@ import org.springframework.stereotype.Component;
 @Component
 @Scope("prototype")
 public class ElasticTranscoderPipelineResource implements ProvisionableResource {
-
-	private static final String name = "Elastic Transcoder Pipeline";
 	
 	@Override
 	public ProvisionState getState() {
@@ -16,7 +14,7 @@ public class ElasticTranscoderPipelineResource implements ProvisionableResource 
 
 	@Override
 	public String getName() {
-		return ElasticTranscoderPipelineResource.name;
+		return "Elastic Transcoder Pipeline";
 	}
 
 	@Override
