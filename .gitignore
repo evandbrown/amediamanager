@@ -38,3 +38,6 @@ local.properties
 
 target/
 *.properties
+
+# pycharm
+.idea

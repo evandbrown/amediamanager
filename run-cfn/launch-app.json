@@ -84,27 +84,27 @@
           "OptionSettings" : [
             {
               "Namespace" : "aws:elasticbeanstalk:application:environment",
-              "OptionName" : "RDS_INSTANCEID",
+              "OptionName" : "AMM_RDS_INSTANCEID",
               "Value" : { "Ref": "Database" }
             },
             {
               "Namespace" : "aws:elasticbeanstalk:application:environment",
-              "OptionName" : "RDS_DATABASE",
+              "OptionName" : "AMM_RDS_DATABASE",
               "Value" : { "Ref" : "ApplicationName" }
             },
             {
               "Namespace" : "aws:elasticbeanstalk:application:environment",
-              "OptionName" : "RDS_USERNAME",
+              "OptionName" : "AMM_RDS_USERNAME",
               "Value" : { "Ref" : "DatabaseUser" }
             },
             {
               "Namespace" : "aws:elasticbeanstalk:application:environment",
-              "OptionName" : "RDS_PASSWORD",
+              "OptionName" : "AMM_RDS_PASSWORD",
               "Value" : { "Ref" : "DatabasePassword" }
             },
             {
               "Namespace" : "aws:elasticbeanstalk:application:environment",
-              "OptionName" : "S3_UPLOAD_BUCKET",
+              "OptionName" : "AMM_S3_UPLOAD_BUCKET",
               "Value" : { "Ref" : "UserContentBucket" }
             },
             {
@@ -126,6 +126,26 @@
               "Namespace" : "aws:elasticbeanstalk:application:environment",
               "OptionName" : "DDB_USERS_TABLE",
               "Value" : { "Ref" : "UsersTable" }
+            },
+            {
+              "Namespace" : "aws:elasticbeanstalk:application:environment",
+              "OptionName" : "AMM_AWS_REGION",
+              "Value" : { "Ref" : "AWS::Region" }
+            },
+            {
+              "Namespace" : "aws:elasticbeanstalk:application:environment",
+              "OptionName" : "AMM_S3_UPLOAD_PREFIX",
+              "Value" : "uploads"
+            },
+            {
+              "Namespace" : "aws:elasticbeanstalk:application:environment",
+              "OptionName" : "AMM_S3_PROFILE_PIC_PREFIX",
+              "Value" : "profile"
+            },
+            {
+              "Namespace" : "aws:elasticbeanstalk:application:environment",
+              "OptionName" : "AMM_DEFAULT_PROFILE_PIC_KEY",
+              "Value" : "static/img/default_profile_pic.png"
             },
             {
               "Namespace" : "aws:autoscaling:launchconfiguration",
