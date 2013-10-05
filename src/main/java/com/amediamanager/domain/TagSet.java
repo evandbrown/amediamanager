@@ -1,5 +1,7 @@
 package com.amediamanager.domain;
 
+import java.util.HashSet;
+
 public class TagSet<E> extends java.util.HashSet<E> {
 	@Override
 	public String toString() {

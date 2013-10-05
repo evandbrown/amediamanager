@@ -8,8 +8,10 @@ import java.util.Set;
 
 import javax.print.attribute.standard.DateTimeAtCompleted;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.amediamanager.dao.VideoDao;
 import com.amediamanager.domain.TagSet;
 import com.amediamanager.domain.Video;
 import com.amediamanager.domain.Privacy;
@@ -18,10 +20,12 @@ import com.amediamanager.exceptions.DataSourceTableDoesNotExistException;
 @Service
 public class VideoServiceImpl implements VideoService {
 
+	@Autowired
+	VideoDao videoDao;
+	
 	@Override
-	public void save(Video user) throws DataSourceTableDoesNotExistException {
-		// TODO Auto-generated method stub
-
+	public void save(Video video) throws DataSourceTableDoesNotExistException {
+		videoDao.save(video);
 	}
 
 	@Override

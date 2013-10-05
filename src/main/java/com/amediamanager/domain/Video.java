@@ -1,6 +1,7 @@
 package com.amediamanager.domain;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -33,11 +34,20 @@ public class Video {
 		this.tags = tags;
 	}
 	
+	public void setTags(HashSet<String> tags) {
+		if(this.tags == null) {
+			this.tags = new TagSet<String>();
+		}
+		for(String tag : tags) {
+			this.tags.add(tag.replaceAll("\\s+",""));
+		}
+	}
+	
 	public void setCreatedDate(Date createdDate) {
 		this.createdDate = createdDate;		
 	}
 
-	protected void setUploadedDate(Date uploadedDate) {
+	public void setUploadedDate(Date uploadedDate) {
 		this.uploadedDate = uploadedDate;		
 	}
 
