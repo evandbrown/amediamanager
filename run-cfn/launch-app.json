@@ -44,7 +44,7 @@
       "Default" : "m1.small",
       "AllowedValues" : [ "t1.micro", "m1.small", "m1.medium", "m1.large" ]
     },
-"ApplicationName": {
+	"ApplicationName": {
       "Description": "The name of the Elastic Beanstalk Application",
       "Type": "String",
       "Default" : " amediamanager"
@@ -106,6 +106,21 @@
               "Namespace" : "aws:elasticbeanstalk:application:environment",
               "OptionName" : "S3_UPLOAD_BUCKET",
               "Value" : { "Ref" : "UserContentBucket" }
+            },
+            {
+              "Namespace" : "aws:elasticbeanstalk:application:environment",
+              "OptionName" : "AMM_TRANSCODE_TOPIC",
+              "Value" : { "Ref" : "TranscodeTopic" }
+            },
+            {
+              "Namespace" : "aws:elasticbeanstalk:application:environment",
+              "OptionName" : "AMM_TRANSCODE_QUEUE",
+              "Value" : { "Ref" : "TranscodeQueue" }
+            },
+            {
+              "Namespace" : "aws:elasticbeanstalk:application:environment",
+              "OptionName" : "AMM_TRANSCODE_ROLE",
+              "Value" : { "Fn::GetAtt" : [ "TranscodeRole", "Arn" ] }
             },
             {
               "Namespace" : "aws:elasticbeanstalk:application:environment",
@@ -187,10 +202,106 @@
         "AllocatedStorage": "5",
         "MasterUserPassword": { "Ref": "DatabasePassword" }
       }
-    },
+    },  
 
     "AlarmTopic": {
       "Type": "AWS::SNS::Topic"
+    },
+    
+    "TranscodeQueue" : {
+    	"Type" : "AWS::SQS::Queue"
+    },
+    
+    "TranscodeTopic": {
+      "Type": "AWS::SNS::Topic",
+      "Properties" : {
+      	"Subscription" : [ {
+      		"Endpoint" : { "Fn::GetAtt" : [ "TranscodeQueue", "Arn" ] },
+      		"Protocol" : "sqs" } ]
+      }
+    },
+    
+    "TranscodeTopic2QueuePolicy" : {
+      "Type" : "AWS::SQS::QueuePolicy",
+      "Properties" : {       
+        "Queues" : [ { "Ref" : "TranscodeQueue" } ],
+        "PolicyDocument":  {
+          "Version": "2008-10-17",
+          "Id": "PublicationPolicy",
+          "Statement" : [
+            {
+              "Sid": "Allow-SNS-SendMessage",
+              "Effect": "Allow",          
+              "Principal" : {
+                "AWS": "*"
+              },
+              "Action": ["sqs:SendMessage"],
+              "Resource": { "Fn::GetAtt" : [ "TranscodeQueue", "Arn" ] },
+              "Condition" : {
+                "ArnEquals" : {
+                  "aws:SourceArn": { "Ref" : "TranscodeTopic" }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    
+    "TranscodeRole" : {
+    	"Type" : "AWS::IAM::Role",
+      	"Properties" : {
+      		"AssumeRolePolicyDocument" : {
+				"Version": "2008-10-17",
+		  		"Statement": [{
+		        	"Sid": "1",
+		      		"Effect": "Allow",
+		      		"Principal": {
+		        		"Service": "elastictranscoder.amazonaws.com"
+		      		},
+		      		"Action": "sts:AssumeRole"
+		    	}]
+			},
+      		"Path" : "/",
+      		"Policies" : [
+                { 
+                  "PolicyName" : "TranscodePolicy",
+                  "PolicyDocument" : {
+		                "Version":"2012-10-17",
+		                "Statement":[
+		                    {
+		                        "Sid":"1",
+		                        "Effect":"Allow",
+		                        "Action":[
+		                            "s3:Get*",
+		                            "s3:ListBucket",
+		                            "s3:Put*",
+		                            "s3:*MultipartUpload*"
+		                        ],
+		                        "Resource": { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "UserContentBucket" }, "/*"]] }
+		                    },
+		                    {
+		                        "Sid":"2",
+		                        "Effect":"Allow",
+		                        "Action":"sns:Publish",
+		                        "Resource":{ "Ref" : "TranscodeTopic" }
+		                    },
+		                    {
+		                        "Sid":"3",
+		                        "Effect":"Deny",
+		                        "Action":[
+		                            "sns:*Permission*",
+		                            "sns:*Delete*",
+		                            "sns:*Remove*",
+		                            "s3:*Policy*",
+		                            "s3:*Delete*"
+		                        ],
+		                        "Resource":"*"
+		                    }
+		                ]
+		            } 
+                }]      		
+      	}
     },
 
     "CPUAlarmHigh": {
