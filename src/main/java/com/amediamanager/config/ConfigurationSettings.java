@@ -53,7 +53,11 @@ public class ConfigurationSettings {
 		RDS_PASSWORD,
 		RDS_INSTANCEID,
 		DDB_USERS_TABLE,
-		AWS_REGION
+		AWS_REGION,
+		// TODO: remove AMM_ prefix when orndorff is done
+		AMM_TRANSCODE_TOPIC,
+		AMM_TRANSCODE_QUEUE,
+		AMM_TRANSCODE_ROLE
 	}
 	
 	/** Where config vals came frome **/
