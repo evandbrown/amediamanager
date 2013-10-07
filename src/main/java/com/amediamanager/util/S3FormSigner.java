@@ -111,6 +111,7 @@ public abstract class S3FormSigner {
 		sb.append("[\"starts-with\", \"$key\", \"" + keyPrefix + "/\"], ");
 		sb.append("{ \"success_action_redirect\": \"" + redirectUrl + "\" },");
 		sb.append("[\"starts-with\", \"$x-amz-meta-owner\", \"\"], ");
+		sb.append("[\"starts-with\", \"$x-amz-meta-uuid\", \"\"], ");
 		sb.append("[\"starts-with\", \"$x-amz-meta-title\", \"\"], ");
 		sb.append("[\"starts-with\", \"$x-amz-meta-tags\", \"\"], ");
 		sb.append("[\"starts-with\", \"$x-amz-meta-createdDate\", \"\"], ");

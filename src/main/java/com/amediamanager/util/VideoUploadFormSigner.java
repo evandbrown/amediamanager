@@ -18,6 +18,7 @@ public class VideoUploadFormSigner extends S3FormSigner {
 	private String successActionRedirect;
 	private String encodedPolicy;
 	private String signature;
+	private String uuid;
 	private User user;
 	private AWSCredentialsProvider credsProvider;
 	
@@ -28,12 +29,13 @@ public class VideoUploadFormSigner extends S3FormSigner {
 		this.successActionRedirect = successActionRedirect;
 		this.user = user;
 		this.credsProvider = credsProvider;
+		this.uuid =  UUID.randomUUID().toString();
 		
 		String policy = super.generateUploadPolicy(s3Bucket, keyPrefix, credsProvider, successActionRedirect);
 		String[] policyAndSig = super.signRequest(credsProvider, policy);
 		
 		// Create object key
-		generateVideoObjectKey();
+		generateVideoObjectKey(this.uuid);
 		
 		// Create policy
 		this.encodedPolicy = policyAndSig[0];
@@ -43,8 +45,8 @@ public class VideoUploadFormSigner extends S3FormSigner {
 	/**
 	 * Generate a unique object key for this upload
 	 */
-	private void generateVideoObjectKey() {
-		this.objectKey = this.keyPrefix + "/original/" + user.getId() + "/" + UUID.randomUUID().toString();
+	private void generateVideoObjectKey(String uuid) {
+		this.objectKey = this.keyPrefix + "/original/" + user.getId() + "/" + uuid;
 	}
 	public AWSCredentialsProvider getCredsProvider() {
 		return credsProvider;
@@ -87,6 +89,12 @@ public class VideoUploadFormSigner extends S3FormSigner {
 	}
 	public void setSignature(String signature) {
 		this.signature = signature;
+	}
+	public String getUuid() {
+		return uuid;
+	}
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
 	}
 
 }

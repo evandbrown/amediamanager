@@ -8,8 +8,11 @@ import java.util.Set;
 
 import javax.print.attribute.standard.DateTimeAtCompleted;
 
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.amediamanager.dao.VideoDao;
 import com.amediamanager.domain.TagSet;

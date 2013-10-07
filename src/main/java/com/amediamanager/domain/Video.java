@@ -4,10 +4,23 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.JoinColumn;
+
 import org.apache.commons.lang.StringUtils;
 
+
+
+@Entity
+@Table(name="videos")
 public class Video {
 
+	private String id;
 	private String owner;
 	private String s3Key;
 	private String title;
@@ -15,13 +28,75 @@ public class Video {
 	private Date uploadedDate;
 	private Date createdDate;
 	private Privacy privacy = Privacy.PRIVATE;
-	private TagSet<String> tags;
+	private Set<String> tag;
 	private String thumbnailKey;
 	private String previewKey;
 
 	public Video() {
 	}
 
+	@Column
+	@Id
+	public String getId() {
+		return id;
+	}
+	
+	@Column
+	public String getS3Key() {
+		return s3Key;
+	}
+
+	@Column
+	public String getOwner() {
+		return owner;
+	}
+
+	@Column
+	public Date getUploadedDate() {
+		return uploadedDate;
+	}
+
+	@Column
+	public Privacy getPrivacy() {
+		return privacy;
+	}
+
+	@Column
+	public String getTitle() {
+		return title;
+	}
+
+	@Column
+	public String getDescription() {
+		return description;
+	}
+
+	@Column
+	@ElementCollection
+	@CollectionTable(name="tags", joinColumns=@JoinColumn(name="videoId"))
+	public Set<String> getTag() {
+		return tag;
+	}
+
+	@Column
+	public Date getCreatedDate() {
+		return createdDate;
+	}
+	
+	@Column
+	public String getPreviewKey() {
+		return previewKey;
+	}
+	
+	@Column
+	public String getThumbnailKey() {
+		return thumbnailKey;
+	}
+	
+	public void setS3Key(String s3Key) {
+		this.s3Key = s3Key;
+	}
+	
 	public void setTitle(String title) {
 		this.title = StringUtils.stripToNull(title);
 	}
@@ -30,16 +105,16 @@ public class Video {
 		this.description = StringUtils.stripToNull(description);
 	}
 
-	public void setTags(TagSet<String> tags) {
-		this.tags = tags;
+	public void setTag(Set<String> tag) {
+		this.tag = tag;
 	}
 	
 	public void setTags(HashSet<String> tags) {
-		if(this.tags == null) {
-			this.tags = new TagSet<String>();
+		if(this.tag == null) {
+			this.tag = new TagSet<String>();
 		}
 		for(String tag : tags) {
-			this.tags.add(tag.replaceAll("\\s+",""));
+			this.tag.add(tag.replaceAll("\\s+",""));
 		}
 	}
 	
@@ -51,68 +126,23 @@ public class Video {
 		this.uploadedDate = uploadedDate;		
 	}
 
-	public void setS3Key(String s3Key) {
-		this.s3Key = s3Key;
-	}
-
 	public void setOwner(String owner) {
 		this.owner = owner;
 	}
 	
-	public String getKey() {
-		return s3Key;
-	}
-
-	public String getOwner() {
-		return owner;
-	}
-
-	public Date getUploadedDate() {
-		return uploadedDate;
-	}
-
-	public Privacy getPrivacy() {
-		return privacy;
-	}
-
-	public String getTitle() {
-		return title;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public TagSet<String> getTags() {
-		return tags;
-	}
-
-	public Date getCreatedDate() {
-		return createdDate;
-	}
-
 	public void setThumbnailKey(String thumbnailKey) {
 		this.thumbnailKey = thumbnailKey; 		
-	}
-	
-	public String getThumbnailKey() {
-		return thumbnailKey;
 	}
 	
 	public void setPreviewKey(String previewKey) {
 		this.previewKey = previewKey; 		
 	}
 	
-	public String getPreviewKey() {
-		return previewKey;
+	public void setId(String id) {
+		this.id = id;
 	}
 
 	public void setPrivacy(Privacy privacy) {
 		this.privacy = privacy;
 	}
-	
-	public String getS3Key() {
-		return s3Key;
-	}
-
 }

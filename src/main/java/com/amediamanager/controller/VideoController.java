@@ -135,6 +135,7 @@ public class VideoController {
 		
 		video.setDescription(userMetadata.get("description"));
 		video.setOwner(userMetadata.get("owner"));
+		video.setId(userMetadata.get("uuid"));
 		video.setTitle(userMetadata.get("title"));
 		video.setPrivacy(Privacy.fromName(userMetadata.get("privacy")));
 		video.setTags(new HashSet<String>(Arrays.asList(userMetadata.get("tags").split(","))));

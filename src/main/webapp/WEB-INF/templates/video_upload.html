@@ -29,9 +29,10 @@
 				<input type="hidden" name="policy" th:value="*{encodedPolicy}" />
 
 				<!-- The policy signed with the Secret Key (prevents tampering)-->
-				<input type="hidden" name="signature" th:value="*{signature}" /> <input
-					type="hidden" name="x-amz-meta-owner"
-					th:value="${session.user.email}" />
+				<input type="hidden" name="signature" th:value="*{signature}" />
+				
+				<input type="hidden" name="x-amz-meta-owner" th:value="${session.user.email}" />
+				<input type="hidden" name="x-amz-meta-uuid" th:value="*{uuid}" />
 				<div id="legend">
 					<legend>Upload Video</legend>
 				</div>

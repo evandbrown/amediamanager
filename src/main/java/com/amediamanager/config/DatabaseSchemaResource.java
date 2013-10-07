@@ -29,7 +29,7 @@ public class DatabaseSchemaResource implements ProvisionableResource {
 	@PostConstruct
 	public void init() {
 		try {
-			if(this.doesDataSourceExist(TABLE_NAME)) {
+			if(this.doesDataSourceExist(VIDEO_TABLE_NAME) && this.doesDataSourceExist(TAGS_TABLE_NAME)) {
 				provisionState = ProvisionableResource.ProvisionState.PROVISIONED;
 			} else {
 				provisionState = ProvisionableResource.ProvisionState.UNPROVISIONED;
@@ -51,7 +51,8 @@ public class DatabaseSchemaResource implements ProvisionableResource {
 	
 	@Override
 	public void provision() {
-		this.provisionDataSource(DROP_TABLE, CREATE_TABLE);
+		this.provisionDataSource(VIDEO_DROP_TABLE, VIDEO_CREATE_TABLE);
+		this.provisionDataSource(TAGS_DROP_TABLE, TAGS_CREATE_TABLE);
 	}
 	
 	private Boolean doesDataSourceExist(final String tableName) throws Exception {
@@ -103,33 +104,49 @@ public class DatabaseSchemaResource implements ProvisionableResource {
 		}
 	}
 	
-	/** Table name **/
-	public static final String TABLE_NAME = "videos";
+	/** Video table stuff**/
+	public static final String TAGS_TABLE_NAME = "tags";
+
+	private static final String TAGS_CREATE_TABLE = "create table tags (" + 
+			"tag varchar(255) NOT NULL," +
+			"videoId varchar(255) NOT NULL" +
+		") ENGINE = InnoDB DEFAULT CHARACTER SET = utf8";
+	
+	public static final String TAGS_DROP_TABLE = "DROP TABLE IF EXISTS " + TAGS_TABLE_NAME;
+	
+	
+	
+	/** Video table stuff**/
+	public static final String VIDEO_TABLE_NAME = "videos";
 
 	/** Column names **/
-	private static final String COLUMN_NAME_KEY = "s3key";
-	private static final String COLUMN_NAME_OWNER = "owner";
-	private static final String COLUMN_NAME_UPLOADED_DATE = "uploaded";
-	private static final String COLUMN_NAME_PRIVACY = "privacy";
-	private static final String COLUMN_NAME_TITLE = "title";
-	private static final String COLUMN_NAME_DESCRIPTION = "description";
-	private static final String COLUMN_NAME_TAGS = "tags";
-	private static final String COLUMN_NAME_THUMBNAIL_KEY = "thumbnail";
-	private static final String COLUMN_NAME_CREATED_DATE = "created";
+	private static final String VIDEO_COLUMN_NAME_ID = "id";
+	private static final String VIDEO_COLUMN_NAME_KEY = "s3key";
+	private static final String VIDEO_COLUMN_NAME_OWNER = "owner";
+	private static final String VIDEO_COLUMN_NAME_UPLOADED_DATE = "uploadedDate";
+	private static final String VIDEO_COLUMN_NAME_PRIVACY = "privacy";
+	private static final String VIDEO_COLUMN_NAME_TITLE = "title";
+	private static final String VIDEO_COLUMN_NAME_DESCRIPTION = "description";
+	private static final String VIDEO_COLUMN_NAME_THUMBNAIL_KEY = "thumbnailKey";
+	private static final String VIDEO_COLUMN_NAME_CREATED_DATE = "createdDate";
+	private static final String VIDEO_COLUMN_NAME_PREVIEW_KEY = "previewKey";
 	
-	private static final String CREATE_TABLE = "CREATE TABLE " + TABLE_NAME + "(" 
-			+ COLUMN_NAME_KEY + " VARCHAR(255) NOT NULL, "
-			+ COLUMN_NAME_OWNER + " VARCHAR(255) NOT NULL, " 
-			+ COLUMN_NAME_UPLOADED_DATE + " TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, "
-			+ COLUMN_NAME_PRIVACY + " VARCHAR(8) NOT NULL DEFAULT '" + Privacy.PRIVATE.name() + "', "
-			+ COLUMN_NAME_TITLE + " VARCHAR(255), "
-			+ COLUMN_NAME_DESCRIPTION + " VARCHAR(255), "
-			+ COLUMN_NAME_TAGS + " VARCHAR(255), "
-			+ COLUMN_NAME_THUMBNAIL_KEY + " VARCHAR(255), "
-			+ COLUMN_NAME_CREATED_DATE + " DATE, "
-			+ "UNIQUE ("+ COLUMN_NAME_KEY + ") "
+	private static final String VIDEO_CREATE_TABLE = "CREATE TABLE " + VIDEO_TABLE_NAME + "(" 
+			+ VIDEO_COLUMN_NAME_ID + " VARCHAR(255) NOT NULL PRIMARY KEY, "
+			+ VIDEO_COLUMN_NAME_KEY + " VARCHAR(255) NOT NULL, "
+			+ VIDEO_COLUMN_NAME_OWNER + " VARCHAR(255) NOT NULL, " 
+			+ VIDEO_COLUMN_NAME_UPLOADED_DATE + " TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, "
+			+ VIDEO_COLUMN_NAME_PRIVACY + " VARCHAR(8) NOT NULL DEFAULT '" + Privacy.PRIVATE.name() + "', "
+			+ VIDEO_COLUMN_NAME_TITLE + " VARCHAR(255), "
+			+ VIDEO_COLUMN_NAME_DESCRIPTION + " VARCHAR(255), "
+			+ VIDEO_COLUMN_NAME_THUMBNAIL_KEY + " VARCHAR(255), "
+			+ VIDEO_COLUMN_NAME_PREVIEW_KEY + " VARCHAR(255), "
+			+ VIDEO_COLUMN_NAME_CREATED_DATE + " DATE, "
+			+ "UNIQUE ("+ VIDEO_COLUMN_NAME_KEY + ") "
 			+ ") ENGINE = InnoDB DEFAULT CHARACTER SET = utf8";
 	
-	public static final String DROP_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
+	public static final String VIDEO_DROP_TABLE = "DROP TABLE IF EXISTS " + VIDEO_TABLE_NAME;
 
+	private static final String[] tables = {VIDEO_TABLE_NAME, TAGS_TABLE_NAME};
+	
 }
