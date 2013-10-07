@@ -8,8 +8,14 @@
 	<div class="col-md-6">
 		<div class="well">
 			<form role="form" method="post" th:object="${video}"
-				th:action="@{/video/} + ${video.s3Key}"
+				th:action="@{/video/edit/} + ${video.id}"
 				enctype="multipart/form-data">
+				<input type="hidden" th:field="*{id}"/>
+				<input type="hidden" th:field="*{owner}"/>
+				<input type="hidden" th:field="*{s3Key}"/>
+				<input type="hidden" th:field="*{thumbnailKey}"/>
+				<input type="hidden" th:field="*{previewKey}"/>
+				<input type="hidden" th:field="*{uploadedDate}"/>
 				<div id="legend">
 					<legend th:text="${video.title}">Edit Video</legend>
 				</div>

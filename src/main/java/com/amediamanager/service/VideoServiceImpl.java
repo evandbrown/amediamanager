@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.print.attribute.standard.DateTimeAtCompleted;
 
@@ -32,9 +33,9 @@ public class VideoServiceImpl implements VideoService {
 	}
 
 	@Override
-	public void update(Video user) throws DataSourceTableDoesNotExistException {
+	public void update(Video video) throws DataSourceTableDoesNotExistException {
 		// TODO Auto-generated method stub
-
+		videoDao.update(video);
 	}
 
 	@Override
@@ -45,16 +46,18 @@ public class VideoServiceImpl implements VideoService {
 	}
 
 	@Override
-	public List<Video> findByUserEmail(String email)
-			throws DataSourceTableDoesNotExistException {
-		Video v = new Video();
+	public List findByUserId(String email) {
+		return videoDao.findByUserId(email);
+		/*Video v = new Video();
 		v.setCreatedDate(new Date());
+		v.setUploadedDate(new Date());
 		v.setDescription("I took this video with my iPhone!");
 		v.setThumbnailKey("https://amm.s3.amazonaws.com/output/evbrown/web/eb-console-cap-00001.png");
 		v.setPrivacy(Privacy.SHARED);
 		v.setPreviewKey("https://amm.s3.amazonaws.com/output/evbrown/web/eb-console-cap.mp4");
 		v.setS3Key("output/evbrown/web/eb-console-cap.mp4");
 		v.setTitle("My cool video");
+		v.setId(UUID.randomUUID().toString());
 		
 		TagSet<String> tags = new TagSet<String>();
 		tags.add("vacation");
@@ -70,7 +73,7 @@ public class VideoServiceImpl implements VideoService {
 		videos.add(v);
 		videos.add(v);
 		
-		return videos;
+		return videos;*/
 	}
 
 	@Override

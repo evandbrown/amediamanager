@@ -11,6 +11,12 @@ import org.springframework.stereotype.Component;
 import com.amazonaws.services.rds.model.Endpoint;
 import com.amediamanager.config.ConfigurationSettings;
 
+/**
+ * This custom DriverManagerDataSource retrieves DB connection information from
+ * the ConfigurationSettings class. Most im
+ * @author evbrown
+ *
+ */
 @Component
 public class RdsDriverManagerDataSource extends DriverManagerDataSource {
 

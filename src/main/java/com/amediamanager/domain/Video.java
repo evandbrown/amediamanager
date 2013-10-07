@@ -1,4 +1,4 @@
-package com.amediamanager.domain;
+	package com.amediamanager.domain;
 
 import java.util.Date;
 import java.util.HashSet;
@@ -8,7 +8,11 @@ import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.JoinColumn;
 
@@ -57,6 +61,7 @@ public class Video {
 	}
 
 	@Column
+	@Enumerated(EnumType.STRING)
 	public Privacy getPrivacy() {
 		return privacy;
 	}
@@ -72,7 +77,7 @@ public class Video {
 	}
 
 	@Column
-	@ElementCollection
+	@ElementCollection(fetch=FetchType.EAGER)
 	@CollectionTable(name="tags", joinColumns=@JoinColumn(name="videoId"))
 	public Set<String> getTag() {
 		return tag;

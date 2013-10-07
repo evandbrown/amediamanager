@@ -13,7 +13,7 @@ public interface VideoService {
 
 	public Video findById (String videoId) throws DataSourceTableDoesNotExistException;
 	
-	public List<Video> findByUserEmail (String email) throws DataSourceTableDoesNotExistException;
+	public List<Video> findByUserId (String email) throws DataSourceTableDoesNotExistException;
 	
 	public List<Video> findAllPublic (int limit, int start, int end) throws DataSourceTableDoesNotExistException;
 }

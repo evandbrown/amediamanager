@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import com.amediamanager.config.ConfigurationSettings;
 import com.amediamanager.domain.User;
-import com.amediamanager.dao.ConnectionManager;
 import com.amediamanager.dao.UserDao;
 import com.amediamanager.exceptions.*;
 
@@ -26,9 +25,6 @@ public class UserServiceImpl
 
 	@Autowired
 	private UserDao userDao;
-	
-	@Autowired
-	private ConnectionManager connectionManager;
 	
 	@Autowired
 	private ConfigurationSettings configurationSettings;

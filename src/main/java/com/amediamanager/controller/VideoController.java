@@ -1,6 +1,5 @@
 package com.amediamanager.controller;
 
-import java.lang.reflect.Field;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -8,13 +7,10 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.springframework.beans.DirectFieldAccessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,15 +20,14 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.GetObjectMetadataRequest;
-import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amediamanager.config.ConfigurationSettings;
 import com.amediamanager.config.ConfigurationSettings.ConfigProps;
@@ -43,7 +38,7 @@ import com.amediamanager.domain.User;
 import com.amediamanager.domain.Video;
 import com.amediamanager.service.VideoService;
 import com.amediamanager.util.CommaDelimitedTagEditor;
-import com.amediamanager.util.S3FormSigner;
+import com.amediamanager.util.PrivacyEditor;
 import com.amediamanager.util.VideoUploadFormSigner;
 
 @Controller
@@ -71,7 +66,7 @@ public class VideoController {
 	public String videos(ModelMap model) {
 		String userEmail = SecurityContextHolder.getContext()
 				.getAuthentication().getName();
-		List<Video> videos = videoService.findByUserEmail(userEmail);
+		List videos = videoService.findByUserId(userEmail);
 
 		model.addAttribute("videos", videos);
 		model.addAttribute("templateName", "only_videos");
@@ -79,13 +74,13 @@ public class VideoController {
 		return "base";
 	}
 
-	@RequestMapping(value = "/video/**", method = RequestMethod.GET)
-	public String videoGet(ModelMap model) {
+	@RequestMapping(value = "/video/{videoId}", method = RequestMethod.GET)
+	public String videoGet(ModelMap model, @PathVariable String videoId) {
 
 		// Get a random video
 		String userEmail = SecurityContextHolder.getContext()
 				.getAuthentication().getName();
-		List<Video> videos = videoService.findByUserEmail(userEmail);
+		List videos = videoService.findByUserId(userEmail);
 
 		model.addAttribute("video", videos.get(0));
 		model.addAttribute("templateName", "video_edit");
@@ -93,9 +88,10 @@ public class VideoController {
 		return "base";
 	}
 
-	@RequestMapping(value = "/video/**", method = RequestMethod.POST)
-	public String videoEdit(@ModelAttribute Video video, BindingResult result,
+	@RequestMapping(value = "/video/edit/{videoId}", method = RequestMethod.POST)
+	public String videoEdit(@ModelAttribute Video video, @PathVariable String videoId, BindingResult result,
 			RedirectAttributes attr, HttpSession session) {
+		videoService.update(video);
 		return "redirect:/";
 	}
 
@@ -163,5 +159,12 @@ public class VideoController {
 		// Bind tags
 		dataBinder.registerCustomEditor(TagSet.class,
 				new CommaDelimitedTagEditor());
+	}
+	
+	@InitBinder
+	public void initPrivacyBinder(final WebDataBinder dataBinder) {
+		// Bind tags
+		dataBinder.registerCustomEditor(Privacy.class,
+				new PrivacyEditor());
 	}
 }

@@ -40,7 +40,7 @@ public class MainController {
 			}
 			
 			// Get user's videos
-			List<Video> videos = videoService.findByUserEmail(auth.getName());
+			List<Video> videos = videoService.findByUserId(auth.getName());
 			
 			model.addAttribute("videos", videos);
 			model.addAttribute("templateName", "only_videos");
