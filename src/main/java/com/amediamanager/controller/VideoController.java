@@ -97,7 +97,7 @@ public class VideoController {
 
 	@RequestMapping(value = "/video/upload", method = RequestMethod.GET)
 	public String videoUpload(ModelMap model, HttpServletRequest request,
-			HttpSession session) {
+			@ModelAttribute User user) {
 		// Video redirect URL
 		String redirectUrl = request.getScheme() + "://"
 				+ request.getServerName() + ":" + request.getServerPort()
@@ -107,7 +107,7 @@ public class VideoController {
 		VideoUploadFormSigner formSigner = new VideoUploadFormSigner(
 				config.getProperty(ConfigProps.S3_UPLOAD_BUCKET),
 				config.getProperty(ConfigProps.S3_UPLOAD_PREFIX),
-				(User) session.getAttribute("user"),
+				user,
 				config.getAWSCredentialsProvider(), redirectUrl);
 
 		model.addAttribute("formSigner", formSigner);
