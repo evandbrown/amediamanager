@@ -51,8 +51,6 @@ public class UserController {
 	
 	@RequestMapping(value="/user", method = RequestMethod.GET)
 	public String userGet(ModelMap model, HttpSession session) {
-		User user = (User)session.getAttribute("user");
-		model.addAttribute("user", user);
 		model.addAttribute("templateName", "user");
 		return "base";
 	}

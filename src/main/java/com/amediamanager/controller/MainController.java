@@ -35,9 +35,9 @@ public class MainController {
 			model.addAttribute("templateName", "welcome");
 		} else {
 			// If there is no User object in the session, get one
-			if(session.getAttribute("user") == null) {
+			/*if(session.getAttribute("user") == null) {
 			    session.setAttribute("user", userService.find(auth.getName()));
-			}
+			}*/
 			
 			// Get user's videos
 			List<Video> videos = videoService.findByUserId(auth.getName());

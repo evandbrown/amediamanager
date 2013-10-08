@@ -1,6 +1,7 @@
 package com.amediamanager.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,7 +97,11 @@ public class UserServiceImpl
 	    
 	    List<GrantedAuthority> grantedAuths = new ArrayList<GrantedAuthority>();
         grantedAuths.add(new SimpleGrantedAuthority("ROLE_USER"));
-        return new UsernamePasswordAuthenticationToken(username, null, grantedAuths);
+        
+        // Create new auth token
+        auth = new UsernamePasswordAuthenticationToken(username, null, grantedAuths);
+        auth.setDetails(user);
+        return auth;
 	}
 
 	/**
