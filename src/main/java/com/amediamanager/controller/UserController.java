@@ -64,7 +64,11 @@ public class UserController {
 		
 		// Update user and re-set val in session
 		userService.update(user);
-		session.setAttribute("user", user);
+		
+		// Update user auth object in security context
+		UsernamePasswordAuthenticationToken newAuth= new UsernamePasswordAuthenticationToken(auth.getName(), null, auth.getAuthorities());
+		newAuth.setDetails(user);
+        SecurityContextHolder.getContext().setAuthentication(newAuth);
 	
 		return "redirect:/user";
 	}
