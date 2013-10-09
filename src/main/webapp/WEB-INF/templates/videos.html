@@ -22,16 +22,21 @@
 		<div th:each="video,iterStat : ${videos}">
 			<div class="col-md-6">
 				<div class="preview">
-					<span> <video th:id="'example_video_' + ${iterStat.count}"
+					<span th:unless="${#strings.isEmpty(video.previewKey)}"> 
+					     <video th:id="'example_video_' + ${iterStat.count}"
 							class="video-js vjs-default-skin" controls="true" preload="auto"
 							th:poster="${video.thumbnailKey}"
 							data-setup='{"example_option":true}'>
 							<source th:src="${video.previewKey}" type='video/mp4' />
 						</video>
 					</span>
+					<span th:if="${#strings.isEmpty(video.previewKey)}">
+						<img th:src="${video.thumbnailKey}" class="img-responsive"></img>
+					</span>
 					<div class="options">
 						<h3 th:text="${video.title}">Video title</h3>
-						<p th:text="${video.description}">Video description</p>
+						<p th:unless="${#strings.isEmpty(video.description)}" th:text="${video.description}">Video description</p>
+						<p th:if="${#strings.isEmpty(video.description)}">&nbsp;</p>
 						<div class="btn-group">
 							<a class="btn btn-info" href="#"
 								th:href="@{/video/} + ${video.id}"><span

@@ -11,6 +11,7 @@ import com.amazonaws.HttpMethod;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
+import com.amediamanager.config.ConfigurationSettings;
 import com.amediamanager.dao.VideoDao;
 import com.amediamanager.domain.Video;
 import com.amediamanager.exceptions.DataSourceTableDoesNotExistException;
@@ -27,8 +28,14 @@ public class VideoServiceImpl implements VideoService {
 	@Autowired
 	AmazonS3 s3Client;
 	
+	@Autowired
+	ConfigurationSettings config;
+	
 	@Override
 	public void save(Video video) throws DataSourceTableDoesNotExistException {
+		// Set a blank preview image. Will be overwritten after video is transcoded
+		video.setThumbnailKey(getDefaultVideoPosterKey());
+		
 		videoDao.save(video);
 	}
 
@@ -102,6 +109,14 @@ public class VideoServiceImpl implements VideoService {
 		}
 		
 		return videos;
+	}
+	
+	/**
+	 * Default placeholder image for profile pic
+	 * @return
+	 */
+	private String getDefaultVideoPosterKey() {
+		return "http://" + config.getProperty(ConfigurationSettings.ConfigProps.S3_UPLOAD_BUCKET) + ".s3.amazonaws.com/" + config.getProperty(ConfigurationSettings.ConfigProps.DEFAULT_VIDEO_POSTER_KEY);
 	}
 
 }
