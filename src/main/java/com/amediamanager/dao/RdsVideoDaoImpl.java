@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.internal.SessionImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,6 +40,10 @@ public class RdsVideoDaoImpl implements VideoDao {
 			    .list();
 		
 		return videos;
-		
+	}
+	
+	@Override
+	public Video findById(String id) {
+		return (Video) getCurrentSession().get(Video.class, id);
 	}
 }

@@ -70,13 +70,9 @@ public class VideoController {
 
 	@RequestMapping(value = "/video/{videoId}", method = RequestMethod.GET)
 	public String videoGet(ModelMap model, @PathVariable String videoId) {
-
-		// Get a random video
-		String userEmail = SecurityContextHolder.getContext()
-				.getAuthentication().getName();
-		List<Video> videos = videoService.findByUserId(userEmail);
-
-		model.addAttribute("video", videos.get(0));
+		Video video = videoService.findById(videoId);
+		
+		model.addAttribute("video", video);
 		model.addAttribute("templateName", "video_edit");
 
 		return "base";

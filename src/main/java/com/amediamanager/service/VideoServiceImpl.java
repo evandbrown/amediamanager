@@ -48,8 +48,7 @@ public class VideoServiceImpl implements VideoService {
 	@Override
 	public Video findById(String videoId)
 			throws DataSourceTableDoesNotExistException {
-		// TODO Auto-generated method stub
-		return null;
+		return videoDao.findById(videoId);
 	}
 
 	@Override
