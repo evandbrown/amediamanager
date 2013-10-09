@@ -29,7 +29,9 @@ public class DatabaseSchemaResource implements ProvisionableResource {
 	@PostConstruct
 	public void init() {
 		try {
-			if(this.doesDataSourceExist(VIDEO_TABLE_NAME) && this.doesDataSourceExist(TAGS_TABLE_NAME)) {
+			if(this.doesDataSourceExist(VIDEO_TABLE_NAME) && 
+					this.doesDataSourceExist(TAGS_TABLE_NAME) &&
+					this.doesDataSourceExist(VIDEOS_TAGS_TABLE_NAME)) {
 				provisionState = ProvisionableResource.ProvisionState.PROVISIONED;
 			} else {
 				provisionState = ProvisionableResource.ProvisionState.UNPROVISIONED;
@@ -53,6 +55,7 @@ public class DatabaseSchemaResource implements ProvisionableResource {
 	public void provision() {
 		this.provisionDataSource(VIDEO_DROP_TABLE, VIDEO_CREATE_TABLE);
 		this.provisionDataSource(TAGS_DROP_TABLE, TAGS_CREATE_TABLE);
+		this.provisionDataSource(VIDEOS_TAGS_DROP_TABLE, VIDEOS_TAGS_CREATE_TABLE);
 	}
 	
 	private Boolean doesDataSourceExist(final String tableName) throws Exception {
@@ -104,51 +107,56 @@ public class DatabaseSchemaResource implements ProvisionableResource {
 		}
 	}
 	
-	/** Video table stuff**/
+	/** Tags table**/
 	public static final String TAGS_TABLE_NAME = "tags";
 
-	private static final String TAGS_CREATE_TABLE = "create table tags (" + 
-			"tag varchar(255) NOT NULL," +
-			"videoId varchar(255) NOT NULL" +
-		") ENGINE = InnoDB DEFAULT CHARACTER SET = utf8";
+	private static final String TAGS_CREATE_TABLE = "CREATE TABLE `tags` (" +
+			"`tagId` varchar(255) NOT NULL," +  
+			"`name` varchar(255) NOT NULL," +
+			  "PRIMARY KEY (`tagId`)," +
+			  "KEY `ix_tag` (`tagId`)" +
+			") ENGINE=InnoDB DEFAULT CHARSET=utf8";
 	
 	public static final String TAGS_DROP_TABLE = "DROP TABLE IF EXISTS " + TAGS_TABLE_NAME;
-	
-	
+
 	
 	/** Video table stuff**/
 	public static final String VIDEO_TABLE_NAME = "videos";
-
-	/** Column names **/
-	private static final String VIDEO_COLUMN_NAME_ID = "id";
-	private static final String VIDEO_COLUMN_NAME_KEY = "originalKey";
-	private static final String VIDEO_COLUMN_NAME_BUCKET = "bucket";
-	private static final String VIDEO_COLUMN_NAME_OWNER = "owner";
-	private static final String VIDEO_COLUMN_NAME_UPLOADED_DATE = "uploadedDate";
-	private static final String VIDEO_COLUMN_NAME_PRIVACY = "privacy";
-	private static final String VIDEO_COLUMN_NAME_TITLE = "title";
-	private static final String VIDEO_COLUMN_NAME_DESCRIPTION = "description";
-	private static final String VIDEO_COLUMN_NAME_THUMBNAIL_KEY = "thumbnailKey";
-	private static final String VIDEO_COLUMN_NAME_CREATED_DATE = "createdDate";
-	private static final String VIDEO_COLUMN_NAME_PREVIEW_KEY = "previewKey";
 	
-	private static final String VIDEO_CREATE_TABLE = "CREATE TABLE " + VIDEO_TABLE_NAME + "(" 
-			+ VIDEO_COLUMN_NAME_ID + " VARCHAR(255) NOT NULL PRIMARY KEY, "
-			+ VIDEO_COLUMN_NAME_KEY + " VARCHAR(255) NOT NULL, "
-			+ VIDEO_COLUMN_NAME_BUCKET + " VARCHAR(255) NOT NULL, " 
-			+ VIDEO_COLUMN_NAME_OWNER + " VARCHAR(255) NOT NULL, " 
-			+ VIDEO_COLUMN_NAME_UPLOADED_DATE + " TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, "
-			+ VIDEO_COLUMN_NAME_PRIVACY + " VARCHAR(8) NOT NULL DEFAULT '" + Privacy.PRIVATE.name() + "', "
-			+ VIDEO_COLUMN_NAME_TITLE + " VARCHAR(255), "
-			+ VIDEO_COLUMN_NAME_DESCRIPTION + " VARCHAR(255), "
-			+ VIDEO_COLUMN_NAME_THUMBNAIL_KEY + " VARCHAR(255), "
-			+ VIDEO_COLUMN_NAME_PREVIEW_KEY + " VARCHAR(255), "
-			+ VIDEO_COLUMN_NAME_CREATED_DATE + " DATE, "
-			+ "UNIQUE ("+ VIDEO_COLUMN_NAME_KEY + ") "
-			+ ") ENGINE = InnoDB DEFAULT CHARACTER SET = utf8";
+	private static final String VIDEO_CREATE_TABLE = "CREATE TABLE `videos` (" +
+			  "`videoId` varchar(255) NOT NULL," +
+			  "`originalKey` varchar(255) NOT NULL," +
+			  "`bucket` varchar(255) NOT NULL," +
+			  "`owner` varchar(255) NOT NULL," +
+			  "`uploadedDate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP," +
+			  "`privacy` varchar(8) NOT NULL DEFAULT 'PRIVATE'," +
+			  "`title` varchar(255) DEFAULT NULL," +
+			  "`description` varchar(255) DEFAULT NULL," +
+			  "`thumbnailKey` varchar(255) DEFAULT NULL," +
+			  "`previewKey` varchar(255) DEFAULT NULL," +
+			  "`createdDate` date DEFAULT NULL," +
+			  "PRIMARY KEY (`videoId`)," +
+			  "KEY `ix_tag` (`videoId`)," +
+			  "UNIQUE KEY `originalKey` (`originalKey`)" +
+			") ENGINE=InnoDB DEFAULT CHARSET=utf8;";
 	
 	public static final String VIDEO_DROP_TABLE = "DROP TABLE IF EXISTS " + VIDEO_TABLE_NAME;
 
-	private static final String[] tables = {VIDEO_TABLE_NAME, TAGS_TABLE_NAME};
+	
+	/** Videos_Tags join tablef**/
+	public static final String VIDEOS_TAGS_TABLE_NAME = "videos_tags";
+
+	private static final String VIDEOS_TAGS_CREATE_TABLE = "CREATE TABLE `videos_tags` (" +
+			  "`tagId` varchar(255) NOT NULL," +
+			  "`videoId` varchar(255) NOT NULL," +
+			  "PRIMARY KEY (`tagId`,`videoId`)," +
+			  "CONSTRAINT FOREIGN KEY (`tagId`) REFERENCES `tags` (`tagId`) ON DELETE CASCADE ON UPDATE CASCADE," +
+			  "CONSTRAINT FOREIGN KEY (`videoId`) REFERENCES `videos` (`videoId`) ON DELETE CASCADE ON UPDATE CASCADE" +
+			") ENGINE=InnoDB DEFAULT CHARSET=utf8;";
+
+	
+	public static final String VIDEOS_TAGS_DROP_TABLE = "DROP TABLE IF EXISTS " + VIDEOS_TAGS_TABLE_NAME;
+	
+	private static final String[] tables = {VIDEO_TABLE_NAME, TAGS_TABLE_NAME, VIDEOS_TAGS_TABLE_NAME};
 	
 }

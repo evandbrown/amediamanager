@@ -12,7 +12,8 @@
 				enctype="multipart/form-data">
 				<input type="hidden" th:field="*{id}"/>
 				<input type="hidden" th:field="*{owner}"/>
-				<input type="hidden" th:field="*{s3Key}"/>
+				<input type="hidden" th:field="*{bucket}"/>
+				<input type="hidden" th:field="*{originalKey}"/>
 				<input type="hidden" th:field="*{thumbnailKey}"/>
 				<input type="hidden" th:field="*{previewKey}"/>
 				<input type="hidden" th:field="*{uploadedDate}"/>
@@ -35,7 +36,7 @@
 					<label for="tags">Tags</label>
 					<div class="input-group">
 						<input type="text" class="form-control" id="tags"
-							th:field="*{tag}" placeholder=""></input> <span
+							th:field="*{tags}" placeholder=""></input> <span
 							class="input-group-addon"><span
 							class="glyphicon glyphicon-list"></span></span>
 					</div>

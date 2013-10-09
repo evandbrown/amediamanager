@@ -34,6 +34,7 @@ import com.amediamanager.config.ConfigurationSettings;
 import com.amediamanager.config.ConfigurationSettings.ConfigProps;
 import com.amediamanager.domain.ContentType;
 import com.amediamanager.domain.Privacy;
+import com.amediamanager.domain.Tag;
 import com.amediamanager.domain.User;
 import com.amediamanager.domain.Video;
 import com.amediamanager.service.VideoService;
@@ -127,11 +128,16 @@ public class VideoController {
 		video.setId(userMetadata.get("uuid"));
 		video.setTitle(userMetadata.get("title"));
 		video.setPrivacy(Privacy.fromName(userMetadata.get("privacy")));
-		video.setTag(new HashSet<String>(Arrays.asList(userMetadata.get("tags").split(","))));
 		video.setCreatedDate(new SimpleDateFormat("MM/dd/yyyy").parse(userMetadata.get("createddate")));
 		video.setOriginalKey(videoKey);
 		video.setBucket(userMetadata.get("bucket"));
 		video.setUploadedDate(new Date());
+		
+		Set<Tag> tags = new HashSet<Tag>();
+		for(String tag : userMetadata.get("tags").split(",")) {
+			tags.add(new Tag(tag));
+		}
+		video.setTags(tags);
 		
 		videoService.save(video);
 

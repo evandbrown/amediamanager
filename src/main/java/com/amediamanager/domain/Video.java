@@ -4,6 +4,7 @@ import java.net.URL;
 import java.util.Date;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -12,13 +13,13 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.persistence.JoinColumn;
 import javax.persistence.Transient;
 
 import org.apache.commons.lang.StringUtils;
-
-
 
 @Entity
 @Table(name="videos")
@@ -35,14 +36,14 @@ public class Video {
 	private Date uploadedDate;
 	private Date createdDate;
 	private Privacy privacy = Privacy.PRIVATE;
-	private Set<String> tag;
+	private Set<Tag> tags;
 	private URL expiringUrl;
 
 	public Video() {
 	}
 
-	@Column
 	@Id
+	@Column(name = "videoId", unique = true, nullable = false)
 	public String getId() {
 		return id;
 	}
@@ -79,10 +80,12 @@ public class Video {
 	}
 
 	@Column
-	@ElementCollection(fetch=FetchType.EAGER)
-	@CollectionTable(name="tags", joinColumns=@JoinColumn(name="videoId"))
-	public Set<String> getTag() {
-		return tag;
+	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	@JoinTable(name = "videos_tags", joinColumns = { 
+			@JoinColumn(name = "videoId", nullable = false) }, 
+			inverseJoinColumns = { @JoinColumn(name = "tagId", nullable = false) })
+	public Set<Tag> getTags() {
+		return tags;
 	}
 
 	@Column
@@ -130,8 +133,8 @@ public class Video {
 		this.description = StringUtils.stripToNull(description);
 	}
 
-	public void setTag(Set<String> tag) {
-		this.tag = tag;
+	public void setTags(Set<Tag> tags) {
+		this.tags = tags;
 	}
 	
 	public void setCreatedDate(Date createdDate) {
