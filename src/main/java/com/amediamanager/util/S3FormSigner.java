@@ -110,6 +110,7 @@ public abstract class S3FormSigner {
 		sb.append("\"conditions\": [ { \"bucket\": \"" + s3BucketName  + "\" }, ");
 		sb.append("[\"starts-with\", \"$key\", \"" + keyPrefix + "/\"], ");
 		sb.append("{ \"success_action_redirect\": \"" + redirectUrl + "\" },");
+		sb.append("[\"eq\", \"$x-amz-meta-bucket\", \"" + s3BucketName + "\"], ");
 		sb.append("[\"starts-with\", \"$x-amz-meta-owner\", \"\"], ");
 		sb.append("[\"starts-with\", \"$x-amz-meta-uuid\", \"\"], ");
 		sb.append("[\"starts-with\", \"$x-amz-meta-title\", \"\"], ");

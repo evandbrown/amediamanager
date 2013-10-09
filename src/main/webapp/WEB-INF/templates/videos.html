@@ -38,15 +38,21 @@
 								class="glyphicon glyphicon-pencil"></span></a>
 						</div>
 						<div class="btn-group">
-							<a class="btn btn-info" target="_blank" href="#"><span
+							<a class="btn btn-info" target="_blank" th:href="${video.expiringUrl}"><span
 								class="glyphicon glyphicon-cloud-download"></span></a> <a
 								class="btn btn-info dropdown-toggle" data-toggle="dropdown"
 								href="#"> <span class="caret"></span>
 							</a>
 							<ul class="dropdown-menu">
-								<li><a target="_blank" href="#">Original</a></li>
-								<li><a target="_blank" href="#">Web</a></li>
-								<li><a target="_blank" href="#">iPhone</a></li>
+								<!--  Expiring URL to original video -->
+								<li><a target="_blank" th:href="${video.expiringUrl}">Original</a></li>
+								
+								<!--  If the streaming version is set, show it -->
+								<li th:if="${video.previewKey != null}"><a target="_blank" th:href="${video.previewKey}" class="disabled-link">Web</a></li>
+								<li th:if="${video.previewKey == null}" class="disabled"><a target="_blank" href="#" class="disabled-link">Web (not available)</a></li>
+								
+								<!-- Placeholder for other formats -->
+								<li class="disabled"><a target="_blank" href="#">iPhone</a></li>
 							</ul>
 						</div>
 						<div class="btn-group">

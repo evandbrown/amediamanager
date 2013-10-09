@@ -1,7 +1,7 @@
 	package com.amediamanager.domain;
 
+import java.net.URL;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.CollectionTable;
@@ -12,9 +12,9 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.JoinColumn;
+import javax.persistence.Transient;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -26,15 +26,17 @@ public class Video {
 
 	private String id;
 	private String owner;
-	private String s3Key;
+	private String bucket;
+	private String originalKey;
+	private String thumbnailKey;
+	private String previewKey;
 	private String title;
 	private String description;
 	private Date uploadedDate;
 	private Date createdDate;
 	private Privacy privacy = Privacy.PRIVATE;
 	private Set<String> tag;
-	private String thumbnailKey;
-	private String previewKey;
+	private URL expiringUrl;
 
 	public Video() {
 	}
@@ -46,8 +48,8 @@ public class Video {
 	}
 	
 	@Column
-	public String getS3Key() {
-		return s3Key;
+	public String getOriginalKey() {
+		return originalKey;
 	}
 
 	@Column
@@ -98,8 +100,26 @@ public class Video {
 		return thumbnailKey;
 	}
 	
-	public void setS3Key(String s3Key) {
-		this.s3Key = s3Key;
+	@Column
+	public String getBucket() {
+		return bucket;
+	}
+	
+	@Transient
+	public URL getExpiringUrl() {
+		return expiringUrl;
+	}
+	
+	public void setExpiringUrl(URL expiringUrl) {
+		this.expiringUrl = expiringUrl;
+	}
+	
+	public void setBucket(String bucket) {
+		this.bucket = bucket;
+	}
+	
+	public void setOriginalKey(String originalKey) {
+		this.originalKey = originalKey;
 	}
 	
 	public void setTitle(String title) {
@@ -112,15 +132,6 @@ public class Video {
 
 	public void setTag(Set<String> tag) {
 		this.tag = tag;
-	}
-	
-	public void setTags(HashSet<String> tags) {
-		if(this.tag == null) {
-			this.tag = new TagSet<String>();
-		}
-		for(String tag : tags) {
-			this.tag.add(tag.replaceAll("\\s+",""));
-		}
 	}
 	
 	public void setCreatedDate(Date createdDate) {

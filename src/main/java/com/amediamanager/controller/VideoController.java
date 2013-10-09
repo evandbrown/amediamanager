@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -33,7 +34,6 @@ import com.amediamanager.config.ConfigurationSettings;
 import com.amediamanager.config.ConfigurationSettings.ConfigProps;
 import com.amediamanager.domain.ContentType;
 import com.amediamanager.domain.Privacy;
-import com.amediamanager.domain.TagSet;
 import com.amediamanager.domain.User;
 import com.amediamanager.domain.Video;
 import com.amediamanager.service.VideoService;
@@ -64,14 +64,7 @@ public class VideoController {
 
 	@RequestMapping(value = "/videos", method = RequestMethod.GET)
 	public String videos(ModelMap model) {
-		String userEmail = SecurityContextHolder.getContext()
-				.getAuthentication().getName();
-		List videos = videoService.findByUserId(userEmail);
-
-		model.addAttribute("videos", videos);
-		model.addAttribute("templateName", "only_videos");
-
-		return "base";
+		return "redirect:/";
 	}
 
 	@RequestMapping(value = "/video/{videoId}", method = RequestMethod.GET)
@@ -80,7 +73,7 @@ public class VideoController {
 		// Get a random video
 		String userEmail = SecurityContextHolder.getContext()
 				.getAuthentication().getName();
-		List videos = videoService.findByUserId(userEmail);
+		List<Video> videos = videoService.findByUserId(userEmail);
 
 		model.addAttribute("video", videos.get(0));
 		model.addAttribute("templateName", "video_edit");
@@ -134,9 +127,10 @@ public class VideoController {
 		video.setId(userMetadata.get("uuid"));
 		video.setTitle(userMetadata.get("title"));
 		video.setPrivacy(Privacy.fromName(userMetadata.get("privacy")));
-		video.setTags(new HashSet<String>(Arrays.asList(userMetadata.get("tags").split(","))));
+		video.setTag(new HashSet<String>(Arrays.asList(userMetadata.get("tags").split(","))));
 		video.setCreatedDate(new SimpleDateFormat("MM/dd/yyyy").parse(userMetadata.get("createddate")));
-		video.setS3Key(videoKey);
+		video.setOriginalKey(videoKey);
+		video.setBucket(userMetadata.get("bucket"));
 		video.setUploadedDate(new Date());
 		
 		videoService.save(video);
@@ -157,7 +151,7 @@ public class VideoController {
 	@InitBinder
 	public void initTagsBinder(final WebDataBinder dataBinder) {
 		// Bind tags
-		dataBinder.registerCustomEditor(TagSet.class,
+		dataBinder.registerCustomEditor(Set.class,
 				new CommaDelimitedTagEditor());
 	}
 	

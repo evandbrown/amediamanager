@@ -121,7 +121,8 @@ public class DatabaseSchemaResource implements ProvisionableResource {
 
 	/** Column names **/
 	private static final String VIDEO_COLUMN_NAME_ID = "id";
-	private static final String VIDEO_COLUMN_NAME_KEY = "s3key";
+	private static final String VIDEO_COLUMN_NAME_KEY = "originalKey";
+	private static final String VIDEO_COLUMN_NAME_BUCKET = "bucket";
 	private static final String VIDEO_COLUMN_NAME_OWNER = "owner";
 	private static final String VIDEO_COLUMN_NAME_UPLOADED_DATE = "uploadedDate";
 	private static final String VIDEO_COLUMN_NAME_PRIVACY = "privacy";
@@ -134,6 +135,7 @@ public class DatabaseSchemaResource implements ProvisionableResource {
 	private static final String VIDEO_CREATE_TABLE = "CREATE TABLE " + VIDEO_TABLE_NAME + "(" 
 			+ VIDEO_COLUMN_NAME_ID + " VARCHAR(255) NOT NULL PRIMARY KEY, "
 			+ VIDEO_COLUMN_NAME_KEY + " VARCHAR(255) NOT NULL, "
+			+ VIDEO_COLUMN_NAME_BUCKET + " VARCHAR(255) NOT NULL, " 
 			+ VIDEO_COLUMN_NAME_OWNER + " VARCHAR(255) NOT NULL, " 
 			+ VIDEO_COLUMN_NAME_UPLOADED_DATE + " TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, "
 			+ VIDEO_COLUMN_NAME_PRIVACY + " VARCHAR(8) NOT NULL DEFAULT '" + Privacy.PRIVATE.name() + "', "

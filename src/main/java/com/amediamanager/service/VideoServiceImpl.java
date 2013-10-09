@@ -1,24 +1,18 @@
 package com.amediamanager.service;
 
-import java.util.ArrayList;
+import java.net.URL;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.UUID;
 
-import javax.print.attribute.standard.DateTimeAtCompleted;
-
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
+import com.amazonaws.HttpMethod;
+import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amediamanager.dao.VideoDao;
-import com.amediamanager.domain.TagSet;
 import com.amediamanager.domain.Video;
-import com.amediamanager.domain.Privacy;
 import com.amediamanager.exceptions.DataSourceTableDoesNotExistException;
 
 @Service
@@ -26,6 +20,12 @@ public class VideoServiceImpl implements VideoService {
 
 	@Autowired
 	VideoDao videoDao;
+	
+	@Autowired
+	AWSCredentialsProvider credentials;
+	
+	@Autowired
+	AmazonS3 s3Client;
 	
 	@Override
 	public void save(Video video) throws DataSourceTableDoesNotExistException {
@@ -46,7 +46,7 @@ public class VideoServiceImpl implements VideoService {
 	}
 
 	@Override
-	public List findByUserId(String email) {
+	public List<Video> findByUserId(String email) {
 		return videoDao.findByUserId(email);
 		/*Video v = new Video();
 		v.setCreatedDate(new Date());
@@ -81,6 +81,27 @@ public class VideoServiceImpl implements VideoService {
 			throws DataSourceTableDoesNotExistException {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	@Override
+	public List<Video> generateExpiringUrls(List<Video> videos, long expirationInMillis) {
+		if(null != videos) {
+			for(Video video : videos) {
+
+				Date expiration = new java.util.Date();
+				long msec = expiration.getTime();
+				msec += expirationInMillis;
+				expiration.setTime(msec);
+     
+				GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(video.getBucket(), video.getOriginalKey());
+				generatePresignedUrlRequest.setMethod(HttpMethod.GET);
+				generatePresignedUrlRequest.setExpiration(expiration);
+     
+				video.setExpiringUrl(s3Client.generatePresignedUrl(generatePresignedUrlRequest)); 
+			}
+		}
+		
+		return videos;
 	}
 
 }

@@ -51,6 +51,9 @@ public class VideoUploadFormSigner extends S3FormSigner {
 	public AWSCredentialsProvider getCredsProvider() {
 		return credsProvider;
 	}
+	public String getS3Bucket() {
+		return s3Bucket;
+	}
 	public String getS3BucketUrl() {
 		return "https://" + s3Bucket + ".s3.amazonaws.com/";
 	}

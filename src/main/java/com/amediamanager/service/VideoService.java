@@ -16,5 +16,7 @@ public interface VideoService {
 	public List<Video> findByUserId (String email) throws DataSourceTableDoesNotExistException;
 	
 	public List<Video> findAllPublic (int limit, int start, int end) throws DataSourceTableDoesNotExistException;
+	
+	public List<Video> generateExpiringUrls(List<Video> videos, long expirationInMillis);
 }
 
