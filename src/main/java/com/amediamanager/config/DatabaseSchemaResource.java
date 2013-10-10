@@ -13,8 +13,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.amediamanager.dao.ConnectionManager;
-import com.amediamanager.domain.Privacy;
-import com.amediamanager.domain.Video;
 
 @Component
 @Scope("prototype")
@@ -156,7 +154,4 @@ public class DatabaseSchemaResource implements ProvisionableResource {
 
 	
 	public static final String VIDEOS_TAGS_DROP_TABLE = "DROP TABLE IF EXISTS " + VIDEOS_TAGS_TABLE_NAME;
-	
-	private static final String[] tables = {VIDEO_TABLE_NAME, TAGS_TABLE_NAME, VIDEOS_TAGS_TABLE_NAME};
-	
 }

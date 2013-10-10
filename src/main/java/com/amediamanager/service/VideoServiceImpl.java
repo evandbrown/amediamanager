@@ -1,6 +1,5 @@
 package com.amediamanager.service;
 
-import java.net.URL;
 import java.util.Date;
 import java.util.List;
 

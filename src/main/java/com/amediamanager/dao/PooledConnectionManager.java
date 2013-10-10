@@ -9,7 +9,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import org.apache.commons.dbcp.BasicDataSource;

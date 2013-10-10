@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.amediamanager.domain.Video;
-import com.amediamanager.exceptions.DataSourceTableDoesNotExistException;
 import com.amediamanager.service.UserService;
 import com.amediamanager.service.VideoService;
 
