@@ -21,7 +21,10 @@ import com.amazonaws.services.rds.AmazonRDS;
 import com.amazonaws.services.rds.AmazonRDSClient;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amediamanager.config.ClassResourceConfigurationProvider;
+import com.amediamanager.config.ConfigurationProviderChain;
 import com.amediamanager.config.ConfigurationSettings;
+import com.amediamanager.config.S3ConfigurationProvider;
 
 @Configuration
 public class ServerConfig {
