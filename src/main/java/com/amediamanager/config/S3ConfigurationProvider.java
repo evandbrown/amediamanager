@@ -3,12 +3,14 @@ package com.amediamanager.config;
 import java.io.IOException;
 import java.util.Properties;
 
+import org.apache.commons.io.IOUtils;
+
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.S3Object;
 
-public class S3ConfigurationProvider implements ConfigurationProvider {
+public class S3ConfigurationProvider extends ConfigurationProvider {
 
 	private final String s3ConfigBucketEnvVarName = "S3_CONFIG_BUCKET";
 	private String s3ConfigKeyEnvVarName = "S3_CONFIG_KEY";
@@ -22,16 +24,16 @@ public class S3ConfigurationProvider implements ConfigurationProvider {
 	}
 
 	public Properties getProperties() {
-		if (bucket != null && key != null) {
+		if (this.properties == null && bucket != null && key != null) {
 			AmazonS3 s3Client = new AmazonS3Client();
 			try {
 				S3Object object = s3Client.getObject(this.bucket, this.key);
 				if (object != null) {
-					properties = new Properties();
+					this.properties = new Properties();
 					try {
-						properties.load(object.getObjectContent());
+						this.properties.load(object.getObjectContent());
 					} catch (IOException e) {
-						properties = null;
+						this.properties = null;
 						e.printStackTrace();
 					} finally {
 						try {
@@ -42,18 +44,32 @@ public class S3ConfigurationProvider implements ConfigurationProvider {
 					}
 				}
 			} catch (AmazonS3Exception ase) {
-				System.err.println("Error loading config from s3://" + this.bucket + "/" + this.key);
+				System.err.println("Error loading config from s3://"
+						+ this.bucket + "/" + this.key);
 			}
 		}
 		return properties;
 	}
 
-	@Override
 	public void refresh() {
-
+		this.properties = null;
+		this.properties = getProperties();
 	}
 
-	@Override
+	public void persistNewProperty(String key, String value) {
+		if (this.properties != null) {
+			this.properties.put(key, value);
+			AmazonS3 s3Client = new AmazonS3Client();
+			try {
+				s3Client.putObject(this.bucket, this.key,
+						IOUtils.toInputStream(this.propsToString(this.properties)), null);
+			} catch (AmazonS3Exception ase) {
+				System.err.println("Error persisting config to s3://"
+						+ this.bucket + "/" + this.key);
+			}
+		}
+	}
+
 	public String getPrettyName() {
 		String source = "s3://" + this.bucket + "/" + this.key;
 		return this.getClass().getSimpleName() + " (" + source + ")";
