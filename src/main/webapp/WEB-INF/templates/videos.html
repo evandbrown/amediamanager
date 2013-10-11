@@ -14,60 +14,65 @@
 </style>
 
 <div class="row">
-	<div class="col-md-9 section-preview"
-		th:unless="${#lists.isEmpty(videos)}">
-		<div id="legend">
-			<legend>Your Videos</legend>
-		</div>
-		<div th:each="video,iterStat : ${videos}">
-			<div class="col-md-6">
-				<div class="preview">
-					<span th:unless="${#strings.isEmpty(video.previewKey)}"> 
-					     <video th:id="'example_video_' + ${iterStat.count}"
-							class="video-js vjs-default-skin" controls="true" preload="auto"
-							th:poster="${video.thumbnailKey}"
-							data-setup='{"example_option":true}'>
-							<source th:src="${video.previewKey}" type='video/mp4' />
-						</video>
-					</span>
-					<span th:if="${#strings.isEmpty(video.previewKey)}">
-						<img th:src="${video.thumbnailKey}" class="img-responsive"></img>
-					</span>
-					<div class="options">
-						<h3 th:text="${video.title}">Video title</h3>
-						<p th:unless="${#strings.isEmpty(video.description)}" th:text="${video.description}">Video description</p>
-						<p th:if="${#strings.isEmpty(video.description)}">&nbsp;</p>
-						<div class="btn-group">
-							<a class="btn btn-info" href="#"
-								th:href="@{/video/} + ${video.id}"><span
-								class="glyphicon glyphicon-pencil"></span></a>
-						</div>
-						<div class="btn-group">
-							<a class="btn btn-info" target="_blank" th:href="${video.expiringUrl}"><span
-								class="glyphicon glyphicon-cloud-download"></span></a> <a
-								class="btn btn-info dropdown-toggle" data-toggle="dropdown"
-								href="#"> <span class="caret"></span>
-							</a>
-							<ul class="dropdown-menu">
-								<!--  Expiring URL to original video -->
-								<li><a target="_blank" th:href="${video.expiringUrl}">Original</a></li>
-								
-								<!--  If the streaming version is set, show it -->
-								<li th:if="${not #strings.isEmpty(video.previewKey)}"><a target="_blank" th:href="${video.previewKey}">Web</a></li>
-								<li th:if="${#strings.isEmpty(video.previewKey)}" class="disabled"><a target="_blank" href="#">Web (not available)</a></li>
-								
-								<!-- Placeholder for other formats -->
-								<li class="disabled"><a target="_blank" href="#">iPhone</a></li>
-							</ul>
-						</div>
-						<div class="btn-group">
-							<a class="btn btn-info" href="#"><span
-								class="glyphicon glyphicon-trash"></span></a>
+	<div class="col-md-9 section-preview">
+		<span th:unless="${#lists.isEmpty(videos)}">
+			<div id="legend">
+				<legend>Your Videos</legend>
+			</div>
+			<div th:each="video,iterStat : ${videos}">
+				<div class="col-md-6">
+					<div class="preview">
+						<span th:unless="${#strings.isEmpty(video.previewKey)}"> <video
+								th:id="'example_video_' + ${iterStat.count}"
+								class="video-js vjs-default-skin" controls="true" preload="auto"
+								th:poster="${video.thumbnailKey}"
+								data-setup='{"example_option":true}'>
+								<source th:src="${video.previewKey}" type='video/mp4' />
+							</video>
+						</span> <span th:if="${#strings.isEmpty(video.previewKey)}"> <img
+							th:src="${video.thumbnailKey}" class="img-responsive"></img>
+						</span>
+						<div class="options">
+							<h3 th:text="${video.title}">Video title</h3>
+							<p th:unless="${#strings.isEmpty(video.description)}"
+								th:text="${video.description}">Video description</p>
+							<p th:if="${#strings.isEmpty(video.description)}">&nbsp;</p>
+							<div class="btn-group">
+								<a class="btn btn-info" href="#"
+									th:href="@{/video/} + ${video.id}"><span
+									class="glyphicon glyphicon-pencil"></span></a>
+							</div>
+							<div class="btn-group">
+								<a class="btn btn-info" target="_blank"
+									th:href="${video.expiringUrl}"><span
+									class="glyphicon glyphicon-cloud-download"></span></a> <a
+									class="btn btn-info dropdown-toggle" data-toggle="dropdown"
+									href="#"> <span class="caret"></span>
+								</a>
+								<ul class="dropdown-menu">
+									<!--  Expiring URL to original video -->
+									<li><a target="_blank" th:href="${video.expiringUrl}">Original</a></li>
+
+									<!--  If the streaming version is set, show it -->
+									<li th:if="${not #strings.isEmpty(video.previewKey)}"><a
+										target="_blank" th:href="${video.previewKey}">Web</a></li>
+									<li th:if="${#strings.isEmpty(video.previewKey)}"
+										class="disabled"><a target="_blank" href="#">Web (not
+											available)</a></li>
+
+									<!-- Placeholder for other formats -->
+									<li class="disabled"><a target="_blank" href="#">iPhone</a></li>
+								</ul>
+							</div>
+							<div class="btn-group">
+								<a class="btn btn-info" href="#"><span
+									class="glyphicon glyphicon-trash"></span></a>
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
-		</div>
+		</span>
 	</div>
 	<div class="col-md-3">
 		<div id="empty">
@@ -75,8 +80,7 @@
 		</div>
 		<a class="btn btn-success btn-lg btn-block" th:href="@{/video/upload}">
 			<span class="glyphicon glyphicon-cloud-upload"></span>
-		</a>
-		<br />
+		</a> <br />
 		<div id="legend">
 			<legend>Tags</legend>
 			<ul class="nav nav-pills">
@@ -92,7 +96,7 @@
 		</div>
 	</div>
 </div>
-<div class="row">
+<!-- <div class="row">
 	<div class="col-md-6">
 		<ul class="pagination">
 			<li><a href="#">Prev</a></li>
@@ -103,4 +107,4 @@
 		</ul>
 	</div>
 	<div class="col-md-6"></div>
-</div>
+</div> -->
