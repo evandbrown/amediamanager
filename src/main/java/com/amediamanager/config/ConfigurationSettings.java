@@ -17,11 +17,11 @@ package com.amediamanager.config;
 
 import java.io.IOException;
 import java.util.Enumeration;
-import java.util.Properties;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.amazonaws.auth.AWSCredentialsProvider;
@@ -53,7 +53,6 @@ public class ConfigurationSettings {
 	}
 	
 	private final AWSCredentialsProvider credsProvider;	
-	private final Properties props;
 	private final ConfigurationProviderChain configProviderChain;
 
 	@Autowired
@@ -64,13 +63,10 @@ public class ConfigurationSettings {
 				new ClassResourceConfigurationProvider("/aMediaManager.properties")
 				);
 		
-		// Get configuration from the provider chain
-		props = configProviderChain.getProperties();
-		
-		System.out.println("Config provider: " + configProviderChain.getTheProvider().getClass().getSimpleName());
+		System.out.println("Config provider: " + this.configProviderChain.getTheProvider().getClass().getSimpleName());
 		System.out.println("---------------------");
         System.out.println("Effective config:");
-        props.list(System.out);
+        this.configProviderChain.getProperties().list(System.out);
         System.out.println("---------------------");
         System.out.println("Effective AWS credential config:");
         System.out.println("Access Key=" + this.getAWSCredentialsProvider().getCredentials().getAWSAccessKeyId());
@@ -94,6 +90,11 @@ public class ConfigurationSettings {
 		return configProviderChain.getTheProvider();
 	}
 	
+	@Scheduled(fixedDelay=60000)
+	public void refreshConfigurationProvider() {
+		this.configProviderChain.refresh();
+	}
+	
 	public String getObfuscatedSecretKey() {
 		return this.getAWSCredentialsProvider().getCredentials().getAWSSecretKey().substring(0, 4) + "******************" + this.getAWSCredentialsProvider().getCredentials().getAWSSecretKey().substring(this.getAWSCredentialsProvider().getCredentials().getAWSSecretKey().length()-4, this.getAWSCredentialsProvider().getCredentials().getAWSSecretKey().length()-1);
 	}
@@ -105,7 +106,7 @@ public class ConfigurationSettings {
 	 * @return	the value of the property.
 	 */
 	public String getProperty(ConfigurationSettings.ConfigProps property_name) {
-		return props.getProperty(property_name.name());
+		return configProviderChain.getProperties().getProperty(property_name.name());
 	}
 	
 	/**
@@ -115,12 +116,12 @@ public class ConfigurationSettings {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		Enumeration<?> e = this.props.propertyNames();
+		Enumeration<?> e = this.configProviderChain.getProperties().propertyNames();
 		while (e.hasMoreElements()){ 
 			String key = (String) e.nextElement();
 			sb.append(key);
 			sb.append("=");
-			sb.append(props.getProperty(key));
+			sb.append(configProviderChain.getProperties().getProperty(key));
 			sb.append("\n");
 		}
 		

@@ -14,12 +14,14 @@ public class ConfigurationProviderChain extends ConfigurationProvider {
 		for (ConfigurationProvider configurationProvider : configurationProviders) {
 			this.configurationProviders.add(configurationProvider);
 		}
+		getProperties();
 	}
 
 	@Override
 	public Properties getProperties() {
 		if (this.properties == null) {
 			for (ConfigurationProvider provider : this.configurationProviders) {
+				provider.refresh();
 				this.properties = provider.getProperties();
 				if (this.properties != null) {
 					this.theProvider = provider;
