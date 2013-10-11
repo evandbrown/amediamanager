@@ -28,11 +28,13 @@
     },
     "WarBucketPrefix": {
       "Description": "The prefix of the S3 bucket where the application WAR is located. A region-specific suffix will be appended, e.g. warBucketPrefix-us-east-1.",
-      "Type": "String"
+      "Type": "String",
+      "Default" : "amm-"
     },
     "WarKey": {
       "Description": "The key of the application WAR file in the WarBucket",
-      "Type": "String"
+      "Type": "String",
+      "Default": "public/amediamanager.war"
     },
     "EC2KeyName": {
       "Description": "The Key Pair to launch instances with",
@@ -84,28 +86,28 @@
           "OptionSettings" : [
             {
               "Namespace" : "aws:elasticbeanstalk:application:environment",
-              "OptionName" : "RDS_INSTANCEID",
+              "OptionName" : "AMM_RDS_INSTANCEID",
               "Value" : { "Ref": "Database" }
             },
             {
               "Namespace" : "aws:elasticbeanstalk:application:environment",
-              "OptionName" : "RDS_DATABASE",
+              "OptionName" : "AMM_RDS_DATABASE",
               "Value" : { "Ref" : "ApplicationName" }
             },
             {
               "Namespace" : "aws:elasticbeanstalk:application:environment",
-              "OptionName" : "RDS_USERNAME",
+              "OptionName" : "AMM_RDS_USERNAME",
               "Value" : { "Ref" : "DatabaseUser" }
             },
             {
               "Namespace" : "aws:elasticbeanstalk:application:environment",
-              "OptionName" : "RDS_PASSWORD",
+              "OptionName" : "AMM_RDS_PASSWORD",
               "Value" : { "Ref" : "DatabasePassword" }
             },
             {
               "Namespace" : "aws:elasticbeanstalk:application:environment",
-              "OptionName" : "S3_UPLOAD_BUCKET",
-              "Value" : { "Ref" : "UserContentBucket" }
+              "OptionName" : "AMM_S3_UPLOAD_BUCKET",
+              "Value" : { "Ref" : "AppBucket" }
             },
             {
               "Namespace" : "aws:elasticbeanstalk:application:environment",
@@ -124,8 +126,38 @@
             },
             {
               "Namespace" : "aws:elasticbeanstalk:application:environment",
-              "OptionName" : "DDB_USERS_TABLE",
+              "OptionName" : "AMM_DDB_USERS_TABLE",
               "Value" : { "Ref" : "UsersTable" }
+            },
+            {
+              "Namespace" : "aws:elasticbeanstalk:application:environment",
+              "OptionName" : "AMM_AWS_REGION",
+              "Value" : { "Ref" : "AWS::Region" }
+            },
+            {
+              "Namespace" : "aws:elasticbeanstalk:application:environment",
+              "OptionName" : "AMM_S3_UPLOAD_PREFIX",
+              "Value" : "uploads"
+            },
+            {
+              "Namespace" : "aws:elasticbeanstalk:application:environment",
+              "OptionName" : "AMM_S3_PROFILE_PIC_PREFIX",
+              "Value" : "profile"
+            },
+            {
+              "Namespace" : "aws:elasticbeanstalk:application:environment",
+              "OptionName" : "AMM_DEFAULT_VIDEO_POSTER_KEY",
+              "Value" : "static/img/default_poster.png"
+            },
+            {
+              "Namespace" : "aws:elasticbeanstalk:application:environment",
+              "OptionName" : "AMM_DEFAULT_PROFILE_PIC_KEY",
+              "Value" : "static/img/default_profile_pic.png"
+            },
+            {
+              "Namespace" : "aws:elasticbeanstalk:application:environment",
+              "OptionName" : "S3_CONFIG_BUCKET",
+              "Value" : { "Ref" : "AppBucket" }
             },
             {
               "Namespace" : "aws:autoscaling:launchconfiguration",
@@ -162,7 +194,7 @@
       }
     },
 
-    "UserContentBucket": {
+    "AppBucket": {
       "Type": "AWS::S3::Bucket"
     }, 
     "UsersTable": {
@@ -278,7 +310,7 @@
 		                            "s3:Put*",
 		                            "s3:*MultipartUpload*"
 		                        ],
-		                        "Resource": { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "UserContentBucket" }, "/*"]] }
+		                        "Resource": { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "AppBucket" }, "/*"]] }
 		                    },
 		                    {
 		                        "Sid":"2",
@@ -391,7 +423,7 @@
 							"RDS_DATABASE=", { "Ref" : "ApplicationName" }, "\n",
 							"RDS_USERNAME=", { "Ref" : "DatabaseUser" }, "\n",
 							"RDS_PASSWORD=", { "Ref" : "DatabasePassword" }, "\n",
-							"S3_UPLOAD_BUCKET=", { "Ref" : "UserContentBucket" }, "\n",
+							"S3_UPLOAD_BUCKET=", { "Ref" : "AppBucket" }, "\n",
 							"DDB_USERS_TABLE=", { "Ref" : "UsersTable" }, "\n"
 						]
 					]
