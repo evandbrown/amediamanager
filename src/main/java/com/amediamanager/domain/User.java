@@ -17,6 +17,10 @@ package com.amediamanager.domain;
 
 import java.io.Serializable;
 
+import javax.validation.constraints.Size;
+
+import org.hibernate.validator.constraints.Email;
+import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 /**
@@ -29,8 +33,13 @@ public class User implements Serializable {
 	private static final long serialVersionUID = -1210678236518532231L;
 	
 	private String id;
+	
+	@NotEmpty @Email
 	private String email;
+	
+	@Size(min=2, max=30) 
 	private String password;
+	
 	private String nickname;
 	private String tagline;
 	private String profilePicKey;

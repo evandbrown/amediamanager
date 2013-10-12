@@ -14,6 +14,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.amediamanager.domain.NewUser;
 import com.amediamanager.domain.Video;
 import com.amediamanager.service.UserService;
 import com.amediamanager.service.VideoService;
@@ -33,6 +34,7 @@ public class MainController {
 
 		// If the user is not authenticated, show a different view
 		if (auth instanceof AnonymousAuthenticationToken) {
+			model.addAttribute("newUser", new NewUser());
 			model.addAttribute("templateName", "welcome");
 		} else {
 			List<Video> videos = new ArrayList<Video>();

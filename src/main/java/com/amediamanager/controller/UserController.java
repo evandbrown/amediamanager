@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -30,20 +31,27 @@ public class UserController {
 	@Autowired
 	UserService userService;
 	
+	
 	@RequestMapping(value="/register", method = RequestMethod.POST)
-	public String register(@ModelAttribute NewUser newUser, RedirectAttributes attr) {
+	public String register(@Valid NewUser newUser, BindingResult result, RedirectAttributes attr, ModelMap model) {
 		
 		try {
+			if(result.hasErrors()) {
+				model.addAttribute("templateName", "welcome");
+	            return "base";
+	        }
+			
 			userService.save(newUser);
+			User user = userService.find(newUser.getEmail());
 			
 			List<GrantedAuthority> grantedAuths = new ArrayList<GrantedAuthority>();
 	        grantedAuths.add(new SimpleGrantedAuthority("ROLE_USER"));
 	        
 	        // Authenticate the user
-	        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(newUser.getEmail(), null, grantedAuths);
+	        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(user.getEmail(), null, grantedAuths);
 	        
 	        // Save user in session
-	        auth.setDetails(newUser);
+	        auth.setDetails(user);
 	        
 	        SecurityContextHolder.getContext().setAuthentication(auth);
 		} catch (UserExistsException e) {
