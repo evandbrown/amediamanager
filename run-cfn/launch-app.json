@@ -28,11 +28,13 @@
     },
     "WarBucketPrefix": {
       "Description": "The prefix of the S3 bucket where the application WAR is located. A region-specific suffix will be appended, e.g. warBucketPrefix-us-east-1.",
-      "Type": "String"
+      "Type": "String",
+      "Default" : "amm-"
     },
     "WarKey": {
       "Description": "The key of the application WAR file in the WarBucket",
-      "Type": "String"
+      "Type": "String",
+      "Default": "public/amediamanager.war"
     },
     "EC2KeyName": {
       "Description": "The Key Pair to launch instances with",
@@ -44,7 +46,7 @@
       "Default" : "m1.small",
       "AllowedValues" : [ "t1.micro", "m1.small", "m1.medium", "m1.large" ]
     },
-"ApplicationName": {
+	"ApplicationName": {
       "Description": "The name of the Elastic Beanstalk Application",
       "Type": "String",
       "Default" : " amediamanager"
@@ -105,7 +107,22 @@
             {
               "Namespace" : "aws:elasticbeanstalk:application:environment",
               "OptionName" : "AMM_S3_UPLOAD_BUCKET",
-              "Value" : { "Ref" : "UserContentBucket" }
+              "Value" : { "Ref" : "AppBucket" }
+            },
+            {
+              "Namespace" : "aws:elasticbeanstalk:application:environment",
+              "OptionName" : "AMM_TRANSCODE_TOPIC",
+              "Value" : { "Ref" : "TranscodeTopic" }
+            },
+            {
+              "Namespace" : "aws:elasticbeanstalk:application:environment",
+              "OptionName" : "AMM_TRANSCODE_QUEUE",
+              "Value" : { "Ref" : "TranscodeQueue" }
+            },
+            {
+              "Namespace" : "aws:elasticbeanstalk:application:environment",
+              "OptionName" : "AMM_TRANSCODE_ROLE",
+              "Value" : { "Fn::GetAtt" : [ "TranscodeRole", "Arn" ] }
             },
             {
               "Namespace" : "aws:elasticbeanstalk:application:environment",
@@ -129,8 +146,18 @@
             },
             {
               "Namespace" : "aws:elasticbeanstalk:application:environment",
+              "OptionName" : "AMM_DEFAULT_VIDEO_POSTER_KEY",
+              "Value" : "static/img/default_poster.png"
+            },
+            {
+              "Namespace" : "aws:elasticbeanstalk:application:environment",
               "OptionName" : "AMM_DEFAULT_PROFILE_PIC_KEY",
               "Value" : "static/img/default_profile_pic.png"
+            },
+            {
+              "Namespace" : "aws:elasticbeanstalk:application:environment",
+              "OptionName" : "S3_CONFIG_BUCKET",
+              "Value" : { "Ref" : "AppBucket" }
             },
             {
               "Namespace" : "aws:autoscaling:launchconfiguration",
@@ -167,7 +194,7 @@
       }
     },
 
-    "UserContentBucket": {
+    "AppBucket": {
       "Type": "AWS::S3::Bucket"
     }, 
     "UsersTable": {
@@ -207,10 +234,106 @@
         "AllocatedStorage": "5",
         "MasterUserPassword": { "Ref": "DatabasePassword" }
       }
-    },
+    },  
 
     "AlarmTopic": {
       "Type": "AWS::SNS::Topic"
+    },
+    
+    "TranscodeQueue" : {
+    	"Type" : "AWS::SQS::Queue"
+    },
+    
+    "TranscodeTopic": {
+      "Type": "AWS::SNS::Topic",
+      "Properties" : {
+      	"Subscription" : [ {
+      		"Endpoint" : { "Fn::GetAtt" : [ "TranscodeQueue", "Arn" ] },
+      		"Protocol" : "sqs" } ]
+      }
+    },
+    
+    "TranscodeTopic2QueuePolicy" : {
+      "Type" : "AWS::SQS::QueuePolicy",
+      "Properties" : {       
+        "Queues" : [ { "Ref" : "TranscodeQueue" } ],
+        "PolicyDocument":  {
+          "Version": "2008-10-17",
+          "Id": "PublicationPolicy",
+          "Statement" : [
+            {
+              "Sid": "Allow-SNS-SendMessage",
+              "Effect": "Allow",          
+              "Principal" : {
+                "AWS": "*"
+              },
+              "Action": ["sqs:SendMessage"],
+              "Resource": { "Fn::GetAtt" : [ "TranscodeQueue", "Arn" ] },
+              "Condition" : {
+                "ArnEquals" : {
+                  "aws:SourceArn": { "Ref" : "TranscodeTopic" }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    
+    "TranscodeRole" : {
+    	"Type" : "AWS::IAM::Role",
+      	"Properties" : {
+      		"AssumeRolePolicyDocument" : {
+				"Version": "2008-10-17",
+		  		"Statement": [{
+		        	"Sid": "1",
+		      		"Effect": "Allow",
+		      		"Principal": {
+		        		"Service": "elastictranscoder.amazonaws.com"
+		      		},
+		      		"Action": "sts:AssumeRole"
+		    	}]
+			},
+      		"Path" : "/",
+      		"Policies" : [
+                { 
+                  "PolicyName" : "TranscodePolicy",
+                  "PolicyDocument" : {
+		                "Version":"2012-10-17",
+		                "Statement":[
+		                    {
+		                        "Sid":"1",
+		                        "Effect":"Allow",
+		                        "Action":[
+		                            "s3:Get*",
+		                            "s3:ListBucket",
+		                            "s3:Put*",
+		                            "s3:*MultipartUpload*"
+		                        ],
+		                        "Resource": { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "AppBucket" }, "/*"]] }
+		                    },
+		                    {
+		                        "Sid":"2",
+		                        "Effect":"Allow",
+		                        "Action":"sns:Publish",
+		                        "Resource":{ "Ref" : "TranscodeTopic" }
+		                    },
+		                    {
+		                        "Sid":"3",
+		                        "Effect":"Deny",
+		                        "Action":[
+		                            "sns:*Permission*",
+		                            "sns:*Delete*",
+		                            "sns:*Remove*",
+		                            "s3:*Policy*",
+		                            "s3:*Delete*"
+		                        ],
+		                        "Resource":"*"
+		                    }
+		                ]
+		            } 
+                }]      		
+      	}
     },
 
     "CPUAlarmHigh": {
@@ -300,7 +423,7 @@
 							"RDS_DATABASE=", { "Ref" : "ApplicationName" }, "\n",
 							"RDS_USERNAME=", { "Ref" : "DatabaseUser" }, "\n",
 							"RDS_PASSWORD=", { "Ref" : "DatabasePassword" }, "\n",
-							"S3_UPLOAD_BUCKET=", { "Ref" : "UserContentBucket" }, "\n",
+							"S3_UPLOAD_BUCKET=", { "Ref" : "AppBucket" }, "\n",
 							"DDB_USERS_TABLE=", { "Ref" : "UsersTable" }, "\n"
 						]
 					]

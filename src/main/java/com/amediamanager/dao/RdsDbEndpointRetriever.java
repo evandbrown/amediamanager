@@ -1,21 +1,17 @@
 package com.amediamanager.dao;
 
-import java.util.List;
 import java.util.ArrayList;
-
-import javax.annotation.PostConstruct;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.amazonaws.services.rds.AmazonRDSClient;
+import com.amazonaws.services.rds.AmazonRDS;
 import com.amazonaws.services.rds.model.DBInstance;
 import com.amazonaws.services.rds.model.DescribeDBInstancesRequest;
 import com.amazonaws.services.rds.model.DescribeDBInstancesResult;
 import com.amazonaws.services.rds.model.Endpoint;
-
 import com.amediamanager.config.ConfigurationSettings;
-import com.amediamanager.service.AwsClientService;
 
 /**
  * @author evbrown
@@ -28,14 +24,7 @@ public class RdsDbEndpointRetriever implements DbEndpointRetriever {
 	private ConfigurationSettings config;
 	
 	@Autowired
-	private AwsClientService awsClientService;
-	
-	private AmazonRDSClient rds;
-	
-	@PostConstruct
-	public void init() {
-		rds = awsClientService.getAmazonRdsClient();
-	}
+	private AmazonRDS rds;
 
 	/* (non-Javadoc)
 	 * @see com.aMediaManager.DataAccess.DbEndpointRetriever#getMasterDbEndpoint(java.lang.String)

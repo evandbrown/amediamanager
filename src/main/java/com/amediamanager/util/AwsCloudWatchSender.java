@@ -32,12 +32,11 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.amazonaws.services.cloudwatch.AmazonCloudWatchClient;
+import com.amazonaws.services.cloudwatch.AmazonCloudWatch;
 import com.amazonaws.services.cloudwatch.model.Dimension;
 import com.amazonaws.services.cloudwatch.model.MetricDatum;
 import com.amazonaws.services.cloudwatch.model.PutMetricDataRequest;
 import com.amazonaws.services.cloudwatch.model.StatisticSet;
-import com.amediamanager.service.AwsClientService;
 
 /**
  * A helper class that simplifies sending custom metrics to AWS CloudWatch.
@@ -65,16 +64,16 @@ import com.amediamanager.service.AwsClientService;
 public class AwsCloudWatchSender {
 
 	@Autowired
-	private AwsClientService awsClientService;
+	private AmazonCloudWatch cloudwatchClient;
 	
     /**
      * Internal class that uniquely represents a metric definition by its name and dimensions.
      */
     public static class MetricSignature {
         
-        private String metricName;
+        private final String metricName;
         
-        private List<Dimension> dimensions;
+        private final List<Dimension> dimensions;
         
         /**
          * Creates a metric signature based on metric datum.
@@ -92,7 +91,8 @@ public class AwsCloudWatchSender {
         /**
          * Compares to metric signatures for equality (will be used by hash map).
          */
-        public boolean equals(Object obj) {
+        @Override
+		public boolean equals(Object obj) {
             if (this == obj) {
                 return true;
             }
@@ -132,7 +132,8 @@ public class AwsCloudWatchSender {
         /**
          * Generates a hash code for metric signature (will be used by hash map).
          */
-        public int hashCode() {
+        @Override
+		public int hashCode() {
             StringBuilder sb = new StringBuilder();
             sb.append(this.metricName);
             if (this.dimensions != null) {
@@ -357,7 +358,7 @@ public class AwsCloudWatchSender {
 				client = new AmazonCloudWatchClient(creds);
 			}*/
             
-            client = awsClientService.getCloudWatchClient();
+            client = cloudwatchClient;
             
             initialized.set(true);
         }
@@ -414,7 +415,7 @@ public class AwsCloudWatchSender {
         System.err.println("CW: exit destroy method");
     }
 
-    private static AmazonCloudWatchClient client;
+    private static AmazonCloudWatch client;
     
     private static final HashMap<MetricSignature, MetricDatum> metrics = new HashMap<MetricSignature, MetricDatum>();
     

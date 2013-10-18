@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.amediamanager.domain.NewUser;
 import com.amediamanager.domain.User;
 import com.amediamanager.exceptions.UserExistsException;
 import com.amediamanager.service.UserService;
@@ -29,18 +31,29 @@ public class UserController {
 	@Autowired
 	UserService userService;
 	
+	
 	@RequestMapping(value="/register", method = RequestMethod.POST)
-	public String register(@ModelAttribute User user, RedirectAttributes attr) {
+	public String register(@Valid NewUser newUser, BindingResult result, RedirectAttributes attr, ModelMap model) {
 		
 		try {
-			userService.save(user);
+			if(result.hasErrors()) {
+				model.addAttribute("templateName", "welcome");
+	            return "base";
+	        }
+			
+			userService.save(newUser);
+			User user = userService.find(newUser.getEmail());
 			
 			List<GrantedAuthority> grantedAuths = new ArrayList<GrantedAuthority>();
 	        grantedAuths.add(new SimpleGrantedAuthority("ROLE_USER"));
-			Authentication auth = 
-					  new UsernamePasswordAuthenticationToken(user.getEmail(), null, grantedAuths);
-
-					SecurityContextHolder.getContext().setAuthentication(auth);
+	        
+	        // Authenticate the user
+	        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(user.getEmail(), null, grantedAuths);
+	        
+	        // Save user in session
+	        auth.setDetails(user);
+	        
+	        SecurityContextHolder.getContext().setAuthentication(auth);
 		} catch (UserExistsException e) {
 			attr.addFlashAttribute("error", "That user already exists.");
 			e.printStackTrace();
@@ -51,8 +64,6 @@ public class UserController {
 	
 	@RequestMapping(value="/user", method = RequestMethod.GET)
 	public String userGet(ModelMap model, HttpSession session) {
-		User user = (User)session.getAttribute("user");
-		model.addAttribute("user", user);
 		model.addAttribute("templateName", "user");
 		return "base";
 	}
@@ -66,7 +77,11 @@ public class UserController {
 		
 		// Update user and re-set val in session
 		userService.update(user);
-		session.setAttribute("user", user);
+		
+		// Update user auth object in security context
+		UsernamePasswordAuthenticationToken newAuth= new UsernamePasswordAuthenticationToken(auth.getName(), null, auth.getAuthorities());
+		newAuth.setDetails(user);
+        SecurityContextHolder.getContext().setAuthentication(newAuth);
 	
 		return "redirect:/user";
 	}

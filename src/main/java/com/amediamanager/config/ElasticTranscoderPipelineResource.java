@@ -1,13 +1,15 @@
 package com.amediamanager.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 @Component
 @Scope("prototype")
 public class ElasticTranscoderPipelineResource implements ProvisionableResource {
-
-	private static final String name = "Elastic Transcoder Pipeline";
+	
+	@Autowired
+	ConfigurationSettings config;
 	
 	@Override
 	public ProvisionState getState() {
@@ -16,13 +18,12 @@ public class ElasticTranscoderPipelineResource implements ProvisionableResource 
 
 	@Override
 	public String getName() {
-		return ElasticTranscoderPipelineResource.name;
+		return "Elastic Transcoder Pipeline";
 	}
 
 	@Override
 	public void provision() {
-		// TODO Auto-generated method stub
-
+		config.getConfigurationProvider().persistNewProperty("the-ets-arn-key", "the-ets-arn-value");
 	}
 
 }

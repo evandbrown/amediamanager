@@ -1,26 +1,128 @@
-package com.amediamanager.domain;
+	package com.amediamanager.domain;
 
+import java.net.URL;
 import java.util.Date;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.Table;
+import javax.persistence.JoinColumn;
+import javax.persistence.Transient;
+
 import org.apache.commons.lang.StringUtils;
 
+@Entity
+@Table(name="videos")
 public class Video {
 
+	private String id;
 	private String owner;
-	private String s3Key;
+	private String bucket;
+	private String originalKey;
+	private String thumbnailKey;
+	private String previewKey;
 	private String title;
 	private String description;
 	private Date uploadedDate;
 	private Date createdDate;
 	private Privacy privacy = Privacy.PRIVATE;
-	private TagSet<String> tags;
-	private String thumbnailKey;
-	private String previewKey;
+	private Set<Tag> tags;
+	private URL expiringUrl;
 
 	public Video() {
 	}
 
+	@Id
+	@Column(name = "videoId", unique = true, nullable = false)
+	public String getId() {
+		return id;
+	}
+	
+	@Column
+	public String getOriginalKey() {
+		return originalKey;
+	}
+
+	@Column
+	public String getOwner() {
+		return owner;
+	}
+
+	@Column
+	public Date getUploadedDate() {
+		return uploadedDate;
+	}
+
+	@Column
+	@Enumerated(EnumType.STRING)
+	public Privacy getPrivacy() {
+		return privacy;
+	}
+
+	@Column
+	public String getTitle() {
+		return title;
+	}
+
+	@Column
+	public String getDescription() {
+		return description;
+	}
+
+	@Column
+	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	@JoinTable(name = "videos_tags", joinColumns = { 
+			@JoinColumn(name = "videoId", nullable = false) }, 
+			inverseJoinColumns = { @JoinColumn(name = "tagId", nullable = false) })
+	public Set<Tag> getTags() {
+		return tags;
+	}
+
+	@Column
+	public Date getCreatedDate() {
+		return createdDate;
+	}
+	
+	@Column
+	public String getPreviewKey() {
+		return previewKey;
+	}
+	
+	@Column
+	public String getThumbnailKey() {
+		return thumbnailKey;
+	}
+	
+	@Column
+	public String getBucket() {
+		return bucket;
+	}
+	
+	@Transient
+	public URL getExpiringUrl() {
+		return expiringUrl;
+	}
+	
+	public void setExpiringUrl(URL expiringUrl) {
+		this.expiringUrl = expiringUrl;
+	}
+	
+	public void setBucket(String bucket) {
+		this.bucket = bucket;
+	}
+	
+	public void setOriginalKey(String originalKey) {
+		this.originalKey = originalKey;
+	}
+	
 	public void setTitle(String title) {
 		this.title = StringUtils.stripToNull(title);
 	}
@@ -29,7 +131,7 @@ public class Video {
 		this.description = StringUtils.stripToNull(description);
 	}
 
-	public void setTags(TagSet<String> tags) {
+	public void setTags(Set<Tag> tags) {
 		this.tags = tags;
 	}
 	
@@ -37,72 +139,27 @@ public class Video {
 		this.createdDate = createdDate;		
 	}
 
-	protected void setUploadedDate(Date uploadedDate) {
+	public void setUploadedDate(Date uploadedDate) {
 		this.uploadedDate = uploadedDate;		
-	}
-
-	public void setS3Key(String s3Key) {
-		this.s3Key = s3Key;
 	}
 
 	public void setOwner(String owner) {
 		this.owner = owner;
 	}
 	
-	public String getKey() {
-		return s3Key;
-	}
-
-	public String getOwner() {
-		return owner;
-	}
-
-	public Date getUploadedDate() {
-		return uploadedDate;
-	}
-
-	public Privacy getPrivacy() {
-		return privacy;
-	}
-
-	public String getTitle() {
-		return title;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public TagSet<String> getTags() {
-		return tags;
-	}
-
-	public Date getCreatedDate() {
-		return createdDate;
-	}
-
 	public void setThumbnailKey(String thumbnailKey) {
 		this.thumbnailKey = thumbnailKey; 		
-	}
-	
-	public String getThumbnailKey() {
-		return thumbnailKey;
 	}
 	
 	public void setPreviewKey(String previewKey) {
 		this.previewKey = previewKey; 		
 	}
 	
-	public String getPreviewKey() {
-		return previewKey;
+	public void setId(String id) {
+		this.id = id;
 	}
 
 	public void setPrivacy(Privacy privacy) {
 		this.privacy = privacy;
 	}
-	
-	public String getS3Key() {
-		return s3Key;
-	}
-
 }
