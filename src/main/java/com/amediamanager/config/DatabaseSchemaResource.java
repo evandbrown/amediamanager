@@ -7,25 +7,25 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import javax.annotation.PostConstruct;
+import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-
-import com.amediamanager.dao.ConnectionManager;
+import org.springframework.web.context.WebApplicationContext;
 
 @Component
-@Scope("prototype")
+@Scope(WebApplicationContext.SCOPE_APPLICATION)
 public class DatabaseSchemaResource implements ProvisionableResource {
 	
 	@Autowired
-	private ConnectionManager connectionManager;
+    private DataSource dataSource;
 	
 	private static final String name = "RDS Database Schema";
 	private ProvisionState provisionState;
 	
 	@PostConstruct
-	public void init() {
+	public void checkProvisionedState() {
 		try {
 			if(this.doesDataSourceExist(VIDEO_TABLE_NAME) && 
 					this.doesDataSourceExist(TAGS_TABLE_NAME) &&
@@ -54,6 +54,9 @@ public class DatabaseSchemaResource implements ProvisionableResource {
 		this.provisionDataSource(VIDEO_DROP_TABLE, VIDEO_CREATE_TABLE);
 		this.provisionDataSource(TAGS_DROP_TABLE, TAGS_CREATE_TABLE);
 		this.provisionDataSource(VIDEOS_TAGS_DROP_TABLE, VIDEOS_TAGS_CREATE_TABLE);
+		
+		// Refresh provisioned state
+		this.checkProvisionedState();
 	}
 	
 	private Boolean doesDataSourceExist(final String tableName) throws Exception {
@@ -64,7 +67,7 @@ public class DatabaseSchemaResource implements ProvisionableResource {
 		DatabaseMetaData metadata;
 
 		try {
-			connection = connectionManager.getConnection();
+			connection = dataSource.getConnection();
 			metadata = connection.getMetaData();
 			results = metadata.getTables(null, null, tableName, null);
 
@@ -88,7 +91,7 @@ public class DatabaseSchemaResource implements ProvisionableResource {
 		Connection connection = null;
 		Statement statement = null;
 		try {
-			connection = connectionManager.getConnection();
+			connection = dataSource.getConnection();
 			statement = connection.createStatement();
 			
 			statement.executeUpdate(dropTableQuery);
