@@ -8,6 +8,8 @@ import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
@@ -32,12 +34,14 @@ import com.amediamanager.exceptions.UserExistsException;
 @Repository
 public class DynamoDbUserDaoImpl implements UserDao {
 
+	private static final Logger LOG = LoggerFactory.getLogger(DynamoDbUserDaoImpl.class);
+
 	@Autowired
 	private ConfigurationSettings config;
-	
+
 	@Autowired
 	private AmazonDynamoDB dynamoClient;
-	
+
 	@Autowired
 	private AmazonS3 s3Client;
 
@@ -60,21 +64,21 @@ public class DynamoDbUserDaoImpl implements UserDao {
 		try {
 			// See if User item exists
 			User existing = this.find(user.getEmail());
-			
+
 			// If the user exists, throw an exception
 			if(existing != null) {
 				throw new UserExistsException();
 			}
-			
+
 			// Convert the User object to a Map. The DynamoDB PutItemRequest object
 			// requires the Item to be in the Map<String, AttributeValue> structure
 			Map<String, AttributeValue> userItem = getMapFromUser(user);
-			
+
 			// Create a request to save and return the user
 			PutItemRequest putItemRequest = new PutItemRequest()
 												.withTableName(config.getProperty(ConfigurationSettings.ConfigProps.DDB_USERS_TABLE))
 												.withItem(userItem);
-			
+
 			// Save user
 			dynamoClient.putItem(putItemRequest);
 		} catch (ResourceNotFoundException rnfe) {
@@ -86,26 +90,25 @@ public class DynamoDbUserDaoImpl implements UserDao {
 
 	@Override
 	public void update(User user) throws DataSourceTableDoesNotExistException {
-		try {			
+		try {
 			// If the object includes a profile pic file, upload it to S3
 			if(user.getprofilePicData() != null && user.getprofilePicData().getSize() > 0) {
 				try {
 					String profilePicUrl = this.uploadFileToS3(user.getprofilePicData());
 					user.setProfilePicKey(profilePicUrl);
 				} catch (IOException e) {
-					System.err.println("Error uploading profile pic to S3");
-					e.printStackTrace();
+					LOG.error("Error uploading profile pic to S3", e);
 				}
 			}
-			
+
 			// Convert the User object to a Map
 			Map<String, AttributeValue> userItem = getMapFromUser(user);
-			
+
 			// Create a request to save and return the user
 			PutItemRequest putItemRequest = new PutItemRequest()
 												.withItem(userItem)
 												.withTableName(config.getProperty(ConfigurationSettings.ConfigProps.DDB_USERS_TABLE));
-			
+
 			// Save user
 			dynamoClient.putItem(putItemRequest);
 		} catch (ResourceNotFoundException rnfe) {
@@ -118,6 +121,7 @@ public class DynamoDbUserDaoImpl implements UserDao {
 
 	@Override
 	public User find(String email) throws DataSourceTableDoesNotExistException {
+		LOG.info("Hi!");
 		try {
 
 			User user = null;
@@ -157,7 +161,7 @@ public class DynamoDbUserDaoImpl implements UserDao {
 	/**
 	 * Marshal a Map<String, AttributeValue> object (representing an Item
 	 * retrieved from DynamoDB) to a User.
-	 * 
+	 *
 	 * @return
 	 */
 	private User getUserFromMap(Map<String, AttributeValue> userItem) {
@@ -165,7 +169,7 @@ public class DynamoDbUserDaoImpl implements UserDao {
 		// is stored
 		// hashed, the last parameter is false to indicate.
 		User user = new User();
-		
+
 		user.setEmail(userItem.get(EMAIL_ATTR).getS());
 		user.setPassword(userItem.get(PASSWORD_ATTR).getS());
 		user.setId(userItem.get(EMAIL_ATTR).getS());
@@ -183,35 +187,35 @@ public class DynamoDbUserDaoImpl implements UserDao {
 
 		return user;
 	}
-	
+
 	/**
      * Marshal a User object to a Map<String, AttributeValue> suitable for inserting
      * as an item into a DynamoDB table.
-     * 
+     *
      * @param user
      * @return
      */
     private Map<String, AttributeValue> getMapFromUser(User user) {
 		// Create a Map object from the User
 		Map<String, AttributeValue> userItem = new HashMap<String, AttributeValue>();
-		
+
 		// Add items to the Map
 		userItem.put(EMAIL_ATTR, new AttributeValue(user.getEmail()));
 		userItem.put(PASSWORD_ATTR, new AttributeValue(user.getPassword()));
-		
+
 		// Ensure User properties are neither null nor empty strings
 		if(null != user.getNickname() && true != user.getNickname().isEmpty())
 			userItem.put(NICKNAME_ATTR, new AttributeValue(user.getNickname()));
-		
+
 		if(null != user.getTagline() && true != user.getTagline().isEmpty())
 			userItem.put(TAGLINE_ATTR, new AttributeValue(user.getTagline()));
-		
+
 		if(null != user.getProfilePicKey() && true != user.getProfilePicKey().isEmpty())
 			userItem.put(PROFILE_PIC_KEY_ATTR, new AttributeValue(user.getProfilePicKey()));
-		
+
 		return userItem;
     }
-    
+
     /**
      * Upload the profile pic to S3 and return it's URL
      * @param profilePic
@@ -222,26 +226,26 @@ public class DynamoDbUserDaoImpl implements UserDao {
 
 		// Profile pic prefix
     	String prefix = config.getProperty(ConfigProps.S3_PROFILE_PIC_PREFIX);
-    	
+
 		// Date string
 		String dateString = new SimpleDateFormat("ddMMyyyy").format(new java.util.Date());
 		String s3Key = prefix + "/" + dateString + "/" + UUID.randomUUID().toString() + "_" + profilePic.getOriginalFilename();
-		
+
 		// Get bucket
 		String s3bucket = config.getProperty(ConfigProps.S3_UPLOAD_BUCKET);
-		
+
 		// Create a ObjectMetadata instance to set the ACL, content type and length
 		ObjectMetadata metadata = new ObjectMetadata();
 		metadata.setContentType(profilePic.getContentType());
 		metadata.setContentLength(profilePic.getSize());
-		
+
 		// Create a PutRequest to upload the image
 		PutObjectRequest putObject = new PutObjectRequest(s3bucket, s3Key, profilePic.getInputStream(), metadata);
-		
+
 		// Put the image into S3
 		s3Client.putObject(putObject);
 		s3Client.setObjectAcl(s3bucket, s3Key, CannedAccessControlList.PublicRead);
-		
+
 		return "http://" + s3bucket + ".s3.amazonaws.com/" + s3Key;
     }
 }
