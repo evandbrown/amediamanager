@@ -39,7 +39,7 @@ public class MetricBatcher {
         queuedDatums.put(namespace, datum);
     }
 
-    @Scheduled(fixedDelay=30000)
+    @Scheduled(fixedDelay=60000)
     private void send() {
         System.err.println("Sending metric data.");
         synchronized(queuedDatums) {
