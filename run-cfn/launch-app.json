@@ -160,6 +160,11 @@
               "Value" : { "Ref" : "AppBucket" }
             },
             {
+              "Namespace" : "aws:elasticbeanstalk:application:environment",
+              "OptionName" : "S3_CONFIG_KEY",
+              "Value" : { "Fn::Join" : ["", ["config/env/", { "Ref" : "AWS::StackName" }, ".properties"]] }
+            },
+            {
               "Namespace" : "aws:autoscaling:launchconfiguration",
               "OptionName" : "EC2KeyName",
               "Value" : { "Ref" : "EC2KeyName" }
