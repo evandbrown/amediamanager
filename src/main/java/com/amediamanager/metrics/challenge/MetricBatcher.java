@@ -1,4 +1,4 @@
-package com.amediamanager.challenge;
+package com.amediamanager.metrics.challenge;
 
 import java.util.Collection;
 import java.util.Map;

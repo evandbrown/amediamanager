@@ -1,4 +1,4 @@
-package com.amediamanager.challenge;
+package com.amediamanager.metrics.challenge;
 
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.beans.factory.annotation.Autowired;
