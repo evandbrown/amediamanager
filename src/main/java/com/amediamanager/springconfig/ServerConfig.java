@@ -22,6 +22,8 @@ import com.amazonaws.services.rds.AmazonRDS;
 import com.amazonaws.services.rds.AmazonRDSClient;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.sqs.AmazonSQS;
+import com.amazonaws.services.sqs.AmazonSQSClient;
 import com.amediamanager.config.ConfigurationSettings;
 
 @Configuration
@@ -80,4 +82,9 @@ public class ServerConfig {
         return region.createClient(AmazonCloudWatchAsyncClient.class, creds, null);
     }
 
+    @Bean
+    @Scope(WebApplicationContext.SCOPE_APPLICATION)
+    public AmazonSQS sqsClient(final AWSCredentialsProvider creds, final Region region) {
+        return region.createClient(AmazonSQSClient.class, creds, null);
+    }
 }

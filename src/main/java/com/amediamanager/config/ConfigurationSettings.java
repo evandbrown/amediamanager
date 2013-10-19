@@ -36,39 +36,41 @@ import com.amazonaws.auth.AWSCredentialsProvider;
 @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class ConfigurationSettings {
 
-	private static final Logger LOG = LoggerFactory.getLogger(ConfigurationSettings.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ConfigurationSettings.class);
 
-	/** Available config properties **/
-	public static enum ConfigProps {
-		S3_UPLOAD_BUCKET,
-		S3_UPLOAD_PREFIX,
-		S3_PROFILE_PIC_PREFIX,
-		DEFAULT_PROFILE_PIC_KEY,
-		DEFAULT_VIDEO_POSTER_KEY,
-		RDS_DATABASE,
-		RDS_USERNAME,
-		RDS_PASSWORD,
-		RDS_INSTANCEID,
-		DDB_USERS_TABLE,
-		AWS_REGION,
-		TRANSCODE_TOPIC,
-		TRANSCODE_QUEUE,
-		TRANSCODE_ROLE
-	}
+    /** Available config properties **/
+    public static enum ConfigProps {
+        S3_UPLOAD_BUCKET,
+        S3_UPLOAD_PREFIX,
+        S3_PROFILE_PIC_PREFIX,
+        DEFAULT_PROFILE_PIC_KEY,
+        DEFAULT_VIDEO_POSTER_KEY,
+        RDS_DATABASE,
+        RDS_USERNAME,
+        RDS_PASSWORD,
+        RDS_INSTANCEID,
+        DDB_USERS_TABLE,
+        AWS_REGION,
+        TRANSCODE_TOPIC,
+        TRANSCODE_QUEUE,
+        TRANSCODE_ROLE,
+        TRANSCODE_PIPELINE,
+        TRANSCODE_PRESET
+    }
 
-	private final AWSCredentialsProvider credsProvider;
-	private final ConfigurationProviderChain configProviderChain;
+    private final AWSCredentialsProvider credsProvider;
+    private final ConfigurationProviderChain configProviderChain;
 
-	@Autowired
-	public ConfigurationSettings(final AWSCredentialsProvider credsProvider) throws IOException {
-		this.credsProvider = credsProvider;
-		this.configProviderChain = new ConfigurationProviderChain(
-				new S3ConfigurationProvider(),
-				new ClassResourceConfigurationProvider("/aMediaManager.properties")
-				);
+    @Autowired
+    public ConfigurationSettings(final AWSCredentialsProvider credsProvider) throws IOException {
+        this.credsProvider = credsProvider;
+        this.configProviderChain = new ConfigurationProviderChain(
+                new S3ConfigurationProvider(),
+                new ClassResourceConfigurationProvider("/aMediaManager.properties")
+                );
 
-		LOG.info("Config provider: " + this.configProviderChain.getTheProvider().getClass().getSimpleName());
-		LOG.info("---------------------");
+        LOG.info("Config provider: " + this.configProviderChain.getTheProvider().getClass().getSimpleName());
+        LOG.info("---------------------");
         LOG.info("Effective config:");
         this.configProviderChain.getProperties().list(System.out);
         LOG.info("---------------------");
@@ -76,59 +78,59 @@ public class ConfigurationSettings {
         LOG.info("Access Key=" + this.getAWSCredentialsProvider().getCredentials().getAWSAccessKeyId());
         LOG.info("Secret Key=" + this.getObfuscatedSecretKey());
 
-	}
+    }
 
-	/**
-	 * This method returns the AWS credentials object.
-	 * @return	AWS credentials taken from the properties and user-data.
-	 */
-	public AWSCredentialsProvider getAWSCredentialsProvider() {
-		return credsProvider;
-	}
+    /**
+     * This method returns the AWS credentials object.
+     * @return  AWS credentials taken from the properties and user-data.
+     */
+    public AWSCredentialsProvider getAWSCredentialsProvider() {
+        return credsProvider;
+    }
 
-	/**
-	 * Thsi method returns the ConfigurationProvider
-	 * @return
-	 */
-	public ConfigurationProvider getConfigurationProvider() {
-		return configProviderChain.getTheProvider();
-	}
+    /**
+     * Thsi method returns the ConfigurationProvider
+     * @return
+     */
+    public ConfigurationProvider getConfigurationProvider() {
+        return configProviderChain.getTheProvider();
+    }
 
-	@Scheduled(fixedDelay=60000)
-	public void refreshConfigurationProvider() {
-		this.configProviderChain.refresh();
-	}
+    @Scheduled(fixedDelay=60000)
+    public void refreshConfigurationProvider() {
+        this.configProviderChain.refresh();
+    }
 
-	public String getObfuscatedSecretKey() {
-		return this.getAWSCredentialsProvider().getCredentials().getAWSSecretKey().substring(0, 4) + "******************" + this.getAWSCredentialsProvider().getCredentials().getAWSSecretKey().substring(this.getAWSCredentialsProvider().getCredentials().getAWSSecretKey().length()-4, this.getAWSCredentialsProvider().getCredentials().getAWSSecretKey().length()-1);
-	}
+    public String getObfuscatedSecretKey() {
+        return this.getAWSCredentialsProvider().getCredentials().getAWSSecretKey().substring(0, 4) + "******************" + this.getAWSCredentialsProvider().getCredentials().getAWSSecretKey().substring(this.getAWSCredentialsProvider().getCredentials().getAWSSecretKey().length()-4, this.getAWSCredentialsProvider().getCredentials().getAWSSecretKey().length()-1);
+    }
 
-	/**
-	 * Accessor for the various properties in the configuration.
-	 *
-	 * @param propertyName	the name of the property key.  The static strings on this class can also be used.
-	 * @return	the value of the property.
-	 */
-	public String getProperty(ConfigurationSettings.ConfigProps property_name) {
-		return configProviderChain.getProperties().getProperty(property_name.name());
-	}
+    /**
+     * Accessor for the various properties in the configuration.
+     *
+     * @param propertyName  the name of the property key.  The static strings on this class can also be used.
+     * @return  the value of the property.
+     */
+    public String getProperty(ConfigurationSettings.ConfigProps property_name) {
+        return configProviderChain.getProperties().getProperty(property_name.name());
+    }
 
-	/**
-	 * This method returns aMediaManager configuration settings as a string of key-value pairs.
-	 * @return	aMediaManager configuration parameters from running environment.
-	 */
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		Enumeration<?> e = this.configProviderChain.getProperties().propertyNames();
-		while (e.hasMoreElements()){
-			String key = (String) e.nextElement();
-			sb.append(key);
-			sb.append("=");
-			sb.append(configProviderChain.getProperties().getProperty(key));
-			sb.append("\n");
-		}
+    /**
+     * This method returns aMediaManager configuration settings as a string of key-value pairs.
+     * @return  aMediaManager configuration parameters from running environment.
+     */
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        Enumeration<?> e = this.configProviderChain.getProperties().propertyNames();
+        while (e.hasMoreElements()){
+            String key = (String) e.nextElement();
+            sb.append(key);
+            sb.append("=");
+            sb.append(configProviderChain.getProperties().getProperty(key));
+            sb.append("\n");
+        }
 
-		return sb.toString();
-	}
+        return sb.toString();
+    }
 }
