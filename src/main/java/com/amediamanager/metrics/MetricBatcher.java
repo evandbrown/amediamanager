@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import com.amazonaws.handlers.AsyncHandler;
@@ -17,6 +19,7 @@ import com.google.common.collect.Multimaps;
 
 public class MetricBatcher {
 
+	private static final Logger LOG = LoggerFactory.getLogger(MetricBatcher.class);
     private static final int BATCH_SIZE = 10;
 
     private final Multimap<String, MetricDatum> queuedDatums =
@@ -38,7 +41,7 @@ public class MetricBatcher {
 
     @Scheduled(fixedDelay=60000)
     private void send() {
-        System.err.println("Sending metric data.");
+        LOG.info("Sending metric data.");
         synchronized(queuedDatums) {
             sendBatch(LinkedListMultimap.create(queuedDatums).asMap());
             queuedDatums.clear();
@@ -54,17 +57,16 @@ public class MetricBatcher {
 
                                                 @Override
                                                 public void onError(Exception exception) {
-                                                    System.err.println("Caught exception: " + exception.toString());
-                                                    exception.printStackTrace();
-                                                    System.err.println("Requeueing metric data.");
+                                                    LOG.error("PutMetricData failed", exception);
+                                                    LOG.info("Requeueing metric data.");
                                                     queuedDatums.putAll(e.getKey(), batch);
                                                 }
 
                                                 @Override
                                                 public void onSuccess(PutMetricDataRequest request, Void result) {
-                                                    System.err.println("Successfully put " + request.getMetricData().size() +
+                                                    LOG.info("Successfully put " + request.getMetricData().size() +
                                                                             " datums for namespace " + request.getNamespace());
-                                                    System.err.println(request);
+                                                    LOG.debug("Request", request);
                                                 }
 
                 });
