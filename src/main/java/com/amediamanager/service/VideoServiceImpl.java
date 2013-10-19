@@ -50,32 +50,6 @@ public class VideoServiceImpl implements VideoService {
     @Override
     public List<Video> findByUserId(String email) {
         return videoDao.findByUserId(email);
-        /*Video v = new Video();
-        v.setCreatedDate(new Date());
-        v.setUploadedDate(new Date());
-        v.setDescription("I took this video with my iPhone!");
-        v.setThumbnailKey("https://amm.s3.amazonaws.com/output/evbrown/web/eb-console-cap-00001.png");
-        v.setPrivacy(Privacy.SHARED);
-        v.setPreviewKey("https://amm.s3.amazonaws.com/output/evbrown/web/eb-console-cap.mp4");
-        v.setS3Key("output/evbrown/web/eb-console-cap.mp4");
-        v.setTitle("My cool video");
-        v.setId(UUID.randomUUID().toString());
-
-        TagSet<String> tags = new TagSet<String>();
-        tags.add("vacation");
-        tags.add("paris");
-        tags.add("yolo");
-        tags.add("callmemaybe");
-        v.setTags(tags);
-
-        List<Video> videos = new ArrayList<Video>();
-        videos.add(v);
-        videos.add(v);
-        videos.add(v);
-        videos.add(v);
-        videos.add(v);
-
-        return videos;*/
     }
 
     @Override
@@ -100,11 +74,27 @@ public class VideoServiceImpl implements VideoService {
                 msec += expirationInMillis;
                 expiration.setTime(msec);
 
+                // Expiring URL for original video
                 GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(video.getBucket(), video.getOriginalKey());
                 generatePresignedUrlRequest.setMethod(HttpMethod.GET);
                 generatePresignedUrlRequest.setExpiration(expiration);
-
                 video.setExpiringUrl(s3Client.generatePresignedUrl(generatePresignedUrlRequest));
+                
+                // Expiring URL for preview video
+                if(video.getPreviewKey() != null) {
+	                generatePresignedUrlRequest = new GeneratePresignedUrlRequest(video.getBucket(), video.getPreviewKey());
+	                generatePresignedUrlRequest.setMethod(HttpMethod.GET);
+	                generatePresignedUrlRequest.setExpiration(expiration);
+	                video.setExpiringPreviewKey(s3Client.generatePresignedUrl(generatePresignedUrlRequest));
+                }
+                
+                // Expiring URL for original video
+                if(video.getThumbnailKey() != null) {
+	                generatePresignedUrlRequest = new GeneratePresignedUrlRequest(video.getBucket(), video.getThumbnailKey());
+	                generatePresignedUrlRequest.setMethod(HttpMethod.GET);
+	                generatePresignedUrlRequest.setExpiration(expiration);
+	                video.setExpiringThumbnailKey(s3Client.generatePresignedUrl(generatePresignedUrlRequest));
+                }
             }
         }
 

@@ -96,14 +96,12 @@ public class ElasticTranscoderTasks {
                 // Construct our url prefix: https://bucketname.s3.amazonaws.com/output/key/
                 String prefix = notification.get("outputKeyPrefix").asText();
                 if (!prefix.endsWith("/")) { prefix += "/"; }
-                if (!prefix.startsWith("/")) { prefix = "/" + prefix; }
-                prefix = "https://" + video.getBucket() + ".s3.amazonaws.com" + prefix;
 
                 ObjectNode output = ((ObjectNode) ((ArrayNode) notification.get("outputs")).get(0));
-                String previewFilename = output.get("key").asText();
-                String thumbnailFilename = output.get("thumbnailPattern").asText().replaceAll("\\{count\\}", "00001") + ".png";
-                video.setPreviewKey(prefix + previewFilename);
-                video.setThumbnailKey(prefix + thumbnailFilename);
+                String previewFilename = prefix + output.get("key").asText();
+                String thumbnailFilename = prefix + output.get("thumbnailPattern").asText().replaceAll("\\{count\\}", "00001") + ".png";
+                video.setPreviewKey(previewFilename);
+                video.setThumbnailKey(thumbnailFilename);
                 videoService.save(video);
             }
             deleteMessage(message);

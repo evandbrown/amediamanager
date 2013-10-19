@@ -36,6 +36,8 @@ public class Video {
     private Privacy privacy = Privacy.PRIVATE;
     private Set<Tag> tags;
     private URL expiringUrl;
+    private URL expiringThumbnailKey;
+    private URL expiringPreviewKey;
 
     public Video() {
     }
@@ -115,6 +117,16 @@ public class Video {
     public URL getExpiringUrl() {
         return expiringUrl;
     }
+    
+    @Transient
+	public URL getExpiringThumbnailKey() {
+		return expiringThumbnailKey;
+	}
+    
+    @Transient
+	public URL getExpiringPreviewKey() {
+		return expiringPreviewKey;
+	}
 
     public void setTranscodeJobId(final String jobId) {
         this.transcodeJobId = jobId;
@@ -171,4 +183,12 @@ public class Video {
     public void setPrivacy(Privacy privacy) {
         this.privacy = privacy;
     }
+
+	public void setExpiringThumbnailKey(URL expiringThumbnailKey) {
+		this.expiringThumbnailKey = expiringThumbnailKey;
+	}
+
+	public void setExpiringPreviewKey(URL expiringPreviewKey) {
+		this.expiringPreviewKey = expiringPreviewKey;
+	}
 }

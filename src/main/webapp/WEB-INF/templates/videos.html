@@ -25,12 +25,12 @@
 						<span th:unless="${#strings.isEmpty(video.previewKey)}"> <video
 								th:id="'example_video_' + ${iterStat.count}"
 								class="video-js vjs-default-skin" controls="true" preload="auto"
-								th:poster="${video.thumbnailKey}"
+								th:poster="${video.expiringThumbnailKey}"
 								data-setup='{"example_option":true}'>
-								<source th:src="${video.previewKey}" type='video/mp4' />
+								<source th:src="${video.expiringPreviewKey}" type='video/mp4' />
 							</video>
 						</span> <span th:if="${#strings.isEmpty(video.previewKey)}"> <img
-							th:src="${video.thumbnailKey}" class="img-responsive"></img>
+							th:src="${video.expiringThumbnailKey}" class="img-responsive"></img>
 						</span>
 						<div class="options">
 							<h3 th:text="${video.title}">Video title</h3>
@@ -55,7 +55,7 @@
 
 									<!--  If the streaming version is set, show it -->
 									<li th:if="${not #strings.isEmpty(video.previewKey)}"><a
-										target="_blank" th:href="${video.previewKey}">Web</a></li>
+										target="_blank" th:href="${video.expiringPreviewKey}">Web</a></li>
 									<li th:if="${#strings.isEmpty(video.previewKey)}"
 										class="disabled"><a target="_blank" href="#">Web (not
 											available)</a></li>
