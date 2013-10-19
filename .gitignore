@@ -1,5 +1,7 @@
 ### /Users/evbrown/.gitignore-boilerplates/java.gitignore
 
+aMediaManager.properties
+
 *.class
 
 # Package Files #
