@@ -1,4 +1,4 @@
-	package com.amediamanager.domain;
+    package com.amediamanager.domain;
 
 import java.net.URL;
 import java.util.Date;
@@ -11,10 +11,10 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
-import javax.persistence.JoinColumn;
 import javax.persistence.Transient;
 
 import org.apache.commons.lang.StringUtils;
@@ -22,144 +22,153 @@ import org.apache.commons.lang.StringUtils;
 @Entity
 @Table(name="videos")
 public class Video {
+    private String id;
+    private String transcodeJobId;
+    private String owner;
+    private String bucket;
+    private String originalKey;
+    private String thumbnailKey;
+    private String previewKey;
+    private String title;
+    private String description;
+    private Date uploadedDate;
+    private Date createdDate;
+    private Privacy privacy = Privacy.PRIVATE;
+    private Set<Tag> tags;
+    private URL expiringUrl;
 
-	private String id;
-	private String owner;
-	private String bucket;
-	private String originalKey;
-	private String thumbnailKey;
-	private String previewKey;
-	private String title;
-	private String description;
-	private Date uploadedDate;
-	private Date createdDate;
-	private Privacy privacy = Privacy.PRIVATE;
-	private Set<Tag> tags;
-	private URL expiringUrl;
+    public Video() {
+    }
 
-	public Video() {
-	}
+    @Id
+    @Column(name = "videoId", unique = true, nullable = false)
+    public String getId() {
+        return id;
+    }
 
-	@Id
-	@Column(name = "videoId", unique = true, nullable = false)
-	public String getId() {
-		return id;
-	}
-	
-	@Column
-	public String getOriginalKey() {
-		return originalKey;
-	}
+    @Column(nullable = true, unique = true)
+    public String getTranscodeJobId() {
+        return transcodeJobId;
+    }
 
-	@Column
-	public String getOwner() {
-		return owner;
-	}
+    @Column
+    public String getOriginalKey() {
+        return originalKey;
+    }
 
-	@Column
-	public Date getUploadedDate() {
-		return uploadedDate;
-	}
+    @Column
+    public String getOwner() {
+        return owner;
+    }
 
-	@Column
-	@Enumerated(EnumType.STRING)
-	public Privacy getPrivacy() {
-		return privacy;
-	}
+    @Column
+    public Date getUploadedDate() {
+        return uploadedDate;
+    }
 
-	@Column
-	public String getTitle() {
-		return title;
-	}
+    @Column
+    @Enumerated(EnumType.STRING)
+    public Privacy getPrivacy() {
+        return privacy;
+    }
 
-	@Column
-	public String getDescription() {
-		return description;
-	}
+    @Column
+    public String getTitle() {
+        return title;
+    }
 
-	@Column
-	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-	@JoinTable(name = "videos_tags", joinColumns = { 
-			@JoinColumn(name = "videoId", nullable = false) }, 
-			inverseJoinColumns = { @JoinColumn(name = "tagId", nullable = false) })
-	public Set<Tag> getTags() {
-		return tags;
-	}
+    @Column
+    public String getDescription() {
+        return description;
+    }
 
-	@Column
-	public Date getCreatedDate() {
-		return createdDate;
-	}
-	
-	@Column
-	public String getPreviewKey() {
-		return previewKey;
-	}
-	
-	@Column
-	public String getThumbnailKey() {
-		return thumbnailKey;
-	}
-	
-	@Column
-	public String getBucket() {
-		return bucket;
-	}
-	
-	@Transient
-	public URL getExpiringUrl() {
-		return expiringUrl;
-	}
-	
-	public void setExpiringUrl(URL expiringUrl) {
-		this.expiringUrl = expiringUrl;
-	}
-	
-	public void setBucket(String bucket) {
-		this.bucket = bucket;
-	}
-	
-	public void setOriginalKey(String originalKey) {
-		this.originalKey = originalKey;
-	}
-	
-	public void setTitle(String title) {
-		this.title = StringUtils.stripToNull(title);
-	}
+    @Column
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinTable(name = "videos_tags", joinColumns = {
+            @JoinColumn(name = "videoId", nullable = false) },
+            inverseJoinColumns = { @JoinColumn(name = "tagId", nullable = false) })
+    public Set<Tag> getTags() {
+        return tags;
+    }
 
-	public void setDescription(String description) {
-		this.description = StringUtils.stripToNull(description);
-	}
+    @Column
+    public Date getCreatedDate() {
+        return createdDate;
+    }
 
-	public void setTags(Set<Tag> tags) {
-		this.tags = tags;
-	}
-	
-	public void setCreatedDate(Date createdDate) {
-		this.createdDate = createdDate;		
-	}
+    @Column
+    public String getPreviewKey() {
+        return previewKey;
+    }
 
-	public void setUploadedDate(Date uploadedDate) {
-		this.uploadedDate = uploadedDate;		
-	}
+    @Column
+    public String getThumbnailKey() {
+        return thumbnailKey;
+    }
 
-	public void setOwner(String owner) {
-		this.owner = owner;
-	}
-	
-	public void setThumbnailKey(String thumbnailKey) {
-		this.thumbnailKey = thumbnailKey; 		
-	}
-	
-	public void setPreviewKey(String previewKey) {
-		this.previewKey = previewKey; 		
-	}
-	
-	public void setId(String id) {
-		this.id = id;
-	}
+    @Column
+    public String getBucket() {
+        return bucket;
+    }
 
-	public void setPrivacy(Privacy privacy) {
-		this.privacy = privacy;
-	}
+    @Transient
+    public URL getExpiringUrl() {
+        return expiringUrl;
+    }
+
+    public void setTranscodeJobId(final String jobId) {
+        this.transcodeJobId = jobId;
+    }
+
+    public void setExpiringUrl(URL expiringUrl) {
+        this.expiringUrl = expiringUrl;
+    }
+
+    public void setBucket(String bucket) {
+        this.bucket = bucket;
+    }
+
+    public void setOriginalKey(String originalKey) {
+        this.originalKey = originalKey;
+    }
+
+    public void setTitle(String title) {
+        this.title = StringUtils.stripToNull(title);
+    }
+
+    public void setDescription(String description) {
+        this.description = StringUtils.stripToNull(description);
+    }
+
+    public void setTags(Set<Tag> tags) {
+        this.tags = tags;
+    }
+
+    public void setCreatedDate(Date createdDate) {
+        this.createdDate = createdDate;
+    }
+
+    public void setUploadedDate(Date uploadedDate) {
+        this.uploadedDate = uploadedDate;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
+    public void setThumbnailKey(String thumbnailKey) {
+        this.thumbnailKey = thumbnailKey;
+    }
+
+    public void setPreviewKey(String previewKey) {
+        this.previewKey = previewKey;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setPrivacy(Privacy privacy) {
+        this.privacy = privacy;
+    }
 }

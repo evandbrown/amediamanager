@@ -4,10 +4,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
+import com.amediamanager.config.ConfigurationSettings.ConfigProps;
+
 public class ConfigurationProviderChain extends ConfigurationProvider {
 	private Properties properties;
 	private ConfigurationProvider theProvider;
-	private List<ConfigurationProvider> configurationProviders = new LinkedList<ConfigurationProvider>();
+	private final List<ConfigurationProvider> configurationProviders = new LinkedList<ConfigurationProvider>();
 
 	public ConfigurationProviderChain(
 			ConfigurationProvider... configurationProviders) {
@@ -51,6 +53,11 @@ public class ConfigurationProviderChain extends ConfigurationProvider {
 	public void persistNewProperty(String key, String value) {
 		this.theProvider.persistNewProperty(key, value);
 		this.refresh();
+	}
+
+	@Override
+	public void persistNewProperty(ConfigProps property, String value) {
+		persistNewProperty(property.name(), value);
 	}
 
 	public ConfigurationProvider getTheProvider() {
