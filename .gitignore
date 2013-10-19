@@ -37,7 +37,6 @@ local.properties
 .buildpath
 
 target/
-*.properties
 
 # pycharm
 .idea

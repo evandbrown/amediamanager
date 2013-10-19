@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
@@ -12,6 +14,7 @@ import com.amazonaws.services.s3.model.S3Object;
 
 public class S3ConfigurationProvider extends ConfigurationProvider {
 
+	private static final Logger LOG = LoggerFactory.getLogger(S3ConfigurationProvider.class);
 	private final String s3ConfigBucketEnvVarName = "S3_CONFIG_BUCKET";
 	private String s3ConfigKeyEnvVarName = "S3_CONFIG_KEY";
 	private String bucket;
@@ -44,8 +47,7 @@ public class S3ConfigurationProvider extends ConfigurationProvider {
 					}
 				}
 			} catch (AmazonS3Exception ase) {
-				System.err.println("Error loading config from s3://"
-						+ this.bucket + "/" + this.key);
+				LOG.error("Error loading config from s3://{}/{}", new Object[]{this.bucket, this.key, ase});
 			}
 		}
 		return properties;
@@ -64,8 +66,7 @@ public class S3ConfigurationProvider extends ConfigurationProvider {
 				s3Client.putObject(this.bucket, this.key,
 						IOUtils.toInputStream(this.propsToString(this.properties)), null);
 			} catch (AmazonS3Exception ase) {
-				System.err.println("Error persisting config to s3://"
-						+ this.bucket + "/" + this.key);
+				LOG.error("Error persisting config from s3://{}/{}", new Object[]{this.bucket, this.key, ase});
 			}
 		}
 	}
