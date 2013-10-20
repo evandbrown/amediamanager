@@ -16,7 +16,7 @@
       "ConstraintDescription" : "must begin with a letter and contain only alphanumeric characters."
     },
     "DatabasePassword": {
-      "Default": "admin",
+      "Default": "0bee082a464",
       "NoEcho": "true",
       "Type": "String",
       "Description" : "Database admin account password",
@@ -35,7 +35,7 @@
       "Type": "String",
       "Default": "public/amediamanager.war"
     },
-    "EC2KeyName": {
+    "KeyName": {
       "Description": "The Key Pair to launch instances with",
       "Type": "String"
     },
@@ -166,7 +166,7 @@
             {
               "Namespace" : "aws:autoscaling:launchconfiguration",
               "OptionName" : "EC2KeyName",
-              "Value" : { "Ref" : "EC2KeyName" }
+              "Value" : { "Ref" : "KeyName" }
             },
             {
               "Namespace" : "aws:autoscaling:launchconfiguration",
