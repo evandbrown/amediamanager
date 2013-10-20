@@ -84,7 +84,7 @@ public class VideoController {
     @RequestMapping(value = "/video/{videoId}", method = RequestMethod.GET)
     public String videoGet(ModelMap model, @PathVariable String videoId) {
         Video video = videoService.findById(videoId);
-
+        video = videoService.generateExpiringUrl(video, 5000);
         model.addAttribute("video", video);
         model.addAttribute("templateName", "video_edit");
 

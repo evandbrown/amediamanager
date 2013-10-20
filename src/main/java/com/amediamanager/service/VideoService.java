@@ -19,7 +19,9 @@ public interface VideoService {
 
     public List<Video> findAllPublic(int limit, int start, int end) throws DataSourceTableDoesNotExistException;
 
-    public List<Video> generateExpiringUrls(List<Video> videos, long expirationInMillis);
+    public Video generateExpiringUrl(Video video, long expirationInMillis);
+    
+    public List<Video> generateExpiringUrls(List<Video> video, long expirationInMillis);
 
     public String getDefaultVideoPosterKey();
 }

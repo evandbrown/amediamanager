@@ -1,36 +1,43 @@
 <style>
-.video-js {
-	margin-top: 10px;
+.mejs-container {
+	margin-top: 5px;
 	margin-left: auto;
 	margin-right: auto;
 }
-
-.vjs-default-skin .vjs-big-play-button {
-	top: 50%;
-	left: 50%;
-	margin: -4em auto auto -6em;
-	background-color: rgba(255, 0, 0, 0);
+img.inprogress {
+	margin-top:5px;
+	margin-bottom:5px;
 }
 </style>
-
+<script>
+	// jQuery method
+	$(document).ready(function() {
+		$('video').mediaelementplayer({
+			features: ['playpause','progress','current','duration','fullscreen'],
+			autosizeProgress: false
+		});
+	})
+</script>
 <div class="row">
 	<div class="col-md-9 section-preview">
 		<span th:unless="${#lists.isEmpty(videos)}">
 			<div id="legend">
 				<legend>Your Videos</legend>
 			</div>
+
 			<div th:each="video,iterStat : ${videos}">
 				<div class="col-md-6">
 					<div class="preview">
-						<span th:unless="${#strings.isEmpty(video.previewKey)}"> <video
+						<span th:unless="${#strings.isEmpty(video.previewKey)}" class="no-svg">
+							<video
+							    style="width:100%;"
+								th:src="${video.expiringPreviewKey}" type="video/mp4"
 								th:id="'example_video_' + ${iterStat.count}"
-								class="video-js vjs-default-skin" controls="true" preload="auto"
 								th:poster="${video.expiringThumbnailKey}"
-								data-setup='{"example_option":true}'>
-								<source th:src="${video.expiringPreviewKey}" type='video/mp4' />
+								width="320" height="240">
 							</video>
 						</span> <span th:if="${#strings.isEmpty(video.previewKey)}"> <img
-							th:src="${video.expiringThumbnailKey}" class="img-responsive"></img>
+							th:src="${video.expiringThumbnailKey}" class="img-responsive inprogress"></img>
 						</span>
 						<div class="options">
 							<h3 th:text="${video.title}">Video title</h3>

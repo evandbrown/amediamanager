@@ -99,7 +99,7 @@ public class ElasticTranscoderTasks {
 
                 ObjectNode output = ((ObjectNode) ((ArrayNode) notification.get("outputs")).get(0));
                 String previewFilename = prefix + output.get("key").asText();
-                String thumbnailFilename = prefix + output.get("thumbnailPattern").asText().replaceAll("\\{count\\}", "00001") + ".png";
+                String thumbnailFilename = prefix + output.get("thumbnailPattern").asText().replaceAll("\\{count\\}", "00002") + ".png";
                 video.setPreviewKey(previewFilename);
                 video.setThumbnailKey(thumbnailFilename);
                 videoService.save(video);
