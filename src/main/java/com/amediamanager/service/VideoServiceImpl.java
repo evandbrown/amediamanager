@@ -38,10 +38,14 @@ public class VideoServiceImpl implements VideoService {
 
 	@Override
 	public void update(Video video) throws DataSourceTableDoesNotExistException {
-		// TODO Auto-generated method stub
 		videoDao.update(video);
 	}
 
+	@Override
+	public void delete(Video video) {
+		videoDao.delete(video);
+	}
+	
 	@Override
 	public Video findById(String videoId)
 			throws DataSourceTableDoesNotExistException {

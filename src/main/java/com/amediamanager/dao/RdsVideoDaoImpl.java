@@ -31,6 +31,11 @@ public class RdsVideoDaoImpl implements VideoDao {
         getCurrentSession().saveOrUpdate(video);
     }
 
+    @Override
+    public void delete(Video video) {
+    	getCurrentSession().delete(video);
+    }
+    
     @SuppressWarnings("unchecked")
     @Override
     public List<Video> findByUserId(String userId) {

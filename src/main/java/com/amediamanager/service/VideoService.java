@@ -7,9 +7,11 @@ import com.amediamanager.exceptions.DataSourceTableDoesNotExistException;
 
 public interface VideoService {
 
-    public void save(Video user) throws DataSourceTableDoesNotExistException;;
+    public void save(Video user) throws DataSourceTableDoesNotExistException;
 
-    public void update(Video user) throws DataSourceTableDoesNotExistException;;
+    public void update(Video user) throws DataSourceTableDoesNotExistException;
+    
+    public void delete(Video video);
 
     public Video findById(String videoId) throws DataSourceTableDoesNotExistException;
 

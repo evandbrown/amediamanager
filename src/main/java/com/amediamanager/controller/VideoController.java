@@ -52,162 +52,174 @@ import com.amediamanager.util.VideoUploadFormSigner;
 
 @Controller
 public class VideoController {
-    private static final Logger LOG = LoggerFactory.getLogger(VideoController.class);
+	private static final Logger LOG = LoggerFactory
+			.getLogger(VideoController.class);
 
-    @Autowired
-    VideoService videoService;
+	@Autowired
+	VideoService videoService;
 
-    @Autowired
-    AmazonElasticTranscoder transcoderClient;
+	@Autowired
+	AmazonElasticTranscoder transcoderClient;
 
-    @Autowired
-    ConfigurationSettings config;
+	@Autowired
+	ConfigurationSettings config;
 
-    @Autowired
-    AmazonS3 s3Client;
+	@Autowired
+	AmazonS3 s3Client;
 
-    @ModelAttribute("allPrivacy")
-    public List<Privacy> populatePrivacy() {
-        return Arrays.asList(Privacy.ALL);
-    }
+	@ModelAttribute("allPrivacy")
+	public List<Privacy> populatePrivacy() {
+		return Arrays.asList(Privacy.ALL);
+	}
 
-    @ModelAttribute("allContentType")
-    public List<ContentType> populateContentType() {
-        return Arrays.asList(ContentType.ALL);
-    }
+	@ModelAttribute("allContentType")
+	public List<ContentType> populateContentType() {
+		return Arrays.asList(ContentType.ALL);
+	}
 
-    @RequestMapping(value = "/videos", method = RequestMethod.GET)
-    public String videos(ModelMap model) {
-        return "redirect:/";
-    }
+	@RequestMapping(value = "/videos", method = RequestMethod.GET)
+	public String videos(ModelMap model) {
+		return "redirect:/";
+	}
 
-    @RequestMapping(value = "/video/{videoId}", method = RequestMethod.GET)
-    public String videoGet(ModelMap model, @PathVariable String videoId) {
-        Video video = videoService.findById(videoId);
-        video = videoService.generateExpiringUrl(video, 5000);
-        model.addAttribute("video", video);
-        model.addAttribute("templateName", "video_edit");
+	@RequestMapping(value = "/video/{videoId}", method = RequestMethod.GET)
+	public String videoGet(ModelMap model, @PathVariable String videoId,
+			@RequestParam(value = "delete", required = false) String delete) {
+		Video video = videoService.findById(videoId);
 
-        return "base";
-    }
+		if (null != delete) {
+			videoService.delete(video);
+			return videos(model);
+		} else {
+			video = videoService.generateExpiringUrl(video, 5000);
+			model.addAttribute("video", video);
+			model.addAttribute("templateName", "video_edit");
 
-    @RequestMapping(value = "/video/edit/{videoId}", method = RequestMethod.POST)
-    public String videoEdit(@ModelAttribute Video video, @PathVariable String videoId, BindingResult result,
-            RedirectAttributes attr, HttpSession session) {
-        videoService.update(video);
-        return "redirect:/";
-    }
+			return "base";
+		}
+	}
 
-    @RequestMapping(value = "/video/upload", method = RequestMethod.GET)
-    public String videoUpload(ModelMap model, HttpServletRequest request,
-            @ModelAttribute User user) {
-        // Video redirect URL
-        String redirectUrl = request.getScheme() + "://"
-                + request.getServerName() + ":" + request.getServerPort()
-                + request.getContextPath() + "/video/ingest";
+	@RequestMapping(value = "/video/{videoId}", method = RequestMethod.POST)
+	public String videoEdit(@ModelAttribute Video video,
+			@PathVariable String videoId, BindingResult result,
+			RedirectAttributes attr, HttpSession session) {
+		videoService.update(video);
+		return "redirect:/";
+	}
 
-        // Prepare S3 form upload
-        VideoUploadFormSigner formSigner = new VideoUploadFormSigner(
-                config.getProperty(ConfigProps.S3_UPLOAD_BUCKET),
-                config.getProperty(ConfigProps.S3_UPLOAD_PREFIX),
-                user,
-                config.getAWSCredentialsProvider(), redirectUrl);
+	@RequestMapping(value = "/video/upload", method = RequestMethod.GET)
+	public String videoUpload(ModelMap model, HttpServletRequest request,
+			@ModelAttribute User user) {
+		// Video redirect URL
+		String redirectUrl = request.getScheme() + "://"
+				+ request.getServerName() + ":" + request.getServerPort()
+				+ request.getContextPath() + "/video/ingest";
 
-        model.addAttribute("formSigner", formSigner);
-        model.addAttribute("templateName", "video_upload");
+		// Prepare S3 form upload
+		VideoUploadFormSigner formSigner = new VideoUploadFormSigner(
+				config.getProperty(ConfigProps.S3_UPLOAD_BUCKET),
+				config.getProperty(ConfigProps.S3_UPLOAD_PREFIX), user,
+				config.getAWSCredentialsProvider(), redirectUrl);
 
-        return "base";
-    }
+		model.addAttribute("formSigner", formSigner);
+		model.addAttribute("templateName", "video_upload");
 
-    public void createVideoPreview(Video video) {
-        String pipelineId = config.getProperty(ConfigProps.TRANSCODE_PIPELINE);
-        String presetId = config.getProperty(ConfigProps.TRANSCODE_PRESET);
-        if (pipelineId == null || presetId == null) {
-            return;
-        }
-        CreateJobRequest encodeJob = new CreateJobRequest()
-            .withPipelineId(pipelineId)
-            .withInput(new JobInput()
-                    .withKey(video.getOriginalKey())
-                    .withAspectRatio("auto")
-                    .withContainer("auto")
-                    .withFrameRate("auto")
-                    .withInterlaced("auto")
-                    .withResolution("auto"))
-            .withOutputKeyPrefix("uploads/converted/" + video.getOwner() + "/")
-            .withOutput(new CreateJobOutput()
-                    .withKey(UUID.randomUUID().toString())
-                    .withPresetId(presetId)
-                    .withThumbnailPattern("thumbs/" + UUID.randomUUID().toString() + "-{count}"));
+		return "base";
+	}
 
-        try {
-            CreateJobResult result = transcoderClient.createJob(encodeJob);
-            video.setTranscodeJobId(result.getJob().getId());
-            video.setThumbnailKey("static/img/in_progress_poster.png");
-            videoService.save(video);
-        } catch (AmazonServiceException e) {
-            LOG.error("Failed creating transcode job for video {}", video.getId(), e);
-        }
-    }
+	public void createVideoPreview(Video video) {
+		String pipelineId = config.getProperty(ConfigProps.TRANSCODE_PIPELINE);
+		String presetId = config.getProperty(ConfigProps.TRANSCODE_PRESET);
+		if (pipelineId == null || presetId == null) {
+			return;
+		}
+		CreateJobRequest encodeJob = new CreateJobRequest()
+				.withPipelineId(pipelineId)
+				.withInput(
+						new JobInput().withKey(video.getOriginalKey())
+								.withAspectRatio("auto").withContainer("auto")
+								.withFrameRate("auto").withInterlaced("auto")
+								.withResolution("auto"))
+				.withOutputKeyPrefix(
+						"uploads/converted/" + video.getOwner() + "/")
+				.withOutput(
+						new CreateJobOutput()
+								.withKey(UUID.randomUUID().toString())
+								.withPresetId(presetId)
+								.withThumbnailPattern(
+										"thumbs/"
+												+ UUID.randomUUID().toString()
+												+ "-{count}"));
 
-    @RequestMapping(value = "/video/ingest", method = RequestMethod.GET)
-    public String videoIngest(ModelMap model,
-            @RequestParam(value = "bucket") String bucket,
-            @RequestParam(value = "key") String videoKey) throws ParseException {
+		try {
+			CreateJobResult result = transcoderClient.createJob(encodeJob);
+			video.setTranscodeJobId(result.getJob().getId());
+			video.setThumbnailKey("static/img/in_progress_poster.png");
+			videoService.save(video);
+		} catch (AmazonServiceException e) {
+			LOG.error("Failed creating transcode job for video {}",
+					video.getId(), e);
+		}
+	}
 
-        // From bucket and key, get metadata from video that was just uploaded
-        GetObjectMetadataRequest metadataReq = new GetObjectMetadataRequest(
-                bucket, videoKey);
-        ObjectMetadata metadata = s3Client.getObjectMetadata(metadataReq);
-        Map<String, String> userMetadata = metadata.getUserMetadata();
+	@RequestMapping(value = "/video/ingest", method = RequestMethod.GET)
+	public String videoIngest(ModelMap model,
+			@RequestParam(value = "bucket") String bucket,
+			@RequestParam(value = "key") String videoKey) throws ParseException {
 
-        Video video = new Video();
+		// From bucket and key, get metadata from video that was just uploaded
+		GetObjectMetadataRequest metadataReq = new GetObjectMetadataRequest(
+				bucket, videoKey);
+		ObjectMetadata metadata = s3Client.getObjectMetadata(metadataReq);
+		Map<String, String> userMetadata = metadata.getUserMetadata();
 
-        video.setDescription(userMetadata.get("description"));
-        video.setOwner(userMetadata.get("owner"));
-        video.setId(userMetadata.get("uuid"));
-        video.setTitle(userMetadata.get("title"));
-        video.setPrivacy(Privacy.fromName(userMetadata.get("privacy")));
-        video.setCreatedDate(new SimpleDateFormat("MM/dd/yyyy").parse(userMetadata.get("createddate")));
-        video.setOriginalKey(videoKey);
-        video.setBucket(userMetadata.get("bucket"));
-        video.setUploadedDate(new Date());
+		Video video = new Video();
 
-        Set<Tag> tags = new HashSet<Tag>();
-        for(String tag : userMetadata.get("tags").split(",")) {
-            tags.add(new Tag(tag));
-        }
-        video.setTags(tags);
+		video.setDescription(userMetadata.get("description"));
+		video.setOwner(userMetadata.get("owner"));
+		video.setId(userMetadata.get("uuid"));
+		video.setTitle(userMetadata.get("title"));
+		video.setPrivacy(Privacy.fromName(userMetadata.get("privacy")));
+		video.setCreatedDate(new SimpleDateFormat("MM/dd/yyyy")
+				.parse(userMetadata.get("createddate")));
+		video.setOriginalKey(videoKey);
+		video.setBucket(userMetadata.get("bucket"));
+		video.setUploadedDate(new Date());
 
-        videoService.save(video);
+		Set<Tag> tags = new HashSet<Tag>();
+		for (String tag : userMetadata.get("tags").split(",")) {
+			tags.add(new Tag(tag));
+		}
+		video.setTags(tags);
 
-        // Kick off preview encoding
-        createVideoPreview(video);
+		videoService.save(video);
 
-        return "redirect:/";
-    }
+		// Kick off preview encoding
+		createVideoPreview(video);
 
-    @InitBinder
-    public void initDateBinder(final WebDataBinder dataBinder) {
-        // Bind dates
-        final String dateformat = "MM/dd/yyyy";
-        final SimpleDateFormat sdf = new SimpleDateFormat(dateformat);
-        sdf.setLenient(false);
-        dataBinder.registerCustomEditor(Date.class, new CustomDateEditor(sdf,
-                false));
-    }
+		return "redirect:/";
+	}
 
-    @InitBinder
-    public void initTagsBinder(final WebDataBinder dataBinder) {
-        // Bind tags
-        dataBinder.registerCustomEditor(Set.class,
-                new CommaDelimitedTagEditor());
-    }
+	@InitBinder
+	public void initDateBinder(final WebDataBinder dataBinder) {
+		// Bind dates
+		final String dateformat = "MM/dd/yyyy";
+		final SimpleDateFormat sdf = new SimpleDateFormat(dateformat);
+		sdf.setLenient(false);
+		dataBinder.registerCustomEditor(Date.class, new CustomDateEditor(sdf,
+				false));
+	}
 
-    @InitBinder
-    public void initPrivacyBinder(final WebDataBinder dataBinder) {
-        // Bind tags
-        dataBinder.registerCustomEditor(Privacy.class,
-                new PrivacyEditor());
-    }
+	@InitBinder
+	public void initTagsBinder(final WebDataBinder dataBinder) {
+		// Bind tags
+		dataBinder.registerCustomEditor(Set.class,
+				new CommaDelimitedTagEditor());
+	}
+
+	@InitBinder
+	public void initPrivacyBinder(final WebDataBinder dataBinder) {
+		// Bind tags
+		dataBinder.registerCustomEditor(Privacy.class, new PrivacyEditor());
+	}
 }

@@ -8,6 +8,7 @@ import com.amediamanager.exceptions.DataSourceTableDoesNotExistException;
 public interface VideoDao {
     public void save(Video video) throws DataSourceTableDoesNotExistException;
     public void update(Video video) throws DataSourceTableDoesNotExistException;
+    public void delete(Video video);
     public List<Video> findByUserId(String userId);
     public Video findByTranscodeJobId(String jobId);
     public Video findById(String id);

@@ -8,7 +8,7 @@
 	<div class="col-md-6">
 		<div class="well">
 			<form role="form" method="post" th:object="${video}"
-				th:action="@{/video/edit/} + ${video.id}"
+				th:action="@{/video/} + ${video.id}"
 				enctype="multipart/form-data">
 				<input type="hidden" th:field="*{id}"/>
 				<input type="hidden" th:field="*{owner}"/>
