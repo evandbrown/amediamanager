@@ -55,7 +55,7 @@ public class MetricAspect {
     }
 
     private MetricDatum newDatum(String service, String operation, long startTime) {
-        return new MetricDatum().withDimensions(new Dimension().withName("Service")
+        return new MetricDatum().withDimensions(new Dimension().withName("Svc")
                                                                .withValue(service),
                                                 new Dimension().withName("Operation")
                                                                .withValue(operation))
