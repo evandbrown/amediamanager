@@ -15,45 +15,47 @@ import sys
 import boto
 from boto.s3.key import Key
 
-# Env vars that hold pointers
-S3_CONFIG_BUCKET = os.environ['S3_CONFIG_BUCKET']
-S3_CONFIG_KEY = os.environ['S3_CONFIG_KEY']
-
 # Prefix for env vars that hold config
 ENV_VAR_PREFIX = 'AMM_'
 
 def get_conf():
-    config = []
-    
-    # Look for configuration in S3
-    s3 = boto.connect_s3()
-    cfg_bucket = s3.lookup(S3_CONFIG_BUCKET)
-    
-    # Fail if bucket doesn't exist
-    if cfg_bucket is None:
-        print "Could not find bucket " + S3_CONFIG_BUCKET
-        sys.exit(-1)
-        
-    # Bucket exists; look for config file in bucket
-    if(cfg_bucket.get_key(S3_CONFIG_KEY)):
-      print "Config file found at s3://%s/%s. Exiting\n" % (S3_CONFIG_BUCKET, S3_CONFIG_KEY)
-      sys.exit(0)
+
+  # Env vars that hold pointers
+  config_bucket = os.environ['S3_CONFIG_BUCKET']
+  config_key = os.environ['S3_CONFIG_KEY']
+	
+  config = []
+  
+  # Look for configuration in S3
+  s3 = boto.connect_s3()
+  cfg_bucket = s3.lookup(config_bucket)
+  
+  # Fail if bucket doesn't exist
+  if cfg_bucket is None:
+      print "Could not find bucket " + config_bucket
+      sys.exit(-1)
       
-    # Retrieve env vars with AMM_ prefix
-    print "Config file not found in S3"
-    print "Scanning env for config vars prefixed with " + ENV_VAR_PREFIX
-    for var in os.environ:
-        if str(var).startswith(ENV_VAR_PREFIX):
-            config.append("%s=%s" % (var.replace(ENV_VAR_PREFIX, ''), os.environ[var]))
-    config_string = "\n".join(config)
-    print "Got config:\n" + config_string
-    
-    # Store config in S3
-    k = Key(cfg_bucket)
-    k.key = S3_CONFIG_KEY
-    k.set_contents_from_string(config_string)
-    print "Config file stored at s3://%s/%s. Exiting\n" % (S3_CONFIG_BUCKET, S3_CONFIG_KEY)
+  # Bucket exists; look for config file in bucket
+  if(cfg_bucket.get_key(config_key)):
+    print "Config file found at s3://%s/%s. Exiting\n" % (config_bucket, config_key)
     sys.exit(0)
     
+  # Retrieve env vars with AMM_ prefix
+  print "Config file not found in S3"
+  print "Scanning env for config vars prefixed with " + ENV_VAR_PREFIX
+  for var in os.environ:
+      if str(var).startswith(ENV_VAR_PREFIX):
+          config.append("%s=%s" % (var.replace(ENV_VAR_PREFIX, ''), os.environ[var]))
+  config_string = "\n".join(config)
+  print "Got config:\n" + config_string
+  
+  # Store config in S3
+  k = Key(cfg_bucket)
+  k.key = config_key
+  k.set_contents_from_string(config_string)
+  print "Config file stored at s3://%s/%s. Exiting\n" % (config_bucket, config_key)
+  sys.exit(0)
+    
 if __name__ == "__main__":
+  if os.environ.get('DO_S3_CONFIG'):
     get_conf()
