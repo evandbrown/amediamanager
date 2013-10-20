@@ -67,7 +67,7 @@ public class ConfigurationSettings {
         this.configProviderChain = new ConfigurationProviderChain(
                 new S3EnvConfigurationProvider(),
                 new S3FileConfigurationProvider(),
-                new ClassResourceConfigurationProvider("/aMediaManager.properties")
+                new ClassResourceConfigurationProvider("/app.properties")
                 );
 
         LOG.info("Config provider: " + this.configProviderChain.getTheProvider().getClass().getSimpleName());

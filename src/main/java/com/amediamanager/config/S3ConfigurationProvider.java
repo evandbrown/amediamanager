@@ -74,12 +74,19 @@ public abstract class S3ConfigurationProvider extends ConfigurationProvider {
 
     @Override
     public String getPrettyName() {
-        String source = "s3://" + this.bucket + "/" + this.key;
-        return this.getClass().getSimpleName() + " (" + source + ")";
+        return this.getClass().getSimpleName();
     }
 
+    public String getBucket() {
+    	return this.bucket;
+    }
+    
     public void setBucket(String bucket) {
     	this.bucket = bucket;
+    }
+    
+    public String getKey() {
+    	return this.key;
     }
     
     public void setKey(String key) {

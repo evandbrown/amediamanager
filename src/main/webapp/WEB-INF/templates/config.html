@@ -5,10 +5,22 @@
 				<h3 class="panel-title">Application Configuration</h3>
 			</div>
 			<div class="panel-body">
+				
 				<div class="form-group">
-					<label> Loaded from <span th:text="${configLoadedFrom}"></span>
-					</label>
-					<textarea class="form-control" th:text="${appConfig}" rows="15"></textarea>
+					<h4><span class="label label-success" th:if="${#bools.isTrue(isS3Config)}" th:text="${configLoadedFrom}">S3 Config</span><span class="label label-warning" th:if="${#bools.isFalse(isS3Config)}" th:text="${configLoadedFrom}">File Config</span></h4>
+					<table class="table">
+						<!--  S3 Config -->
+						<tbody th:if="${#bools.isTrue(isS3Config)}">
+							<tr>
+								<td>Bucket</td>
+								<td th:text="${configBucket}">The bucket</td>
+							</tr>
+							<tr>
+								<td>Key</td>
+								<td th:text="${configKey}">The key</td>
+							</tr>
+						</tbody>
+					</table>
 				</div>
 				<hr />
 				<div class="form-group">
@@ -21,11 +33,11 @@
 							</tr>
 							<tr>
 								<td>Secret Key</td>
-								<td th:text="${secretKey}"></td>
+								<td>****~~IT'S A SECRET~~******</td>
 							</tr>
 							<tr th:if="${#bools.isTrue(isToken)}">
 								<td>Session Token</td>
-								<td th:text="${sessionToken}"></td>
+								<td>***************************"</td>
 							</tr>
 						</tbody>
 					</table>

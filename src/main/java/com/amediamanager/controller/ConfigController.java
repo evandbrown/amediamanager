@@ -13,6 +13,7 @@ import org.springframework.web.context.WebApplicationContext;
 import com.amazonaws.auth.BasicSessionCredentials;
 import com.amediamanager.config.ConfigurationSettings;
 import com.amediamanager.config.ProvisionableResource;
+import com.amediamanager.config.S3ConfigurationProvider;
 
 @Controller
 public class ConfigController {
@@ -29,13 +30,15 @@ public class ConfigController {
 		model.addAttribute("configLoadedFrom", config.getConfigurationProvider().getPrettyName());
 		model.addAttribute("appConfig", config.toString());
 		model.addAttribute("accessKey", config.getAWSCredentialsProvider().getCredentials().getAWSAccessKeyId());
-		model.addAttribute("secretKey", config.getObfuscatedSecretKey());
 		model.addAttribute("isToken", config.getAWSCredentialsProvider().getCredentials() instanceof BasicSessionCredentials);
 
-		if(config.getAWSCredentialsProvider().getCredentials() instanceof BasicSessionCredentials) {
-			model.addAttribute("sessionToken", ((BasicSessionCredentials)config.getAWSCredentialsProvider().getCredentials()).getSessionToken().substring(0, 10) + "...");
+		// Inject info about S3 config
+		if(config.getConfigurationProvider() instanceof S3ConfigurationProvider) {
+			model.addAttribute("isS3Config", true);
+			model.addAttribute("configBucket", ((S3ConfigurationProvider)config.getConfigurationProvider()).getBucket());
+			model.addAttribute("configKey", ((S3ConfigurationProvider)config.getConfigurationProvider()).getKey());
 		}
-
+		
 		Map<String, ProvisionableResource> provisionableResources = context.getBeansOfType(ProvisionableResource.class);
 
 		// Get all ProvisionableResources
