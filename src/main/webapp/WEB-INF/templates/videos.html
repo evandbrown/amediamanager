@@ -3,19 +3,30 @@
 	margin-top: 5px;
 	margin-left: auto;
 	margin-right: auto;
+	background: #fff;
 }
+
 img.inprogress {
-	margin-top:5px;
-	margin-bottom:5px;
+	margin-top: 5px;
+	padding-bottom: 5px;
+}
+
+.panel-body {
+	padding: 0;
+}
+
+.panel {
+	margin-bottom: 0;
+}
+
+.section-preview .preview .options {
+	padding: .5em;
 }
 </style>
 <script>
 	// jQuery method
 	$(document).ready(function() {
-		$('video').mediaelementplayer({
-			features: ['playpause','progress','current','duration','fullscreen'],
-			autosizeProgress: false
-		});
+		$('video').mediaelementplayer();
 	})
 </script>
 <div class="row">
@@ -28,18 +39,58 @@ img.inprogress {
 			<div th:each="video,iterStat : ${videos}">
 				<div class="col-md-6">
 					<div class="preview">
-						<span th:unless="${#strings.isEmpty(video.previewKey)}" class="no-svg">
-							<video
-							    style="width:100%;"
-								th:src="${video.expiringPreviewKey}" type="video/mp4"
-								th:id="'example_video_' + ${iterStat.count}"
-								th:poster="${video.expiringThumbnailKey}"
-								width="320" height="240">
-							</video>
-						</span> <span th:if="${#strings.isEmpty(video.previewKey)}"> <img
-							th:src="${video.expiringThumbnailKey}" class="img-responsive inprogress"></img>
-						</span>
-						<div class="options">
+						<div class="panel panel-default">
+							<div class="panel-heading">
+								<h3 class="panel-title" th:text="${video.title}">Video
+									title</h3>
+							</div>
+							<div class="panel-body">
+								<span th:unless="${#strings.isEmpty(video.previewKey)}"
+									class="no-svg"> <video style="width: 100%;"
+										class="mejs-ted" th:src="${video.expiringPreviewKey}"
+										type="video/mp4" th:id="'example_video_' + ${iterStat.count}"
+										th:poster="${video.expiringThumbnailKey}" width="320"
+										height="240">
+									</video>
+								</span> <span th:if="${#strings.isEmpty(video.previewKey)}"> <img
+									th:src="${video.expiringThumbnailKey}"
+									class="img-responsive inprogress"></img>
+								</span>
+							</div>
+							<div class="panel-footer options">
+								<div class="btn-group">
+									<a class="btn btn-default btn-xs" href="#"
+										th:href="@{/video/} + ${video.id}"><span
+										class="glyphicon glyphicon-pencil"></span></a>
+								</div>
+								<div class="btn-group">
+									<a class="btn btn-default btn-xs" target="_blank"
+										th:href="${video.expiringUrl}"><span
+										class="glyphicon glyphicon-cloud-download"></span></a> <a
+										class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown"
+										href="#"> <span class="caret"></span>
+									</a>
+									<ul class="dropdown-menu">
+										<!-- Expiring URL to original video -->
+										<li><a target="_blank" th:href="${video.expiringUrl}">Original</a></li>
+
+										<!-- If the streaming version is set, show it -->
+										<li th:if="${not #strings.isEmpty(video.previewKey)}"><a
+											target="_blank" th:href="${video.expiringPreviewKey}">Web</a></li>
+										<li th:if="${#strings.isEmpty(video.previewKey)}"
+											class="disabled"><a target="_blank" href="#">Web
+												(not available)</a></li> <!-- Placeholder for other formats -->
+										<li class="disabled"><a target="_blank" href="#">iPhone</a></li>
+									</ul>
+								</div>
+								<div class="btn-group">
+									<a class="btn btn-default btn-xs" href="#"><span
+										class="glyphicon glyphicon-trash"></span></a>
+								</div>
+							</div>
+						</div>
+
+						<!-- <div class="options">
 							<h3 th:text="${video.title}">Video title</h3>
 							<p th:unless="${#strings.isEmpty(video.description)}"
 								th:text="${video.description}">Video description</p>
@@ -57,17 +108,17 @@ img.inprogress {
 									href="#"> <span class="caret"></span>
 								</a>
 								<ul class="dropdown-menu">
-									<!--  Expiring URL to original video -->
+									 Expiring URL to original video
 									<li><a target="_blank" th:href="${video.expiringUrl}">Original</a></li>
 
-									<!--  If the streaming version is set, show it -->
+									 If the streaming version is set, show it
 									<li th:if="${not #strings.isEmpty(video.previewKey)}"><a
 										target="_blank" th:href="${video.expiringPreviewKey}">Web</a></li>
 									<li th:if="${#strings.isEmpty(video.previewKey)}"
 										class="disabled"><a target="_blank" href="#">Web (not
 											available)</a></li>
 
-									<!-- Placeholder for other formats -->
+									Placeholder for other formats
 									<li class="disabled"><a target="_blank" href="#">iPhone</a></li>
 								</ul>
 							</div>
@@ -75,7 +126,7 @@ img.inprogress {
 								<a class="btn btn-info" href="#"><span
 									class="glyphicon glyphicon-trash"></span></a>
 							</div>
-						</div>
+						</div> -->
 					</div>
 				</div>
 			</div>
