@@ -65,7 +65,8 @@ public class ConfigurationSettings {
     public ConfigurationSettings(final AWSCredentialsProvider credsProvider) throws IOException {
         this.credsProvider = credsProvider;
         this.configProviderChain = new ConfigurationProviderChain(
-                new S3ConfigurationProvider(),
+                new S3EnvConfigurationProvider(),
+                new S3FileConfigurationProvider(),
                 new ClassResourceConfigurationProvider("/aMediaManager.properties")
                 );
 

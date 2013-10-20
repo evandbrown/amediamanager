@@ -13,18 +13,11 @@ import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amediamanager.config.ConfigurationSettings.ConfigProps;
 
-public class S3ConfigurationProvider extends ConfigurationProvider {
+public abstract class S3ConfigurationProvider extends ConfigurationProvider {
     private static final Logger LOG = LoggerFactory.getLogger(S3ConfigurationProvider.class);
-    private final String s3ConfigBucketEnvVarName = "S3_CONFIG_BUCKET";
-    private final String s3ConfigKeyEnvVarName = "S3_CONFIG_KEY";
-    private final String bucket;
-    private final String key;
+    private String bucket;
+    private String key;
     private Properties properties;
-
-    public S3ConfigurationProvider() {
-        this.bucket = System.getProperty(this.s3ConfigBucketEnvVarName);
-        this.key = System.getProperty(this.s3ConfigKeyEnvVarName);
-    }
 
     @Override
     public Properties getProperties() {
@@ -85,4 +78,11 @@ public class S3ConfigurationProvider extends ConfigurationProvider {
         return this.getClass().getSimpleName() + " (" + source + ")";
     }
 
+    public void setBucket(String bucket) {
+    	this.bucket = bucket;
+    }
+    
+    public void setKey(String key) {
+    	this.key = key;
+    }
 }

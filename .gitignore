@@ -1,6 +1,7 @@
 ### /Users/evbrown/.gitignore-boilerplates/java.gitignore
 
 aMediaManager.properties
+s3Config.properties
 
 *.class
 
