@@ -41,7 +41,18 @@ public class ConfigController {
 		
 		Map<String, ProvisionableResource> provisionableResources = context.getBeansOfType(ProvisionableResource.class);
 
-		// Get all ProvisionableResources
+		// Let the view know if there are any unprovisioned resources
+		Boolean allProvisioned = true;
+		for (Map.Entry<String, ProvisionableResource> entry : provisionableResources.entrySet())
+		{
+		    if(entry.getValue().getState() != ProvisionableResource.ProvisionState.PROVISIONED) {
+		    	allProvisioned = false;
+		    	break;
+		    }
+		}
+		
+		// Set provisionables
+		model.addAttribute("allProvisioned", allProvisioned);
 		model.addAttribute("prs", provisionableResources);
 
 		return "base";

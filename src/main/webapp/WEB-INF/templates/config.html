@@ -22,7 +22,7 @@
 						</tbody>
 					</table>
 				</div>
-				<hr />
+				
 				<div class="form-group">
 					<h4><span class="label label-success" th:if="${#bools.isTrue(isToken)}">Credentials (Session)</span><span class="label label-warning" th:if="${#bools.isFalse(isToken)}">Credentials (IAM)</span></h4>
 					<table class="table">
@@ -46,7 +46,7 @@
 		</div>
 	</div>
 	<div class="col-md-4">
-		<div class="panel panel-info">
+		<div th:class="${#bools.isTrue(allProvisioned)}? 'panel panel-default' : 'panel panel-info'">
 			<div class="panel-heading">
 				<h3 class="panel-title">Configurable Items</h3>
 			</div>

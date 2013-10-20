@@ -77,7 +77,6 @@ public class ConfigurationSettings {
         LOG.info("---------------------");
         LOG.info("Effective AWS credential config:");
         LOG.info("Access Key=" + this.getAWSCredentialsProvider().getCredentials().getAWSAccessKeyId());
-        LOG.info("Secret Key=" + this.getObfuscatedSecretKey());
 
     }
 
@@ -100,10 +99,6 @@ public class ConfigurationSettings {
     @Scheduled(fixedDelay=60000)
     public void refreshConfigurationProvider() {
         this.configProviderChain.refresh();
-    }
-
-    public String getObfuscatedSecretKey() {
-        return this.getAWSCredentialsProvider().getCredentials().getAWSSecretKey().substring(0, 4) + "******************" + this.getAWSCredentialsProvider().getCredentials().getAWSSecretKey().substring(this.getAWSCredentialsProvider().getCredentials().getAWSSecretKey().length()-4, this.getAWSCredentialsProvider().getCredentials().getAWSSecretKey().length()-1);
     }
 
     /**
