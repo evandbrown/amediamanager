@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Read S3 bucket and key from file
  */
-public class S3FileConfigurationProvider extends S3ConfigurationProvider {
+public class S3FileConfigurationProvider extends com.amediamanager.config.challenge.S3ConfigurationProvider {
 	private static final Logger LOG = LoggerFactory.getLogger(S3FileConfigurationProvider.class);
 	private static final String S3_CONFIG_FILE = "/s3config.properties";
 	public S3FileConfigurationProvider() {

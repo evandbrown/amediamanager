@@ -15,14 +15,9 @@ import com.amediamanager.config.ConfigurationSettings.ConfigProps;
 
 public abstract class S3ConfigurationProvider extends ConfigurationProvider {
     private static final Logger LOG = LoggerFactory.getLogger(S3ConfigurationProvider.class);
-    String bucket;
-    String key;
-    Properties properties;
-
-    @Override
-    public Properties getProperties() {
-    	return properties;
-    }
+    private String bucket;
+    private String key;
+    private Properties properties;
 
     @Override
     public void loadProperties() {
@@ -80,6 +75,20 @@ public abstract class S3ConfigurationProvider extends ConfigurationProvider {
         return this.getClass().getSimpleName();
     }
 
+    @Override
+    public Properties getProperties() {
+    	return properties;
+    }
+    
+    /**
+     * This setter is only exposed to make the coding challenge feasible. The challenge
+     * subclass implements loadProperties and needs access to set this.properties.
+     * @param properties
+     */
+    public void setProperties(Properties properties) {
+    	this.properties = properties;
+    }
+    
     public String getBucket() {
     	return this.bucket;
     }
