@@ -15,6 +15,8 @@
 
 <script th:src="@{/static/js/jquery.min.js}"></script>
 <script th:src="@{/static/js/bootstrap.min.js}"></script>
+<script th:src="@{/static/js/transition.js}"></script>
+<script th:src="@{/static/js/collapse.js}"></script>
 <script th:src="@{/static/js/mediaelement-and-player.min.js}"></script>
 <script th:src="@{/static/js/bootstrap-datepicker.js}"></script>
 
@@ -26,8 +28,9 @@ body {
 </head>
 
 <body>
-	<div class="navbar navbar-default navbar-fixed-top">
+	<!-- <div class="navbar navbar-default navbar-fixed-top">
 		<div class="container">
+			
 			<div class="navbar-header">
 				<a th:href="@{/}" class="navbar-brand">aMediaManager</a>
 				<button class="navbar-toggle" type="button" data-toggle="collapse"
@@ -40,8 +43,8 @@ body {
 				<div th:include="navigation"></div>
 			</div>
 		</div>
-	</div>
-
+	</div> -->
+	<div th:include="navigation"></div>
 	<div class="container">
 		<!--  Error message include -->
 		<div th:include="error"></div>
