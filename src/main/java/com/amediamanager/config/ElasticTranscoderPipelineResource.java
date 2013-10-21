@@ -36,14 +36,15 @@ public class ElasticTranscoderPipelineResource implements ProvisionableResource 
 
     @PostConstruct
     public void init() {
-        if (getPipeline() != null && getPreset() != null) {
-            state = ProvisionState.PROVISIONED;
-        }
+        getState();
     }
 
     @Override
     public ProvisionState getState() {
-        return state;
+    	if (getPipeline() != null && getPreset() != null) {
+            state = ProvisionState.PROVISIONED;
+        }
+    	return state;
     }
 
     @Override
@@ -63,6 +64,7 @@ public class ElasticTranscoderPipelineResource implements ProvisionableResource 
         String pipelineId = config.getProperty(ConfigProps.TRANSCODE_PIPELINE);
 
         if (pipelineId == null) {
+        	LOG.info("Provisioning ETS Pipeline.");
             state = ProvisionState.PROVISIONING;
             Notifications notifications = new Notifications()
                 .withError(config.getProperty(ConfigProps.TRANSCODE_TOPIC))
@@ -80,6 +82,7 @@ public class ElasticTranscoderPipelineResource implements ProvisionableResource 
             try {
                 CreatePipelineResult pipelineResult = transcoderClient.createPipeline(pipelineRequest);
                 pipelineId = pipelineResult.getPipeline().getId();
+                LOG.info("Pipeline {} created. Persisting to configuration provider.", pipelineId);
                 config.getConfigurationProvider().persistNewProperty(ConfigProps.TRANSCODE_PIPELINE, pipelineId);
             } catch (AmazonServiceException e) {
                 LOG.error("Failed creating pipeline {}", pipelineRequest.getName(), e);
@@ -93,6 +96,7 @@ public class ElasticTranscoderPipelineResource implements ProvisionableResource 
         String presetId = config.getProperty(ConfigProps.TRANSCODE_PRESET);
 
         if (presetId == null) {
+        	LOG.info("Provisioning ETS Preset.");
             state = ProvisionState.PROVISIONING;
             Map<String, String> codecOptions = new HashMap<String, String>();
             codecOptions.put("Profile", "main");
@@ -138,6 +142,7 @@ public class ElasticTranscoderPipelineResource implements ProvisionableResource 
                 CreatePresetResult result = transcoderClient.createPreset(presetRequest);
                 presetId = result.getPreset().getId();
                 config.getConfigurationProvider().persistNewProperty(ConfigProps.TRANSCODE_PRESET, presetId);
+                LOG.info("Preset {} created. Persisting to configuration provider.", presetId);
             } catch (AmazonServiceException e) {
                 LOG.error("Failed creating transcoder preset {}", presetRequest.getName(), e);
                 state = ProvisionState.UNPROVISIONED;
