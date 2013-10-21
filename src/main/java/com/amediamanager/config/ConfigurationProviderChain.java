@@ -4,9 +4,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.amediamanager.config.ConfigurationSettings.ConfigProps;
 
 public class ConfigurationProviderChain extends ConfigurationProvider {
+    private static final Logger LOG = LoggerFactory.getLogger(ConfigurationProviderChain.class);
 	private Properties properties;
 	private ConfigurationProvider theProvider;
 	private final List<ConfigurationProvider> configurationProviders = new LinkedList<ConfigurationProvider>();
@@ -14,35 +18,40 @@ public class ConfigurationProviderChain extends ConfigurationProvider {
 	public ConfigurationProviderChain(
 			ConfigurationProvider... configurationProviders) {
 		for (ConfigurationProvider configurationProvider : configurationProviders) {
+			LOG.info("Initializing new ConfigurationProviderChain with provider {}", configurationProvider.getClass().getSimpleName());
 			this.configurationProviders.add(configurationProvider);
 		}
-		getProperties();
+		loadProperties();
 	}
 
 	@Override
-	public Properties getProperties() {
+	public void loadProperties() {
+		this.properties = null;
+		this.theProvider = null;
+		LOG.info("Loading properties from providers. The first provider with properties will be the ConfigurationProvider.");
 		if (this.properties == null) {
 			for (ConfigurationProvider provider : this.configurationProviders) {
-				provider.refresh();
+				provider.loadProperties();
 				this.properties = provider.getProperties();
 				if (this.properties != null) {
+					LOG.info("Selected provider {} as it had properties.", provider.getClass().getSimpleName());
 					this.theProvider = provider;
 					break;
 				}
+				LOG.info("Skipped provider {} as it had no properties.", provider.getClass().getSimpleName());
 			}
 			if (properties == null) {
 				throw new RuntimeException(
 						"Unable to load properties from any provider in the chain.");
 			}
 		}
+	}
+	
+	@Override
+	public Properties getProperties() {
 		return properties;
 	}
-
-	@Override
-	public void refresh() {
-		this.properties = null;
-		this.properties = getProperties();
-	}
+	
 
 	@Override
 	public String getPrettyName() {
@@ -52,7 +61,7 @@ public class ConfigurationProviderChain extends ConfigurationProvider {
 	@Override
 	public void persistNewProperty(String key, String value) {
 		this.theProvider.persistNewProperty(key, value);
-		this.refresh();
+		this.loadProperties();
 	}
 
 	@Override

@@ -9,7 +9,7 @@ public abstract class ConfigurationProvider {
 
 	public abstract Properties getProperties();
 	public abstract String getPrettyName();
-	public abstract void refresh();
+	public abstract void loadProperties();
 	public abstract void persistNewProperty(String key, String value);
 	public abstract void persistNewProperty(ConfigProps property, String value);
 

@@ -10,56 +10,54 @@ import org.slf4j.LoggerFactory;
 import com.amediamanager.config.ConfigurationSettings.ConfigProps;
 
 public class ClassResourceConfigurationProvider extends ConfigurationProvider {
-    private static final Logger LOG = LoggerFactory.getLogger(ClassResourceConfigurationProvider.class);
-    private final String resourceFilePath;
-    private Properties properties;
+	private static final Logger LOG = LoggerFactory
+			.getLogger(ClassResourceConfigurationProvider.class);
+	private final String resourceFilePath;
+	private Properties properties;
 
-    public ClassResourceConfigurationProvider(String resourceFilePath) {
-        this.resourceFilePath = resourceFilePath;
-    }
+	public ClassResourceConfigurationProvider(String resourceFilePath) {
+		this.resourceFilePath = resourceFilePath;
+	}
 
-    @Override
-    public Properties getProperties() {
-        if (properties == null) {
-            InputStream stream = getClass().getResourceAsStream(
-                    this.resourceFilePath);
-            try {
-                properties = new Properties();
-                properties.load(stream);
-            } catch (IOException e) {
-                properties = null;
-                LOG.error("Failed to get properties.", e);
-            } finally {
-                try {
-                    stream.close();
-                } catch (IOException e) {
-                    // Don't care
-                }
-            }
-        }
+	@Override
+	public Properties getProperties() {
+		return properties;
+	}
 
-        return properties;
-    }
+	@Override
+	public void loadProperties() {
+		this.properties = null;
+		InputStream stream = getClass().getResourceAsStream(
+				this.resourceFilePath);
+		try {
+			this.properties = new Properties();
+			this.properties.load(stream);
+		} catch (IOException e) {
+			this.properties = null;
+			LOG.error("Failed to get properties.", e);
+		} finally {
+			try {
+				stream.close();
+			} catch (IOException e) {
+				// Don't care
+			}
+		}
+	}
 
-    @Override
-    public void refresh() {
-        this.properties = null;
-        this.properties = getProperties();
-    }
+	@Override
+	public String getPrettyName() {
+		return this.getClass().getSimpleName() + " (" + this.resourceFilePath
+				+ ")";
+	}
 
-    @Override
-    public String getPrettyName() {
-        return this.getClass().getSimpleName() + " (" + this.resourceFilePath + ")";
-    }
+	@Override
+	public void persistNewProperty(String key, String value) {
+		// TODO: implement
+	}
 
-    @Override
-    public void persistNewProperty(String key, String value) {
-        //TODO: implement
-    }
-
-    @Override
-    public void persistNewProperty(ConfigProps property, String value) {
-        persistNewProperty(property.name(), value);
-    }
+	@Override
+	public void persistNewProperty(ConfigProps property, String value) {
+		persistNewProperty(property.name(), value);
+	}
 
 }

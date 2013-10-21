@@ -98,7 +98,9 @@ public class ConfigurationSettings {
 
     @Scheduled(fixedDelay=60000)
     public void refreshConfigurationProvider() {
-        this.configProviderChain.refresh();
+        this.configProviderChain.loadProperties();
+        LOG.debug("Refreshed properties:");
+        LOG.debug(toString());
     }
 
     /**

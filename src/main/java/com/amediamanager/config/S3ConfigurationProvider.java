@@ -15,13 +15,21 @@ import com.amediamanager.config.ConfigurationSettings.ConfigProps;
 
 public abstract class S3ConfigurationProvider extends ConfigurationProvider {
     private static final Logger LOG = LoggerFactory.getLogger(S3ConfigurationProvider.class);
-    private String bucket;
-    private String key;
-    private Properties properties;
+    String bucket;
+    String key;
+    Properties properties;
 
     @Override
     public Properties getProperties() {
-        if (this.properties == null && bucket != null && key != null) {
+    	return properties;
+    }
+
+    @Override
+    public void loadProperties() {
+    	this.properties = null;
+    	
+    	// Load properties if there is a bucket and key
+        if (bucket != null && key != null) {
             AmazonS3 s3Client = new AmazonS3Client();
             try {
                 S3Object object = s3Client.getObject(this.bucket, this.key);
@@ -31,7 +39,7 @@ public abstract class S3ConfigurationProvider extends ConfigurationProvider {
                         this.properties.load(object.getObjectContent());
                     } catch (IOException e) {
                         this.properties = null;
-                        LOG.warn("Failed to get properties.", e);
+                        LOG.warn("Found configuration file in S3 but failed to load properties (s3://{}/{})", new Object[]{this.bucket, this.key, e});
                     } finally {
                         try {
                             object.close();
@@ -44,13 +52,6 @@ public abstract class S3ConfigurationProvider extends ConfigurationProvider {
                 LOG.error("Error loading config from s3://{}/{}", new Object[]{this.bucket, this.key, ase});
             }
         }
-        return properties;
-    }
-
-    @Override
-    public void refresh() {
-        this.properties = null;
-        this.properties = getProperties();
     }
 
     @Override
@@ -64,6 +65,8 @@ public abstract class S3ConfigurationProvider extends ConfigurationProvider {
             } catch (AmazonS3Exception ase) {
                 LOG.error("Error persisting config from s3://{}/{}", new Object[]{this.bucket, this.key, ase});
             }
+        } else {
+        	LOG.error("Could not persist new property because this.properties is null.");
         }
     }
 

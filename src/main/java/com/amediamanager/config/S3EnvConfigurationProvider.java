@@ -10,10 +10,11 @@ public class S3EnvConfigurationProvider extends S3ConfigurationProvider {
 	private static final Logger LOG = LoggerFactory.getLogger(S3EnvConfigurationProvider.class);
 	public S3EnvConfigurationProvider() {
 		try {
+			LOG.debug("Attempting to create S3ConfigurationProvider with bucket and key from env");
 			super.setBucket(System.getProperty("S3_CONFIG_BUCKET"));
 			super.setKey(System.getProperty("S3_CONFIG_KEY"));
 		} catch (Exception ex) {
-			LOG.info("No S3 configuration information found in environment.");
+			LOG.debug("No S3 configuration information found in environment.");
 		}
 	}
 }
