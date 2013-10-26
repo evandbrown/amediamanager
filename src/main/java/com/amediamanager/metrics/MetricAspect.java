@@ -54,7 +54,7 @@ public class MetricAspect {
         metricBatcher.addDatum("AMM", success);
     }
 
-    private MetricDatum newDatum(String service, String operation, long startTime) {
+    protected MetricDatum newDatum(String service, String operation, long startTime) {
         return new MetricDatum().withDimensions(new Dimension().withName("Svc")
                                                                .withValue(service),
                                                 new Dimension().withName("Operation")

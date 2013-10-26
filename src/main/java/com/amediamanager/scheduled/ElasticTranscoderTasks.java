@@ -30,24 +30,21 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * Holds scheduled tasks related to our Elastic Transcoder
  *
  */
-@Component
-@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class ElasticTranscoderTasks {
-    private static final Logger LOG = LoggerFactory.getLogger(ElasticTranscoderTasks.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(ElasticTranscoderTasks.class);
 
     @Autowired
-    private ConfigurationSettings config;
+    protected ConfigurationSettings config;
 
     @Autowired
-    private VideoService videoService;
+    protected VideoService videoService;
 
     @Autowired
-    private AmazonSQS sqsClient;
+    protected AmazonSQS sqsClient;
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    protected final ObjectMapper mapper = new ObjectMapper();
 
-    @Scheduled(fixedDelay = 1)
-    public void checkStatus() {
+    protected void checkStatus() {
         String sqsQueue = config.getProperty(ConfigProps.TRANSCODE_QUEUE);
         LOG.info("Polling transcode queue {} for changes.", sqsQueue);
         ReceiveMessageRequest request = new ReceiveMessageRequest(sqsQueue)
@@ -62,7 +59,7 @@ public class ElasticTranscoderTasks {
         LOG.info("Finished polling transcode queue {} and handled {} message(s).", sqsQueue, result.getMessages().size());
     }
 
-    private void deleteMessage(final Message message) {
+    protected void deleteMessage(final Message message) {
         DeleteMessageRequest request = new DeleteMessageRequest()
             .withQueueUrl(config.getProperty(ConfigProps.TRANSCODE_QUEUE))
             .withReceiptHandle(message.getReceiptHandle());
@@ -70,7 +67,7 @@ public class ElasticTranscoderTasks {
         sqsClient.deleteMessage(request);
     }
 
-    private void handleMessage(final Message message) {
+    protected void handleMessage(final Message message) {
         try {
             ObjectNode snsMessage = (ObjectNode) mapper.readTree(message.getBody());
             ObjectNode notification = (ObjectNode) mapper.readTree(snsMessage.get("Message").asText());

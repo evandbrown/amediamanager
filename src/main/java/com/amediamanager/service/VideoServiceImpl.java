@@ -85,7 +85,7 @@ public class VideoServiceImpl implements VideoService {
 
 		Set<Tag> tags = new HashSet<Tag>();
 		for (String tag : userMetadata.get("tags").split(",")) {
-			tags.add(new Tag(tag));
+			tags.add(new Tag(tag.trim()));
 		}
 		video.setTags(tags);
 
