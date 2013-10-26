@@ -6,7 +6,9 @@
 	background: #fff;
 }
 
-.mejs-container .mejs-controls{visibility:hidden;}
+.mejs-container .mejs-controls {
+	visibility: hidden;
+}
 
 img.inprogress {
 	margin-top: 5px;
@@ -37,7 +39,13 @@ img.inprogress {
 			<div id="legend">
 				<legend>Your Videos</legend>
 			</div>
-
+			<div class="col-md-12" th:unless="${#strings.isEmpty(selectedTag)}">
+				<ul class="nav nav-pills">
+					<li><a th:href="@{/videos}"><span class="badge">x</span><span
+							th:text="'&nbsp;&nbsp;' + ${selectedTag}"></span></a></li>
+				</ul>
+				<p/>
+			</div>
 			<div th:each="video,iterStat : ${videos}">
 				<div class="col-md-6">
 					<div class="preview">
@@ -69,8 +77,8 @@ img.inprogress {
 									<a class="btn btn-default btn-xs" target="_blank"
 										th:href="${video.expiringUrl}"><span
 										class="glyphicon glyphicon-cloud-download"></span></a> <a
-										class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown"
-										href="#"> <span class="caret"></span>
+										class="btn btn-default btn-xs dropdown-toggle"
+										data-toggle="dropdown" href="#"> <span class="caret"></span>
 									</a>
 									<ul class="dropdown-menu">
 										<!-- Expiring URL to original video -->
@@ -81,54 +89,18 @@ img.inprogress {
 											target="_blank" th:href="${video.expiringPreviewKey}">Web</a></li>
 										<li th:if="${#strings.isEmpty(video.previewKey)}"
 											class="disabled"><a target="_blank" href="#">Web
-												(not available)</a></li> <!-- Placeholder for other formats -->
+												(not available)</a></li>
+										<!-- Placeholder for other formats -->
 										<li class="disabled"><a target="_blank" href="#">iPhone</a></li>
 									</ul>
 								</div>
 								<div class="btn-group">
-									<a class="btn btn-default btn-xs" th:href="@{/video/} + ${video.id} + '?delete'"><span
+									<a class="btn btn-default btn-xs"
+										th:href="@{/video/} + ${video.id} + '?delete'"><span
 										class="glyphicon glyphicon-trash"></span></a>
 								</div>
 							</div>
 						</div>
-
-						<!-- <div class="options">
-							<h3 th:text="${video.title}">Video title</h3>
-							<p th:unless="${#strings.isEmpty(video.description)}"
-								th:text="${video.description}">Video description</p>
-							<p th:if="${#strings.isEmpty(video.description)}">&nbsp;</p>
-							<div class="btn-group">
-								<a class="btn btn-info" href="#"
-									th:href="@{/video/} + ${video.id}"><span
-									class="glyphicon glyphicon-pencil"></span></a>
-							</div>
-							<div class="btn-group">
-								<a class="btn btn-info" target="_blank"
-									th:href="${video.expiringUrl}"><span
-									class="glyphicon glyphicon-cloud-download"></span></a> <a
-									class="btn btn-info dropdown-toggle" data-toggle="dropdown"
-									href="#"> <span class="caret"></span>
-								</a>
-								<ul class="dropdown-menu">
-									 Expiring URL to original video
-									<li><a target="_blank" th:href="${video.expiringUrl}">Original</a></li>
-
-									 If the streaming version is set, show it
-									<li th:if="${not #strings.isEmpty(video.previewKey)}"><a
-										target="_blank" th:href="${video.expiringPreviewKey}">Web</a></li>
-									<li th:if="${#strings.isEmpty(video.previewKey)}"
-										class="disabled"><a target="_blank" href="#">Web (not
-											available)</a></li>
-
-									Placeholder for other formats
-									<li class="disabled"><a target="_blank" href="#">iPhone</a></li>
-								</ul>
-							</div>
-							<div class="btn-group">
-								<a class="btn btn-info" href="#"><span
-									class="glyphicon glyphicon-trash"></span></a>
-							</div>
-						</div> -->
 					</div>
 				</div>
 			</div>
@@ -144,14 +116,9 @@ img.inprogress {
 		<div id="legend">
 			<legend>Tags</legend>
 			<ul class="nav nav-pills">
-				<li><a href="#">vacation<span class="badge">42</span></a></li>
-				<li><a href="#">monkeys<span class="badge">15</span></a></li>
-				<li><a href="#">yolo<span class="badge">21</span></a></li>
-				<li><a href="#">futurama<span class="badge">5</span></a></li>
-				<li><a href="#">cylons<span class="badge">75</span></a></li>
-				<li><a href="#">bacon<span class="badge">12</span></a></li>
-				<li><a href="#">cats<span class="badge">13</span></a></li>
-				<li><a href="#">goesallthewayto<span class="badge">11</span></a></li>
+				<li th:each="tag,iterStat : ${tags}"><a
+					th:href="@{/tags/} + ${tag.tagId}"><span th:text="${tag.name}"></span><span
+						class="badge" th:text="${tag.count}">42</span></a></li>
 			</ul>
 		</div>
 	</div>

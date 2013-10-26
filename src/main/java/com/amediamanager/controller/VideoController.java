@@ -2,6 +2,7 @@ package com.amediamanager.controller;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
@@ -17,6 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -40,11 +43,13 @@ import com.amazonaws.services.s3.model.GetObjectMetadataRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amediamanager.config.ConfigurationSettings;
 import com.amediamanager.config.ConfigurationSettings.ConfigProps;
+import com.amediamanager.dao.TagDao.TagCount;
 import com.amediamanager.domain.ContentType;
 import com.amediamanager.domain.Privacy;
 import com.amediamanager.domain.Tag;
 import com.amediamanager.domain.User;
 import com.amediamanager.domain.Video;
+import com.amediamanager.service.TagsService;
 import com.amediamanager.service.VideoService;
 import com.amediamanager.util.CommaDelimitedTagEditor;
 import com.amediamanager.util.PrivacyEditor;
@@ -57,6 +62,9 @@ public class VideoController {
 
 	@Autowired
 	VideoService videoService;
+	
+	@Autowired
+	TagsService tagService;
 
 	@Autowired
 	AmazonElasticTranscoder transcoderClient;
@@ -82,6 +90,28 @@ public class VideoController {
 		return "redirect:/";
 	}
 
+	@RequestMapping(value = "/tags/{tagId}", method = RequestMethod.GET)
+	public String tags(ModelMap model, @PathVariable String tagId) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		List<Video> videos = new ArrayList<Video>();
+		List<TagCount> tags = new ArrayList<TagCount>();
+		try {
+			// Get user's videos and tags
+			videos = tagService.getVideosForUserByTag(auth.getName(), tagId);
+			tags = tagService.getTagsForUser(auth.getName());
+
+			// Add expiring URLs (1 hour)
+			videos = videoService.generateExpiringUrls(videos, 1000*60*60);
+		} catch (Exception e) {
+			return "redirect:/config";
+		}
+		model.addAttribute("selectedTag", tagId);
+		model.addAttribute("tags", tags);
+		model.addAttribute("videos", videos);
+		model.addAttribute("templateName", "only_videos");
+		return "base";
+	}
+	
 	@RequestMapping(value = "/video/{videoId}", method = RequestMethod.GET)
 	public String videoGet(ModelMap model, @PathVariable String videoId,
 			@RequestParam(value = "delete", required = false) String delete) {

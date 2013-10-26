@@ -39,27 +39,22 @@ public class MainController {
 
 		// If the user is not authenticated, show a different view
 		if (auth instanceof AnonymousAuthenticationToken) {
+            model.addAttribute("newUser", new NewUser());
 			model.addAttribute("templateName", "welcome");
 		} else {
 			List<Video> videos = new ArrayList<Video>();
-			/* begin pjayara added */
 			List<TagCount> tags = new ArrayList<TagCount>();
-			/* end pjayara added */
-			List<Video> v = new ArrayList<Video>();
 			try {
-				// Get user's videos
+				// Get user's videos and tags
 				videos = videoService.findByUserId(auth.getName());
-				/* begin pjayara added */
 				tags = tagService.getTagsForUser(auth.getName());
-				System.err.println(tags);
-				v = tagService.getVideosForUserByTag(auth.getName(), "abcd");
-				System.err.println("AA"+v);
-				/* end pjayara added */
+
 				// Add expiring URLs (1 hour)
 				videos = videoService.generateExpiringUrls(videos, 1000*60*60);
 			} catch (Exception e) {
 				return "redirect:/config";
 			}
+			model.addAttribute("tags", tags);
 			model.addAttribute("videos", videos);
 			model.addAttribute("templateName", "only_videos");
 		}
