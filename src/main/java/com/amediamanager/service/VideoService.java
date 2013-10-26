@@ -1,5 +1,6 @@
 package com.amediamanager.service;
 
+import java.text.ParseException;
 import java.util.List;
 
 import com.amediamanager.domain.Video;
@@ -8,6 +9,8 @@ import com.amediamanager.exceptions.DataSourceTableDoesNotExistException;
 public interface VideoService {
 
     public void save(Video user) throws DataSourceTableDoesNotExistException;
+    
+    public Video save(String bucket, String videoKey) throws ParseException; 
 
     public void update(Video user) throws DataSourceTableDoesNotExistException;
     
@@ -18,6 +21,8 @@ public interface VideoService {
     public List<Video> findByUserId(String email) throws DataSourceTableDoesNotExistException;
 
     public Video findByTranscodeJobId(String jobId) throws DataSourceTableDoesNotExistException;
+    
+    public void createVideoPreview(Video video);
 
     public List<Video> findAllPublic(int limit, int start, int end) throws DataSourceTableDoesNotExistException;
 

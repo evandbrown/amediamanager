@@ -27,7 +27,7 @@ public class UserServiceImpl implements UserService, AuthenticationProvider {
     private static final Logger LOG = LoggerFactory.getLogger(UserServiceImpl.class);
 
     @Autowired
-    private UserDao userDao;
+    private com.amediamanager.dao.DynamoDbUserDaoImpl userDao;
 
     @Autowired
     private ConfigurationSettings configurationSettings;

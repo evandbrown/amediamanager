@@ -31,19 +31,18 @@ import com.amediamanager.domain.User;
 import com.amediamanager.exceptions.DataSourceTableDoesNotExistException;
 import com.amediamanager.exceptions.UserExistsException;
 
-@Repository
 public class DynamoDbUserDaoImpl implements UserDao {
 
 	private static final Logger LOG = LoggerFactory.getLogger(DynamoDbUserDaoImpl.class);
 
 	@Autowired
-	private ConfigurationSettings config;
+	protected ConfigurationSettings config;
 
 	@Autowired
-	private AmazonDynamoDB dynamoClient;
+	protected AmazonDynamoDB dynamoClient;
 
 	@Autowired
-	private AmazonS3 s3Client;
+	protected AmazonS3 s3Client;
 
 	/** DynamoDB config **/
 	public static final String HASH_KEY_NAME = "EMail";
@@ -121,7 +120,6 @@ public class DynamoDbUserDaoImpl implements UserDao {
 
 	@Override
 	public User find(String email) throws DataSourceTableDoesNotExistException {
-		LOG.info("Hi!");
 		try {
 
 			User user = null;
@@ -164,7 +162,7 @@ public class DynamoDbUserDaoImpl implements UserDao {
 	 *
 	 * @return
 	 */
-	private User getUserFromMap(Map<String, AttributeValue> userItem) {
+	public User getUserFromMap(Map<String, AttributeValue> userItem) {
 		// Create a new user from the minimum required values. As the password
 		// is stored
 		// hashed, the last parameter is false to indicate.
@@ -195,7 +193,7 @@ public class DynamoDbUserDaoImpl implements UserDao {
      * @param user
      * @return
      */
-    private Map<String, AttributeValue> getMapFromUser(User user) {
+    public Map<String, AttributeValue> getMapFromUser(User user) {
 		// Create a Map object from the User
 		Map<String, AttributeValue> userItem = new HashMap<String, AttributeValue>();
 
@@ -219,10 +217,10 @@ public class DynamoDbUserDaoImpl implements UserDao {
     /**
      * Upload the profile pic to S3 and return it's URL
      * @param profilePic
-     * @return
+     * @return The fully-qualified URL of the photo in S3
      * @throws IOException
      */
-    private String uploadFileToS3(CommonsMultipartFile profilePic) throws IOException {
+    public String uploadFileToS3(CommonsMultipartFile profilePic) throws IOException {
 
 		// Profile pic prefix
     	String prefix = config.getProperty(ConfigProps.S3_PROFILE_PIC_PREFIX);

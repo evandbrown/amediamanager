@@ -13,18 +13,13 @@ import com.amazonaws.services.rds.model.DescribeDBInstancesResult;
 import com.amazonaws.services.rds.model.Endpoint;
 import com.amediamanager.config.ConfigurationSettings;
 
-/**
- * @author evbrown
- *
- */
-@Component
 public class RdsDbEndpointRetriever implements DbEndpointRetriever {
 
 	@Autowired
-	private ConfigurationSettings config;
+	protected ConfigurationSettings config;
 	
 	@Autowired
-	private AmazonRDS rds;
+	protected AmazonRDS rds;
 
 	/* (non-Javadoc)
 	 * @see com.aMediaManager.DataAccess.DbEndpointRetriever#getMasterDbEndpoint(java.lang.String)

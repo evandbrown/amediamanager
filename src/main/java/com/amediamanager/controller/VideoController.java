@@ -61,13 +61,10 @@ public class VideoController {
 			.getLogger(VideoController.class);
 
 	@Autowired
-	VideoService videoService;
+	com.amediamanager.service.VideoServiceImpl videoService;
 	
 	@Autowired
 	TagsService tagService;
-
-	@Autowired
-	AmazonElasticTranscoder transcoderClient;
 
 	@Autowired
 	ConfigurationSettings config;
@@ -157,75 +154,15 @@ public class VideoController {
 		return "base";
 	}
 
-	public void createVideoPreview(Video video) {
-		String pipelineId = config.getProperty(ConfigProps.TRANSCODE_PIPELINE);
-		String presetId = config.getProperty(ConfigProps.TRANSCODE_PRESET);
-		if (pipelineId == null || presetId == null) {
-			return;
-		}
-		CreateJobRequest encodeJob = new CreateJobRequest()
-				.withPipelineId(pipelineId)
-				.withInput(
-						new JobInput().withKey(video.getOriginalKey())
-								.withAspectRatio("auto").withContainer("auto")
-								.withFrameRate("auto").withInterlaced("auto")
-								.withResolution("auto"))
-				.withOutputKeyPrefix(
-						"uploads/converted/" + video.getOwner() + "/")
-				.withOutput(
-						new CreateJobOutput()
-								.withKey(UUID.randomUUID().toString())
-								.withPresetId(presetId)
-								.withThumbnailPattern(
-										"thumbs/"
-												+ UUID.randomUUID().toString()
-												+ "-{count}"));
-
-		try {
-			CreateJobResult result = transcoderClient.createJob(encodeJob);
-			video.setTranscodeJobId(result.getJob().getId());
-			video.setThumbnailKey("static/img/in_progress_poster.png");
-			videoService.save(video);
-		} catch (AmazonServiceException e) {
-			LOG.error("Failed creating transcode job for video {}",
-					video.getId(), e);
-		}
-	}
-
 	@RequestMapping(value = "/video/ingest", method = RequestMethod.GET)
 	public String videoIngest(ModelMap model,
 			@RequestParam(value = "bucket") String bucket,
 			@RequestParam(value = "key") String videoKey) throws ParseException {
-
-		// From bucket and key, get metadata from video that was just uploaded
-		GetObjectMetadataRequest metadataReq = new GetObjectMetadataRequest(
-				bucket, videoKey);
-		ObjectMetadata metadata = s3Client.getObjectMetadata(metadataReq);
-		Map<String, String> userMetadata = metadata.getUserMetadata();
-
-		Video video = new Video();
-
-		video.setDescription(userMetadata.get("description"));
-		video.setOwner(userMetadata.get("owner"));
-		video.setId(userMetadata.get("uuid"));
-		video.setTitle(userMetadata.get("title"));
-		video.setPrivacy(Privacy.fromName(userMetadata.get("privacy")));
-		video.setCreatedDate(new SimpleDateFormat("MM/dd/yyyy")
-				.parse(userMetadata.get("createddate")));
-		video.setOriginalKey(videoKey);
-		video.setBucket(userMetadata.get("bucket"));
-		video.setUploadedDate(new Date());
-
-		Set<Tag> tags = new HashSet<Tag>();
-		for (String tag : userMetadata.get("tags").split(",")) {
-			tags.add(new Tag(tag));
-		}
-		video.setTags(tags);
-
-		videoService.save(video);
+		
+		Video video = videoService.save(bucket, videoKey);
 
 		// Kick off preview encoding
-		createVideoPreview(video);
+		videoService.createVideoPreview(video);
 
 		return "redirect:/";
 	}

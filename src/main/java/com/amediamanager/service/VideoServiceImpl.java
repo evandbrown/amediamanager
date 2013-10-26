@@ -1,39 +1,97 @@
 package com.amediamanager.service;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.HttpMethod;
 import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.services.elastictranscoder.AmazonElasticTranscoder;
+import com.amazonaws.services.elastictranscoder.model.CreateJobOutput;
+import com.amazonaws.services.elastictranscoder.model.CreateJobRequest;
+import com.amazonaws.services.elastictranscoder.model.CreateJobResult;
+import com.amazonaws.services.elastictranscoder.model.JobInput;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
+import com.amazonaws.services.s3.model.GetObjectMetadataRequest;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amediamanager.config.ConfigurationSettings;
+import com.amediamanager.config.ConfigurationSettings.ConfigProps;
+import com.amediamanager.controller.VideoController;
 import com.amediamanager.dao.VideoDao;
+import com.amediamanager.domain.Privacy;
+import com.amediamanager.domain.Tag;
 import com.amediamanager.domain.Video;
 import com.amediamanager.exceptions.DataSourceTableDoesNotExistException;
 
 @Service
 public class VideoServiceImpl implements VideoService {
+	protected static final Logger LOG = LoggerFactory
+			.getLogger(VideoServiceImpl.class);
+	
+	@Autowired
+	protected VideoDao videoDao;
 
 	@Autowired
-	VideoDao videoDao;
+	protected AWSCredentialsProvider credentials;
 
 	@Autowired
-	AWSCredentialsProvider credentials;
+	protected AmazonS3 s3Client;
 
 	@Autowired
-	AmazonS3 s3Client;
+	protected ConfigurationSettings config;
 
 	@Autowired
-	ConfigurationSettings config;
+	protected AmazonElasticTranscoder transcoderClient;
 
 	@Override
 	public void save(Video video) throws DataSourceTableDoesNotExistException {
 		videoDao.save(video);
+	}
+	
+	@Override
+	public Video save(String bucket, String videoKey) throws ParseException {
+
+		// From bucket and key, get metadata from video that was just uploaded
+		GetObjectMetadataRequest metadataReq = new GetObjectMetadataRequest(
+				bucket, videoKey);
+		ObjectMetadata metadata = s3Client.getObjectMetadata(metadataReq);
+		Map<String, String> userMetadata = metadata.getUserMetadata();
+
+		Video video = new Video();
+
+		video.setDescription(userMetadata.get("description"));
+		video.setOwner(userMetadata.get("owner"));
+		video.setId(userMetadata.get("uuid"));
+		video.setTitle(userMetadata.get("title"));
+		video.setPrivacy(Privacy.fromName(userMetadata.get("privacy")));
+		video.setCreatedDate(new SimpleDateFormat("MM/dd/yyyy")
+				.parse(userMetadata.get("createddate")));
+		video.setOriginalKey(videoKey);
+		video.setBucket(userMetadata.get("bucket"));
+		video.setUploadedDate(new Date());
+
+		Set<Tag> tags = new HashSet<Tag>();
+		for (String tag : userMetadata.get("tags").split(",")) {
+			tags.add(new Tag(tag));
+		}
+		video.setTags(tags);
+
+		save(video);
+		
+		return video;
 	}
 
 	@Override
@@ -71,6 +129,42 @@ public class VideoServiceImpl implements VideoService {
 	}
 
 	@Override
+	public void createVideoPreview(Video video) {
+		String pipelineId = config.getProperty(ConfigProps.TRANSCODE_PIPELINE);
+		String presetId = config.getProperty(ConfigProps.TRANSCODE_PRESET);
+		if (pipelineId == null || presetId == null) {
+			return;
+		}
+		CreateJobRequest encodeJob = new CreateJobRequest()
+				.withPipelineId(pipelineId)
+				.withInput(
+						new JobInput().withKey(video.getOriginalKey())
+								.withAspectRatio("auto").withContainer("auto")
+								.withFrameRate("auto").withInterlaced("auto")
+								.withResolution("auto"))
+				.withOutputKeyPrefix(
+						"uploads/converted/" + video.getOwner() + "/")
+				.withOutput(
+						new CreateJobOutput()
+								.withKey(UUID.randomUUID().toString())
+								.withPresetId(presetId)
+								.withThumbnailPattern(
+										"thumbs/"
+												+ UUID.randomUUID().toString()
+												+ "-{count}"));
+
+		try {
+			CreateJobResult result = transcoderClient.createJob(encodeJob);
+			video.setTranscodeJobId(result.getJob().getId());
+			video.setThumbnailKey("static/img/in_progress_poster.png");
+			save(video);
+		} catch (AmazonServiceException e) {
+			LOG.error("Failed creating transcode job for video {}",
+					video.getId(), e);
+		}
+	}
+	
+	@Override
 	public List<Video> generateExpiringUrls(List<Video> videos, long expirationInMillis) {
 		List<Video> newVideos = null;
 		if(null != videos) {
@@ -82,6 +176,7 @@ public class VideoServiceImpl implements VideoService {
 		
 		return newVideos;
 	}
+	
 	@Override
 	public Video generateExpiringUrl(Video video, long expirationInMillis) {
 

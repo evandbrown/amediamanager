@@ -27,7 +27,7 @@ public class RdsDriverManagerDataSource extends DriverManagerDataSource {
     ConfigurationSettings config;
 
     @Autowired
-    DbEndpointRetriever dbEndpointRetriever;
+    com.amediamanager.dao.challenge.RdsDbEndpointRetriever dbEndpointRetriever;
 
     @PostConstruct
     public void init() {
