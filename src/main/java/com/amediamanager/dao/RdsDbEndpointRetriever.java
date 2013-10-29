@@ -55,6 +55,9 @@ public class RdsDbEndpointRetriever implements DbEndpointRetriever {
 					endpoints.add(rrInstance.getEndpoint());
 				}
 			}
+			if(endpoints.size() == 0) {
+				endpoints = null;
+			}
 			
 		}
 		
