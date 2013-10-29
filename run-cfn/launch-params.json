@@ -1,6 +1,6 @@
 [
   {
-    "ParameterKey": "WarBucketPrefix",
+    "ParameterKey": "AssetsBucketPrefix",
     "ParameterValue": "amm-"
   },
   {
@@ -8,7 +8,7 @@
     "ParameterValue": "public/amediamanager.war"
   },
   {
-    "ParameterKey": "EC2KeyName",
+    "ParameterKey": "KeyName",
     "ParameterValue": "evbrown-amazon"
   },
   {
