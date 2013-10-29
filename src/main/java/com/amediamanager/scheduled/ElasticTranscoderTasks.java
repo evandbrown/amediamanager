@@ -69,6 +69,7 @@ public class ElasticTranscoderTasks {
 
     protected void handleMessage(final Message message) {
         try {
+        	LOG.info("Handling message received from checkStatus");
             ObjectNode snsMessage = (ObjectNode) mapper.readTree(message.getBody());
             ObjectNode notification = (ObjectNode) mapper.readTree(snsMessage.get("Message").asText());
             String state = notification.get("state").asText();

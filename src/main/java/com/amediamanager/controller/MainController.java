@@ -5,6 +5,8 @@ import java.util.List;
 
 import javax.servlet.http.HttpSession;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -23,6 +25,8 @@ import com.amediamanager.service.VideoService;
 
 @Controller
 public class MainController {
+	private static final Logger LOG = LoggerFactory.getLogger(MainController.class);
+	
 	@Autowired
 	UserService userService;
 
@@ -52,6 +56,7 @@ public class MainController {
 				// Add expiring URLs (1 hour)
 				videos = videoService.generateExpiringUrls(videos, 1000*60*60);
 			} catch (Exception e) {
+				LOG.error("Error loading videos: {}", e);
 				return "redirect:/config";
 			}
 			model.addAttribute("tags", tags);
