@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.amazonaws.services.rds.model.Endpoint;
@@ -19,7 +20,6 @@ import com.amediamanager.config.ConfigurationSettings;
  * @author evbrown
  *
  */
-@Component
 public class RdsDriverManagerDataSource extends DriverManagerDataSource {
     private static final Logger LOG = LoggerFactory.getLogger(RdsDriverManagerDataSource.class);
 
@@ -57,6 +57,7 @@ public class RdsDriverManagerDataSource extends DriverManagerDataSource {
                     .getReadReplicaEndpoints(masterId);
 
             if (master != null) {
+            	LOG.info("Detected RDS Master database");
                 StringBuilder builder = new StringBuilder();
                 builder.append("jdbc:mysql:");
                 if (replicas != null) {
@@ -69,16 +70,21 @@ public class RdsDriverManagerDataSource extends DriverManagerDataSource {
                 builder.append("//" + master.getAddress() + ":"
                         + master.getPort());
                 if (replicas != null) {
+                	LOG.info("Detected RDS Read Replicas");
                     for (Endpoint endpoint : replicas) {
                         builder.append("," + endpoint.getAddress() + ":"
                                 + endpoint.getPort());
                     }
+                } else {
+                	LOG.info("No Read Replicas detected");
                 }
                 builder.append("/"
                         + config.getProperty(ConfigurationSettings.ConfigProps.RDS_DATABASE));
                 String connectionString = builder.toString();
 
                 super.setUrl(connectionString);
+            } else {
+            	LOG.warn("No RDS master database detected!");
             }
         } catch (Exception e) {
             LOG.warn("Failed to initialize datasource.", e);

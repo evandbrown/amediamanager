@@ -16,13 +16,15 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.WebApplicationContext;
 
+import com.amediamanager.dao.RdsDriverManagerDataSource;
+
 @Component
 @Scope(WebApplicationContext.SCOPE_APPLICATION)
 public class DatabaseSchemaResource implements ProvisionableResource {
     private static final Logger LOG = LoggerFactory.getLogger(DatabaseSchemaResource.class);
 
     @Autowired
-    private DataSource dataSource;
+    private RdsDriverManagerDataSource dataSource;
 
     private static final String name = "RDS Database Schema";
     private ProvisionState provisionState;

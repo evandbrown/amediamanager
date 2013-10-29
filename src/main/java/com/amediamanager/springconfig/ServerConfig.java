@@ -5,7 +5,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.AWSCredentialsProviderChain;
@@ -29,6 +31,8 @@ import com.amediamanager.config.ConfigurationSettings;
 @Configuration
 @EnableScheduling
 @EnableAspectJAutoProxy
+@EnableWebMvc
+@EnableTransactionManagement
 public class ServerConfig {
 
     @Bean
