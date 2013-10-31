@@ -16,11 +16,12 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import com.amediamanager.config.ConfigurationSettings;
-import com.amediamanager.dao.UserDao;
 import com.amediamanager.domain.User;
 import com.amediamanager.exceptions.DataSourceTableDoesNotExistException;
 import com.amediamanager.exceptions.UserDoesNotExistException;
 import com.amediamanager.exceptions.UserExistsException;
+
+import org.mindrot.jbcrypt.*;
 
 @Service("userService")
 public class UserServiceImpl implements UserService, AuthenticationProvider {
@@ -35,7 +36,7 @@ public class UserServiceImpl implements UserService, AuthenticationProvider {
     @Override
     public void save(User user) throws DataSourceTableDoesNotExistException, UserExistsException {
         // MD5 password
-        user.setPassword(MD5HashPassword(user.getPassword()));
+        user.setPassword(bcryptPassword(user.getPassword()));
 
         // Default profile pic URL
         user.setProfilePicKey(getDefaultProfilePicKey());
@@ -58,7 +59,7 @@ public class UserServiceImpl implements UserService, AuthenticationProvider {
             user.setPassword(existing.getPassword());
         } else {
             // Otherwise MD5 password
-            user.setPassword(MD5HashPassword(user.getPassword()));
+            user.setPassword(bcryptPassword(user.getPassword()));
         }
 
         // Don't allow empty profile pic
@@ -91,8 +92,8 @@ public class UserServiceImpl implements UserService, AuthenticationProvider {
         String password = String.valueOf(auth.getCredentials());
 
         User user = find(username);
-
-        if(null == user || (! user.getPassword().equals(MD5HashPassword(password)))) {
+        
+        if(null == user || (! BCrypt.checkpw(password, user.getPassword()))) {
             throw new BadCredentialsException("Invalid username or password");
         }
 
@@ -113,9 +114,8 @@ public class UserServiceImpl implements UserService, AuthenticationProvider {
      *
      * @return MD5-encoded hex string of the provided password.
      */
-    public static String MD5HashPassword(String plainTextPassword) {
-        return org.apache.commons.codec.digest.DigestUtils
-                .md5Hex(plainTextPassword);
+    public static String bcryptPassword(String plainTextPassword) {
+        return BCrypt.hashpw(plainTextPassword, BCrypt.gensalt());
     }
 
     @Override
