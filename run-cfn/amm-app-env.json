@@ -57,52 +57,56 @@
         "Description": {
           "Ref": "ApplicationName"
         },
-        "ConfigurationTemplates" : [ {
-                 "TemplateName" : "DefaultConfiguration",
-                 "Description" : "Default Configuration Version 1.0 - with SSH access",
-                 "SolutionStackName": "64bit Amazon Linux running Tomcat 7",
-                 "OptionSettings" : [ 
-                   {
-                             "Namespace": "aws:elasticbeanstalk:application:environment",
-                             "OptionName": "S3_CONFIG_BUCKET",
-                             "Value": {
-                               "Ref": "AppBucket"
-                             }
-                           }, {
-                             "Namespace": "aws:elasticbeanstalk:application:environment",
-                             "OptionName": "S3_CONFIG_KEY",
-                             "Value": {
-                               "Fn::Join": ["", ["config/env/", {
-                                 "Ref": "AWS::StackName"
-                               }, ".properties"]]
-                             }
-                           }, {
-                             "Namespace": "aws:autoscaling:launchconfiguration",
-                             "OptionName": "EC2KeyName",
-                             "Value": {
-                               "Ref": "KeyName"
-                             }
-                           }, {
-                             "Namespace": "aws:autoscaling:launchconfiguration",
-                             "OptionName": "IamInstanceProfile",
-                             "Value": {
-                               "Ref": "EbAppInstanceProfile"
-                             }
-                           }, {
-                             "Namespace": "aws:autoscaling:launchconfiguration",
-                             "OptionName": "InstanceType",
-                             "Value": {
-                               "Ref": "InstanceType"
-                             }
-                           }, {
-                             "Namespace": "aws:autoscaling:launchconfiguration",
-                             "OptionName": "SecurityGroups",
-                             "Value": {
-                               "Ref": "InstanceSecurityGroup"
-                             }
-                           }
-                 ]
-              } ],
+        "ConfigurationTemplates": [{
+          "TemplateName": "DefaultConfiguration",
+          "Description": "Default Configuration Version 1.0 - with SSH access",
+          "SolutionStackName": "64bit Amazon Linux running Tomcat 7",
+          "OptionSettings": [{
+            "Namespace": "aws:elasticbeanstalk:application:environment",
+            "OptionName": "S3_CONFIG_BUCKET",
+            "Value": {
+              "Ref": "AppBucket"
+            }
+          }, {
+            "Namespace": "aws:elasticbeanstalk:application:environment",
+            "OptionName": "S3_CONFIG_KEY",
+            "Value": {
+              "Fn::Join": ["", ["config/env/", {
+                "Ref": "AWS::StackName"
+              }, ".properties"]]
+            }
+          }, {
+            "Namespace": "aws:elasticbeanstalk:application:environment",
+            "OptionName": "AMM_AWS_REGION",
+            "Value": {
+              "Ref": "AWS::Region"
+            }
+          }, {
+            "Namespace": "aws:autoscaling:launchconfiguration",
+            "OptionName": "EC2KeyName",
+            "Value": {
+              "Ref": "KeyName"
+            }
+          }, {
+            "Namespace": "aws:autoscaling:launchconfiguration",
+            "OptionName": "IamInstanceProfile",
+            "Value": {
+              "Ref": "EbAppInstanceProfile"
+            }
+          }, {
+            "Namespace": "aws:autoscaling:launchconfiguration",
+            "OptionName": "InstanceType",
+            "Value": {
+              "Ref": "InstanceType"
+            }
+          }, {
+            "Namespace": "aws:autoscaling:launchconfiguration",
+            "OptionName": "SecurityGroups",
+            "Value": {
+              "Ref": "InstanceSecurityGroup"
+            }
+          }]
+        }],
         "ApplicationVersions": [{
           "VersionLabel": "Initial Version",
           "Description": "Initial Version",
@@ -129,7 +133,7 @@
         },
         "Description": "Default Environment",
         "VersionLabel": "Initial Version",
-        "TemplateName" : "DefaultConfiguration",
+        "TemplateName": "DefaultConfiguration",
         "OptionSettings": [{
           "Namespace": "aws:elasticbeanstalk:application:environment",
           "OptionName": "AMM_RDS_INSTANCEID",
@@ -183,12 +187,6 @@
           "OptionName": "AMM_DDB_USERS_TABLE",
           "Value": {
             "Ref": "UsersTable"
-          }
-        }, {
-          "Namespace": "aws:elasticbeanstalk:application:environment",
-          "OptionName": "AMM_AWS_REGION",
-          "Value": {
-            "Ref": "AWS::Region"
           }
         }, {
           "Namespace": "aws:elasticbeanstalk:application:environment",

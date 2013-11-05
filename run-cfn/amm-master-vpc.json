@@ -84,14 +84,8 @@
     "InstanceSecurityGroup": {
       "Type": "AWS::EC2::SecurityGroup",
       "Properties": {
-        "GroupDescription": "Allow http to client host",
-        "SecurityGroupIngress": [{
-          "IpProtocol": "tcp",
-          "FromPort": "80",
-          "ToPort": "80",
-          "SourceSecurityGroupOwnerId": "amazon-elb",
-          "SourceSecurityGroupName": "amazon-elb-sg"
-        }]
+        "GroupDescription": "RDS allows ingress from EC2 instances in this group.",
+        "SecurityGroupIngress": []
       }
     },
     
