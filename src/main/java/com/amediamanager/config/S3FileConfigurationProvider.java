@@ -25,7 +25,9 @@ public class S3FileConfigurationProvider extends com.amediamanager.config.challe
             LOG.debug("No S3 configuration information found in file {}.", S3_CONFIG_FILE);
         } finally {
             try {
-                stream.close();
+            	if(stream != null) {
+            		stream.close();
+            	}
             } catch (IOException e) {
             	LOG.warn("Error closing stream to configuration file {}.", S3_CONFIG_FILE);
             }
