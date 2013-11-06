@@ -9,8 +9,8 @@ public class S3ConfigurationProvider extends com.amediamanager.config.S3Configur
 	@Override
 	public void loadProperties() {
 		/**
-		 * - Use super.getBucket() and super.getKey() for the S3 bucket and key.
-		 * - AmazonS3Client does not need credentials
+		 * - Create an AmazonS3Client (does not need creds or a region)
+		 * - Retrieve the object stored in bucket super.getBucket() with key super.getKey()
 		 * - Call super.setProperties with your result. 
 		 */
 		super.loadProperties();

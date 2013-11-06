@@ -44,7 +44,7 @@ public class DynamoDbUserDaoImpl implements UserDao {
 	@Autowired
 	protected AmazonS3 s3Client;
 
-	/** DynamoDB config **/
+	/** Attribute names **/
 	public static final String HASH_KEY_NAME = "EMail";
 	public static final String EMAIL_ATTR = HASH_KEY_NAME;
 	public static final String PASSWORD_ATTR = "Password";
