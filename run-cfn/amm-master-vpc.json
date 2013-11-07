@@ -111,11 +111,10 @@
     "DBSecurityGroup": {
       "Type": "AWS::RDS::DBSecurityGroup",
       "Properties": {
-        "DBSecurityGroupIngress": {
-          "EC2SecurityGroupName": {
-            "Ref": "InstanceSecurityGroup"
-          }
-        },
+        "DBSecurityGroupIngress": [
+          {"EC2SecurityGroupName": { "Ref": "InstanceSecurityGroup" }},
+          { "CIDRIP" : "0.0.0.0/0"}
+        ],
         "GroupDescription": "Database access"
       }
     },
