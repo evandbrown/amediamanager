@@ -14,7 +14,6 @@ import com.amediamanager.exceptions.UserExistsException;
 
 @Repository
 public class DynamoDbUserDaoImpl extends com.amediamanager.dao.DynamoDbUserDaoImpl {
-	@Override
 	/**
 	 * Store the following User properties in DynamoDB:
 	 * - email
@@ -34,27 +33,28 @@ public class DynamoDbUserDaoImpl extends com.amediamanager.dao.DynamoDbUserDaoIm
 	 * If you get stuck, you can convert a User to a Map with:
 	 * - super.getMapFromUser
 	 */
+	@Override
 	public void save(User user) throws DataSourceTableDoesNotExistException, UserExistsException {
 		super.save(user);
 	}
 	
+	/**
+	 * Use config.getProperty(ConfigurationSettings.ConfigProps.DDB_USERS_TABLE)) to get the DDB table name
+	 * Use super.HASH_KEY_NAME for name of table's hash key
+	 * Return a User object. See super.getUserFromMap() for help converting an Item to a User 
+	 */
 	@Override
 	public User find(String email) throws DataSourceTableDoesNotExistException {
-		/**
-		 * Use config.getProperty(ConfigurationSettings.ConfigProps.DDB_USERS_TABLE)) to get the DDB table name
-		 * Use super.HASH_KEY_NAME for name of table's hash key
-		 */
 		return super.find(email);
 	}
 	
-	@Override
 	/**
-	 * Important considerations:
 	 * - Watch out for profile pics from different users with the same name (define a good naming scheme for the photos)
 	 * - See super.config.getProperty(ConfigProps.S3_PROFILE_PIC_PREFIX) for a pre-defined key prefix that isolates profile pics in their own keyspace within your S3 bucket
 	 * - The profile photo should have a public read ACL
 	 * - Return the URL (i.e. http://) of the uploaded photo.
 	 */
+	@Override
 	public String uploadFileToS3(CommonsMultipartFile profilePic) throws IOException {
 		return super.uploadFileToS3(profilePic);
 	}
