@@ -7,8 +7,9 @@ echo "Staging CloudFormation templates..."
 for var in "${regions[@]}"
 do
 	echo "> amm-${var}"
-  aws s3 cp --quiet --acl public-read --region ${var} amm-master.json s3://amm-${var}/public/
-  aws s3 cp --quiet --acl public-read --region ${var} amm-app-env.json s3://amm-${var}/public/
+  aws s3 cp --acl public-read --region ${var} amm-master.json s3://amm-${var}/public/
+  aws s3 cp --acl public-read --region ${var} amm-master-vpc.json s3://amm-${var}/public/
+  aws s3 cp --acl public-read --region ${var} amm-app-env.json s3://amm-${var}/public/
 done
 
 echo "Staging Application WAR..."
