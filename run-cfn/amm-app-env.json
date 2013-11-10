@@ -57,6 +57,7 @@
         "Description": {
           "Ref": "ApplicationName"
         },
+        "ApplicationName" : {"Ref": "ApplicationName"},
         "ConfigurationTemplates": [{
           "TemplateName": "DefaultConfiguration",
           "Description": "Default Configuration Version 1.0 - with SSH access",
@@ -131,6 +132,7 @@
         "ApplicationName": {
           "Ref": "Application"
         },
+        "EnvironmentName" : "Development",
         "Description": "Default Environment",
         "VersionLabel": "Initial Version",
         "TemplateName": "DefaultConfiguration",
