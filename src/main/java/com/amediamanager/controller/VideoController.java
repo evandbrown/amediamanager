@@ -146,7 +146,7 @@ public class VideoController {
 		VideoUploadFormSigner formSigner = new VideoUploadFormSigner(
 				config.getProperty(ConfigProps.S3_UPLOAD_BUCKET),
 				config.getProperty(ConfigProps.S3_UPLOAD_PREFIX), user,
-				config.getAWSCredentialsProvider(), redirectUrl);
+				config, redirectUrl);
 
 		model.addAttribute("formSigner", formSigner);
 		model.addAttribute("templateName", "video_upload");

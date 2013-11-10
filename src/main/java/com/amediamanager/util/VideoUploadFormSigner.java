@@ -4,6 +4,8 @@ import java.util.UUID;
 
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.BasicSessionCredentials;
+import com.amediamanager.config.ConfigurationSettings;
+import com.amediamanager.config.ConfigurationSettings.ConfigProps;
 import com.amediamanager.domain.User;
 
 /**
@@ -21,14 +23,16 @@ public class VideoUploadFormSigner extends S3FormSigner {
 	private String uuid;
 	private User user;
 	private AWSCredentialsProvider credsProvider;
+	private ConfigurationSettings config;
 	
-	public VideoUploadFormSigner(String s3Bucket, String keyPrefix, User user, AWSCredentialsProvider credsProvider,
+	public VideoUploadFormSigner(String s3Bucket, String keyPrefix, User user, ConfigurationSettings config,
 			String successActionRedirect) {
 		this.s3Bucket = s3Bucket;
 		this.keyPrefix = keyPrefix;
 		this.successActionRedirect = successActionRedirect;
 		this.user = user;
-		this.credsProvider = credsProvider;
+		this.credsProvider = config.getAWSCredentialsProvider();
+		this.config = config;
 		this.uuid =  UUID.randomUUID().toString();
 		
 		String policy = super.generateUploadPolicy(s3Bucket, keyPrefix, credsProvider, successActionRedirect);
@@ -55,7 +59,14 @@ public class VideoUploadFormSigner extends S3FormSigner {
 		return s3Bucket;
 	}
 	public String getS3BucketUrl() {
-		return "https://" + s3Bucket + ".s3.amazonaws.com/";
+		String region = config.getProperty(ConfigProps.AWS_REGION); 
+		if(region.equals("us-east-1")) {
+			region = "external-1";
+		}
+		
+		String prefix = "s3-" + region;
+		
+		return "https://" + s3Bucket + "." + prefix + ".amazonaws.com/";
 	}
 	public void setS3BucketUrl(String s3BucketUrl) {
 		this.s3Bucket = s3BucketUrl;
