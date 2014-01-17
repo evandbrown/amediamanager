@@ -86,7 +86,7 @@
             "Namespace": "aws:autoscaling:launchconfiguration",
             "OptionName": "EC2KeyName",
             "Value": {
-              "Ref": "KeyName"
+               "Ref" : "KeyName"
             }
           }, {
             "Namespace": "aws:autoscaling:launchconfiguration",
