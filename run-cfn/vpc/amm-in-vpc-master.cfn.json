@@ -140,30 +140,8 @@
           "PublicSubnet2" : { "Fn::GetAtt" : ["VPCScaffold", "Outputs.PublicSubnet2"] }
         }
       }
-    },
-    "EBResourcesAndApp2" : {
-      "Type" : "AWS::CloudFormation::Stack",
-      "Properties" : {
-        "TemplateURL" : { "Fn::Join" : ["", [ "http://", { "Ref" : "AssetsBucketPrefix" }, { "Ref" : "AWS::Region" }, ".s3.amazonaws.com/", { "Ref" : "ResourcesTemplateKey" }]]},
-        "Parameters" : {
-          "DatabaseUser": { "Ref" : "DatabaseUser" },
-          "DatabasePassword": { "Ref" : "DatabasePassword" },
-          "AssetsBucketPrefix": { "Ref" : "AssetsBucketPrefix" },
-          "WarKey": { "Ref" : "WarKey" },
-          "AppTemplateKey": { "Ref" : "AppTemplateKey" },
-          "KeyName": { "Ref" : "KeyName" },
-          "InstanceType": { "Ref" : "InstanceType" },
-          "ApplicationName": { "Ref" : "ApplicationName" },
-          "InstanceSecurityGroup" : { "Fn::GetAtt" : ["VPCScaffold", "Outputs.InstanceSecurityGroup"] },
-          "VPCId" : { "Fn::GetAtt" : ["VPCScaffold", "Outputs.VPCId"] },
-          "PrivateSubnet1" : { "Fn::GetAtt" : ["VPCScaffold", "Outputs.PrivateSubnet1"] },
-          "PrivateSubnet2" : { "Fn::GetAtt" : ["VPCScaffold", "Outputs.PrivateSubnet2"] },
-          "PublicSubnet1" : { "Fn::GetAtt" : ["VPCScaffold", "Outputs.PublicSubnet1"] },
-          "PublicSubnet2" : { "Fn::GetAtt" : ["VPCScaffold", "Outputs.PublicSubnet2"] }
-        }
-      }
     }
-  },
+  }
   "Outputs": {
     "URL": {
       "Description": "URL of the AWS Elastic Beanstalk Environment",
