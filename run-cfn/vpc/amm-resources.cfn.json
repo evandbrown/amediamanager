@@ -1,0 +1,315 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+
+  "Description": "Provision resource dependencies for the aMediaManager app (e.g., RDS, S3, DynamoDB, etc..), then app on AWS Elastic Beanstalk via the amm-eb-app substack.",
+
+  "Parameters": {
+
+    "DatabaseUser": {
+      "Default": "admin",
+      "NoEcho": "true",
+      "Type": "String",
+      "Description": "Database admin account name",
+      "MinLength": "1",
+      "MaxLength": "16",
+      "AllowedPattern": "[a-zA-Z][a-zA-Z0-9]*",
+      "ConstraintDescription": "must begin with a letter and contain only alphanumeric characters."
+    },
+    "DatabasePassword": {
+      "Default": "0bee082a464",
+      "NoEcho": "true",
+      "Type": "String",
+      "Description": "Database admin account password",
+      "MinLength": "1",
+      "MaxLength": "41",
+      "AllowedPattern": "[a-zA-Z0-9]*",
+      "ConstraintDescription": "must contain only alphanumeric characters."
+    },
+    "AssetsBucketPrefix": {
+      "Description": "The prefix of the S3 bucket where the application WAR is located. A region-specific suffix will be appended, e.g. AssetsBucketPrefix-us-east-1.",
+      "Type": "String",
+      "Default": "amm-"
+    },
+    "WarKey": {
+      "Description": "The key of the application WAR file in the WarBucket",
+      "Type": "String",
+      "Default": "public/amediamanager.war"
+    },
+    "AppTemplateKey": {
+      "Description": "The key of the template for the EB app/env substack",
+      "Type": "String",
+      "Default": "public/amm-eb-app.cfn.json"
+    },
+    "KeyName": {
+      "Description": "The Key Pair to launch instances with",
+      "Type": "String",
+      "Default" : "No Key"
+    },
+    "InstanceType": {
+      "Description": "The Key Pair to launch instances with",
+      "Type": "String",
+      "Default": "t1.micro",
+      "AllowedValues": ["t1.micro", "m1.small", "m1.medium", "m1.large"]
+    },
+    "ApplicationName": {
+      "Description": "The name of the Elastic Beanstalk Application",
+      "Type": "String",
+      "Default": " amediamanager"
+    },
+    "InstanceSecurityGroup" : {
+      "Description" : "A VPC Security Group ID that has ingress access to a NAT instance in the VPC. EB instances will be launched into this group.",
+      "Type": "String"
+    },
+    "VPCId" : {
+      "Description" : "A VPC ID.",
+      "Type": "String"
+    },
+    "PrivateSubnet1" : {
+      "Description" : "A private VPC subnet ID.",
+      "Type": "String"
+    },
+    "PrivateSubnet2" : {
+      "Description" : "A private VPC subnet ID. Must be in a different AZ than PrivateSubnet1",
+      "Type": "String"
+    },
+    "PublicSubnet1" : {
+      "Description" : "A public VPC subnet ID.",
+      "Type": "String"
+    },
+    "PublicSubnet2" : {
+      "Description" : "A public VPC subnet ID. Must be in a different AZ than PrivateSubnet1",
+      "Type": "String"
+    }
+  },
+
+  "Resources": {
+    "App1" : {
+      "Type" : "AWS::CloudFormation::Stack",
+      "Properties" : {
+        "TemplateURL" : { "Fn::Join" : ["", [ "http://", { "Ref" : "AssetsBucketPrefix" }, { "Ref" : "AWS::Region" }, ".s3.amazonaws.com/", { "Ref" : "AppTemplateKey" }]]},
+        "Parameters" : {
+          "RdsDbId"          : { "Ref" : "Database" },
+          "AppBucket"        : { "Ref" : "AppBucket"},
+          "TranscodeTopic"   : { "Ref" : "TranscodeTopic" },
+          "TranscodeQueue"   : { "Ref" : "TranscodeQueue" },
+          "TranscodeRoleArn" : { "Fn::GetAtt": ["TranscodeRole", "Arn"]},
+          "UsersTable"       : { "Ref" : "UsersTable" },
+          "DatabaseUser"     : { "Ref" : "DatabaseUser"},
+          "DatabasePassword" : { "Ref" : "DatabasePassword" },
+          "AssetsBucketPrefix"  : { "Ref" : "AssetsBucketPrefix" },
+          "WarKey"           : { "Ref" : "WarKey"},
+          "KeyName"          : { "Ref" : "KeyName" },
+          "InstanceType"     : { "Ref" : "InstanceType"},
+          "ApplicationName"  : { "Ref" : "ApplicationName" },
+          "InstanceSecurityGroup"  : { "Ref" : "InstanceSecurityGroup" },
+          "PrivateSubnets" : {
+            "Fn::Join": [",", [{ "Ref": "PrivateSubnet1" }, { "Ref": "PrivateSubnet2" }]]
+          },
+          "PublicSubnets" : {
+            "Fn::Join": [",", [{ "Ref": "PublicSubnet1" }, { "Ref": "PublicSubnet2" }]]
+          },
+          "VPCId" : { "Ref" : "VPCId"}
+        }
+      }
+    },
+    
+    "AppBucket": {
+      "Type": "AWS::S3::Bucket"
+    },
+    "UsersTable": {
+      "Type": "AWS::DynamoDB::Table",
+      "Properties": {
+        "KeySchema": {
+          "HashKeyElement": {
+            "AttributeName": "EMail",
+            "AttributeType": "S"
+          }
+        },
+        "ProvisionedThroughput": {
+          "WriteCapacityUnits": 10,
+          "ReadCapacityUnits": 10
+        }
+      }
+    },
+
+    "DBSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Allow the Elastic Beanstalk instances to access the RDS database",
+        "VpcId": {
+          "Ref": "VPCId"
+        },
+        "SecurityGroupIngress": [{
+          "IpProtocol": "tcp",
+          "FromPort": "3306",
+          "ToPort": "3306",
+          "SourceSecurityGroupId": {
+            "Ref": "InstanceSecurityGroup"
+          }
+        }],
+        "SecurityGroupEgress": [{
+          "IpProtocol": "tcp",
+          "FromPort": "3306",
+          "ToPort": "3306",
+          "CidrIp": "0.0.0.0/0"
+        }]
+      }
+    },
+
+    "DBSubnetGroup": {
+      "Type": "AWS::RDS::DBSubnetGroup",
+      "Properties": {
+        "DBSubnetGroupDescription": "RDS DB Subnet group",
+        "SubnetIds": [{
+          "Ref": "PrivateSubnet1"
+        }, {
+          "Ref": "PrivateSubnet2"
+        }]
+      }
+    },
+
+    "Database": {
+      "Type": "AWS::RDS::DBInstance",
+      "Properties": {
+        "Engine": "MySQL",
+        "DBName": {
+          "Ref": "ApplicationName"
+        },
+        "MasterUsername": {
+          "Ref": "DatabaseUser"
+        },
+        "DBInstanceClass": "db.m1.small",
+        "AllocatedStorage": "5",
+        "MasterUserPassword": {
+          "Ref": "DatabasePassword"
+        },
+        "VPCSecurityGroups": [{
+          "Ref": "DBSecurityGroup"
+        }],
+        "DBSubnetGroupName": {
+          "Ref": "DBSubnetGroup"
+        }
+      }
+    },
+
+    "AlarmTopic": {
+      "Type": "AWS::SNS::Topic"
+    },
+
+    "TranscodeQueue": {
+      "Type": "AWS::SQS::Queue"
+    },
+
+    "TranscodeTopic": {
+      "Type": "AWS::SNS::Topic",
+      "Properties": {
+        "Subscription": [{
+          "Endpoint": {
+            "Fn::GetAtt": ["TranscodeQueue", "Arn"]
+          },
+          "Protocol": "sqs"
+        }]
+      }
+    },
+
+    "TranscodeTopic2QueuePolicy": {
+      "Type": "AWS::SQS::QueuePolicy",
+      "Properties": {
+        "Queues": [{
+          "Ref": "TranscodeQueue"
+        }],
+        "PolicyDocument": {
+          "Version": "2008-10-17",
+          "Id": "PublicationPolicy",
+          "Statement": [{
+            "Sid": "Allow-SNS-SendMessage",
+            "Effect": "Allow",
+            "Principal": {
+              "AWS": "*"
+            },
+            "Action": ["sqs:SendMessage"],
+            "Resource": {
+              "Fn::GetAtt": ["TranscodeQueue", "Arn"]
+            },
+            "Condition": {
+              "ArnEquals": {
+                "aws:SourceArn": {
+                  "Ref": "TranscodeTopic"
+                }
+              }
+            }
+          }]
+        }
+      }
+    },
+
+    "TranscodeRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2008-10-17",
+          "Statement": [{
+            "Sid": "1",
+            "Effect": "Allow",
+            "Principal": {
+              "Service": "elastictranscoder.amazonaws.com"
+            },
+            "Action": "sts:AssumeRole"
+          }]
+        },
+        "Path": "/",
+        "Policies": [{
+          "PolicyName": "TranscodePolicy",
+          "PolicyDocument": {
+            "Version": "2012-10-17",
+            "Statement": [{
+              "Sid": "1",
+              "Effect": "Allow",
+              "Action": [
+                "s3:Get*",
+                "s3:ListBucket",
+                "s3:Put*",
+                "s3:*MultipartUpload*"
+              ],
+              "Resource": [{
+                "Fn::Join": ["", ["arn:aws:s3:::", {
+                  "Ref": "AppBucket"
+                }, "/*"]]
+              }, {
+                "Fn::Join": ["", ["arn:aws:s3:::", {
+                  "Ref": "AppBucket"
+                }]]
+              }]
+            }, {
+              "Sid": "2",
+              "Effect": "Allow",
+              "Action": "sns:Publish",
+              "Resource": {
+                "Ref": "TranscodeTopic"
+              }
+            }, {
+              "Sid": "3",
+              "Effect": "Deny",
+              "Action": [
+                "sns:*Permission*",
+                "sns:*Delete*",
+                "sns:*Remove*",
+                "s3:*Policy*",
+                "s3:*Delete*"
+              ],
+              "Resource": "*"
+            }]
+          }
+        }]
+      }
+    }
+  },
+  "Outputs": {
+    "URL": {
+      "Description": "URL of the AWS Elastic Beanstalk Environment",
+      "Value": {
+        "Fn::GetAtt": ["App1", "Outputs.URL"]
+      }
+    }
+  }
+}

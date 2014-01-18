@@ -1,1 +1,0 @@
-aws cloudformation create-stack --stack-name amediamanager2 --template-body file://amm-master-vpc.json --parameters file://launch-params.json --capabilities CAPABILITY_IAM
