@@ -141,7 +141,7 @@
         }
       }
     }
-  }
+  },
   "Outputs": {
     "URL": {
       "Description": "URL of the AWS Elastic Beanstalk Environment",
