@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import net.spy.memcached.MemcachedClient;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,9 +57,14 @@ public class VideoServiceImpl implements VideoService {
 
 	@Autowired
 	protected AmazonElasticTranscoder transcoderClient;
+	
+	@Autowired
+	protected MemcachedClient memcachedClient;
 
 	@Override
 	public void save(Video video) throws DataSourceTableDoesNotExistException {
+		memcachedClient.delete(video.getOwner() + "-videos");
+		LOG.info("Busted video cache for " + video.getOwner() + "-videos");
 		videoDao.save(video);
 	}
 	
@@ -96,11 +103,15 @@ public class VideoServiceImpl implements VideoService {
 
 	@Override
 	public void update(Video video) throws DataSourceTableDoesNotExistException {
+		memcachedClient.delete(video.getOwner() + "-videos");
+		LOG.info("Busted video cache for " + video.getOwner() + "-videos");
 		videoDao.update(video);
 	}
 
 	@Override
 	public void delete(Video video) {
+		memcachedClient.delete(video.getOwner() + "-videos");
+		LOG.info("Busted video cache for " + video.getOwner() + "-videos");
 		videoDao.delete(video);
 	}
 	
@@ -110,9 +121,20 @@ public class VideoServiceImpl implements VideoService {
 		return videoDao.findById(videoId);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<Video> findByUserId(String email) {
-		return videoDao.findByUserId(email);
+		Object cached = memcachedClient.get(email + "-videos");
+		List<Video> videos = null;
+		if(cached != null) {
+			videos = (List<Video>)cached;
+			LOG.info("CACHE HIT: Video List");
+		} else {
+			LOG.info("CACHE MISS: Video List");
+			videos = videoDao.findByUserId(email);
+			memcachedClient.set(email + "-videos", 3600, videos);
+		}
+		return videos;
 	}
 
 	@Override

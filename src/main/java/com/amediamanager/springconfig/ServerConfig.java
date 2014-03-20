@@ -1,5 +1,8 @@
 package com.amediamanager.springconfig;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
@@ -8,6 +11,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+
+import net.spy.memcached.MemcachedClient;
 
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.AWSCredentialsProviderChain;
@@ -35,6 +40,15 @@ import com.amediamanager.config.ConfigurationSettings;
 @EnableTransactionManagement
 public class ServerConfig {
 
+	@Bean
+	@Scope(WebApplicationContext.SCOPE_APPLICATION)
+	public MemcachedClient memcachedClient(final ConfigurationSettings settings) throws IOException {
+		String configEndpoint = settings.getProperty(ConfigurationSettings.ConfigProps.CACHE_ENDPOINT);
+        Integer clusterPort = Integer.parseInt(settings.getProperty(ConfigurationSettings.ConfigProps.CACHE_PORT));
+        
+        return new MemcachedClient(new InetSocketAddress(configEndpoint, clusterPort));   
+	}
+	
     @Bean
     @Scope(WebApplicationContext.SCOPE_APPLICATION)
     public AWSCredentialsProvider credentials() {

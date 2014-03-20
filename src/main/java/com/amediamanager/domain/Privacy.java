@@ -1,6 +1,8 @@
 package com.amediamanager.domain;
 
-public enum Privacy {
+import java.io.Serializable;
+
+public enum Privacy implements Serializable {
     
     PRIVATE("Private"), 
     PUBLIC("Public"), 

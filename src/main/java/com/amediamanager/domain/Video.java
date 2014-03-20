@@ -3,6 +3,7 @@
 import java.net.URL;
 import java.util.Date;
 import java.util.Set;
+import java.io.Serializable;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -21,8 +22,9 @@ import org.apache.commons.lang.StringUtils;
 
 @Entity
 @Table(name="videos")
-public class Video {
-    private String id;
+public class Video implements Serializable {
+	private static final long serialVersionUID = 1070790235916873929L;
+	private String id;
     private String transcodeJobId;
     private String owner;
     private String bucket;

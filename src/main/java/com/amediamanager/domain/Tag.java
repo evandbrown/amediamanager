@@ -1,5 +1,6 @@
 package com.amediamanager.domain;
 
+import java.io.Serializable;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -11,7 +12,8 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name="tags")
-public class Tag {
+public class Tag implements Serializable {
+	private static final long serialVersionUID = -2103948648383738451L;
 	private String tagId;
 	private String name;
 	private Set<Video> videos;
