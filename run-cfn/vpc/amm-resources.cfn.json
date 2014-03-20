@@ -89,6 +89,8 @@
         "TemplateURL" : { "Fn::Join" : ["", [ "http://", { "Ref" : "AssetsBucketPrefix" }, { "Ref" : "AWS::Region" }, ".s3.amazonaws.com/", { "Ref" : "AppTemplateKey" }]]},
         "Parameters" : {
           "RdsDbId"          : { "Ref" : "Database" },
+          "CacheEndpoint"    : { "Fn::GetAtt" : [ "CacheCluster", "ConfigurationEndpoint.Address" ]},
+          "CachePort"        : { "Fn::GetAtt" : [ "CacheCluster", "ConfigurationEndpoint.Port" ]},
           "AppBucket"        : { "Ref" : "AppBucket"},
           "TranscodeTopic"   : { "Ref" : "TranscodeTopic" },
           "TranscodeQueue"   : { "Ref" : "TranscodeQueue" },
@@ -131,6 +133,64 @@
         }
       }
     },
+
+    "CacheSubnetGroup" : {
+        "Type" : "AWS::ElastiCache::SubnetGroup",
+        "Properties" : {
+            "Description" : "Cache Subnet Group",
+            "SubnetIds": [{
+              "Ref": "PrivateSubnet1"
+            }, {
+              "Ref": "PrivateSubnet2"
+            }]
+        }
+    },
+
+    "CacheParameters" : {
+          "Type" : "AWS::ElastiCache::ParameterGroup",
+          "Properties" : {
+            "CacheParameterGroupFamily" : "memcached1.4",
+            "Description" : "Parameter group",
+            "Properties" : {
+              "cas_disabled" : "1"
+            }
+          }
+        },
+
+        "CacheSecurityGroup" : {
+          "Type" : "AWS::EC2::SecurityGroup",
+          "Properties" : {
+            "GroupDescription" : "Allow access to the cache from the Web Server",
+            "VpcId" : { "Ref" : "VPCId" },
+            "SecurityGroupIngress": [{
+              "IpProtocol": "tcp",
+              "FromPort": "0",
+              "ToPort": "65535",
+              "SourceSecurityGroupId": {
+                "Ref": "InstanceSecurityGroup"
+              }
+            }],
+            "SecurityGroupEgress": [{
+              "IpProtocol": "tcp",
+              "FromPort": "0",
+              "ToPort": "65535",
+              "SourceSecurityGroupId": {
+                "Ref": "InstanceSecurityGroup"
+              }
+            }]
+          }      
+        },  
+
+        "CacheCluster" : {
+          "Type": "AWS::ElastiCache::CacheCluster",
+          "Properties": {
+            "CacheSubnetGroupName" : { "Ref" : "CacheSubnetGroup" },
+            "CacheNodeType"        : "cache.t1.micro",
+            "VpcSecurityGroupIds"  : [ { "Ref" : "CacheSecurityGroup" } ],
+            "Engine"               : "memcached",
+            "NumCacheNodes"        : "2"
+          }
+        },
 
     "DBSecurityGroup": {
       "Type": "AWS::EC2::SecurityGroup",

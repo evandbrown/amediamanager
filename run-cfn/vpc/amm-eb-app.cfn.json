@@ -10,6 +10,12 @@
     "AppBucket": {
       "Type": "String"
     },
+    "CacheEndpoint": {
+      "Type": "String"
+    },
+    "CachePort": {
+      "Type": "String"
+    },
     "TranscodeTopic": {
       "Type": "String"
     },
@@ -189,6 +195,18 @@
             "Ref": "DatabasePassword"
           }
         }, {
+          "Namespace": "aws:elasticbeanstalk:application:environment",
+          "OptionName": "AMM_CACHE_ENDPOINT",
+          "Value": {
+            "Ref": "CacheEndpoint"
+          }
+        },{
+          "Namespace": "aws:elasticbeanstalk:application:environment",
+          "OptionName": "AMM_CACHE_PORT",
+          "Value": {
+            "Ref": "CachePort"
+          }
+        },{
           "Namespace": "aws:elasticbeanstalk:application:environment",
           "OptionName": "AMM_S3_UPLOAD_BUCKET",
           "Value": {

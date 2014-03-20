@@ -10,6 +10,12 @@
     "AppBucket": {
       "Type": "String"
     },
+    "CacheEndpoint": {
+      "Type": "String"
+    },
+    "CachePort": {
+      "Type": "String"
+    },
     "TranscodeTopic": {
       "Type": "String"
     },
@@ -143,6 +149,18 @@
             "Ref": "RdsDbId"
           }
         }, {
+          "Namespace": "aws:elasticbeanstalk:application:environment",
+          "OptionName": "AMM_CACHE_ENDPOINT",
+          "Value": {
+            "Ref": "CacheEndpoint"
+          }
+        },{
+          "Namespace": "aws:elasticbeanstalk:application:environment",
+          "OptionName": "AMM_CACHE_PORT",
+          "Value": {
+            "Ref": "CachePort"
+          }
+        },{
           "Namespace": "aws:elasticbeanstalk:application:environment",
           "OptionName": "AMM_RDS_DATABASE",
           "Value": {
