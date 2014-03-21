@@ -16,6 +16,7 @@ import net.spy.memcached.MemcachedClient;
 
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.AWSCredentialsProviderChain;
+import com.amazonaws.auth.EnvironmentVariableCredentialsProvider;
 import com.amazonaws.auth.InstanceProfileCredentialsProvider;
 import com.amazonaws.auth.SystemPropertiesCredentialsProvider;
 import com.amazonaws.regions.Region;
@@ -53,6 +54,7 @@ public class ServerConfig {
     @Scope(WebApplicationContext.SCOPE_APPLICATION)
     public AWSCredentialsProvider credentials() {
         return new AWSCredentialsProviderChain(
+        		new EnvironmentVariableCredentialsProvider(),
                 new SystemPropertiesCredentialsProvider(),
                 new InstanceProfileCredentialsProvider()
                 );
