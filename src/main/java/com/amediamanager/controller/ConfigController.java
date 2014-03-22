@@ -1,19 +1,31 @@
 package com.amediamanager.controller;
 
+import java.beans.PropertyEditorSupport;
 import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.WebApplicationContext;
 
 import com.amazonaws.auth.BasicSessionCredentials;
 import com.amediamanager.config.ConfigurationSettings;
+import com.amediamanager.config.EditableConfigurationProperties;
+import com.amediamanager.config.EditableConfigurationProperty;
 import com.amediamanager.config.ProvisionableResource;
 import com.amediamanager.config.S3ConfigurationProvider;
+import com.amediamanager.config.ToggleableConfigurationProperty;
+import com.amediamanager.domain.Privacy;
+import com.amediamanager.util.PrivacyEditor;
 
 @Controller
 public class ConfigController {
@@ -23,9 +35,14 @@ public class ConfigController {
 
 	@Autowired
 	private ConfigurationSettings config;
+	
+	@Autowired
+	private EditableConfigurationProperties editableConfigurationProperties;
 
 	@RequestMapping(value="/config", method = RequestMethod.GET)
 	public String config(ModelMap model) {
+		config.refreshConfigurationProvider();
+		
 		model.addAttribute("templateName", "config");
 		model.addAttribute("configLoadedFrom", config.getConfigurationProvider().getPrettyName());
 		model.addAttribute("appConfig", config.toString());
@@ -39,6 +56,7 @@ public class ConfigController {
 			model.addAttribute("configKey", ((S3ConfigurationProvider)config.getConfigurationProvider()).getKey());
 		}
 		
+		// Handle ProvisionableResources
 		Map<String, ProvisionableResource> provisionableResources = context.getBeansOfType(ProvisionableResource.class);
 
 		// Let the view know if there are any unprovisioned resources
@@ -54,7 +72,11 @@ public class ConfigController {
 		// Set provisionables
 		model.addAttribute("allProvisioned", allProvisioned);
 		model.addAttribute("prs", provisionableResources);
-
+		
+		// Set EditableConfigurationProperties
+		editableConfigurationProperties.initialize();
+		model.addAttribute("ecp", editableConfigurationProperties);
+		
 		return "base";
 	}
 
@@ -63,5 +85,25 @@ public class ConfigController {
 		ProvisionableResource pr = (ProvisionableResource)context.getBean(provisionableBeanName);
 		pr.provision();
 		return config(model);
+	}
+	
+	@RequestMapping(value="/config/edit", method=RequestMethod.POST)
+	public String configure(ModelMap model, @ModelAttribute EditableConfigurationProperties editableConfigurationProperties) {
+		for(EditableConfigurationProperty ecp : editableConfigurationProperties.getConfigProps()) {
+			config.getConfigurationProvider().persistNewProperty(ecp.getPropertyName(), ecp.getPropertyValue());
+		}
+		return "redirect:/config";
+	}
+	
+	@InitBinder
+	public void initPrivacyBinder(final WebDataBinder dataBinder) {
+		// Bind tags
+		dataBinder.registerCustomEditor(ConfigurationSettings.ConfigProps.class, new ConfigPropertyEditor());
+	}
+	
+	class ConfigPropertyEditor extends PropertyEditorSupport {
+	    public void setAsText(String text) {
+	        setValue(ConfigurationSettings.ConfigProps.valueOf(text));
+	    }
 	}
 }

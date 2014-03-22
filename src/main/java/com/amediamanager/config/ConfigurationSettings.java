@@ -49,6 +49,7 @@ public class ConfigurationSettings {
 		DEFAULT_VIDEO_POSTER_KEY,
 		CACHE_ENDPOINT,
 		CACHE_PORT,
+		CACHE_ENABLED,
 		RDS_DATABASE,
 		RDS_USERNAME,
 		RDS_PASSWORD,
@@ -80,13 +81,8 @@ public class ConfigurationSettings {
 			LOG.info("---------------------");
 			LOG.info("Effective config:");
 			this.configProviderChain.getProperties().list(System.out);
-			LOG.info("---------------------");
-			LOG.info("Effective AWS credential config:");
-			LOG.info("Access Key="
-					+ this.getAWSCredentialsProvider().getCredentials()
-							.getAWSAccessKeyId());
 		} catch (Exception ex) {
-			LOG.error("An exception was thrown while creating the ConfigurationSettings object. Application will not run.");
+			LOG.error("An exception was thrown while creating the ConfigurationSettings object. Application will not run.", ex);
 		}
 
 	}

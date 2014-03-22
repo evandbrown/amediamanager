@@ -12,6 +12,7 @@
 <link th:href="@{/static/css/mediaelementplayer.min.css}" rel="stylesheet"></link>
 <link th:href="@{/static/css/mejs-skins.css}" rel="stylesheet"></link>
 <link th:href="@{/static/css/datepicker.css}" rel="stylesheet"></link>
+<link th:href="@{/static/css/bootstrap-switch.min.css}" rel="stylesheet"></link>
 
 <script th:src="@{/static/js/jquery.min.js}"></script>
 <script th:src="@{/static/js/bootstrap.min.js}"></script>
@@ -19,6 +20,7 @@
 <script th:src="@{/static/js/collapse.js}"></script>
 <script th:src="@{/static/js/mediaelement-and-player.min.js}"></script>
 <script th:src="@{/static/js/bootstrap-datepicker.js}"></script>
+<script th:src="@{/static/js/bootstrap-switch.min.js}"></script>
 
 <style type="text/css">
 body {
@@ -54,6 +56,12 @@ body {
 			<div th:include="${templateName}"></div>
 		</div>
 	</div>
+	<script type="text/javascript">
+		$(".switch").bootstrapSwitch();
+		$(".switch").on('switchChange', function (e, data) {
+		  alert('switch');
+		});
+	</script>
 </body>
 
 </html>

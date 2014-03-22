@@ -8,7 +8,11 @@
       <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
     </encoder>
     <FileNamePattern>application.%d{yyyy-MM-dd}.log</FileNamePattern>
-    <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy"/>
+    <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+    	<FileNamePattern>application.%d{yyyy-MM-dd}.%i.log.zip</FileNamePattern>
+    	<minIndex>1</minIndex>
+      	<maxIndex>3</maxIndex>
+    </rollingPolicy>
     <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy"/>
   </appender>
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
