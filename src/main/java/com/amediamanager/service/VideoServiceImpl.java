@@ -63,8 +63,10 @@ public class VideoServiceImpl implements VideoService {
 
 	@Override
 	public void save(Video video) throws DataSourceTableDoesNotExistException {
-		memcachedClient.delete(video.getOwner() + "-videos");
-		LOG.info("Busted video cache for " + video.getOwner() + "-videos");
+		if(cachingEnabled()) {
+			memcachedClient.delete(getVideoListKey(video.getOwner()));
+			LOG.info("Busted video cache for " + getVideoListKey(video.getOwner()));
+		}
 		videoDao.save(video);
 	}
 	
@@ -103,15 +105,19 @@ public class VideoServiceImpl implements VideoService {
 
 	@Override
 	public void update(Video video) throws DataSourceTableDoesNotExistException {
-		memcachedClient.delete(video.getOwner() + "-videos");
-		LOG.info("Busted video cache for " + video.getOwner() + "-videos");
+		if(cachingEnabled()) {
+			memcachedClient.delete(getVideoListKey(video.getOwner()));
+			LOG.info("Busted video cache for " + getVideoListKey(video.getOwner()));
+		}
 		videoDao.update(video);
 	}
 
 	@Override
 	public void delete(Video video) {
-		memcachedClient.delete(video.getOwner() + "-videos");
-		LOG.info("Busted video cache for " + video.getOwner() + "-videos");
+		if(cachingEnabled()) {
+			memcachedClient.delete(getVideoListKey(video.getOwner()));
+			LOG.info("Busted video cache for " + getVideoListKey(video.getOwner()));
+		}
 		videoDao.delete(video);
 	}
 	
@@ -124,15 +130,22 @@ public class VideoServiceImpl implements VideoService {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Video> findByUserId(String email) {
-		Object cached = memcachedClient.get(email + "-videos");
+		Object cached = null;
 		List<Video> videos = null;
+		
+		if(cachingEnabled()) {
+			cached = memcachedClient.get(getVideoListKey(email));
+		}
+		
 		if(cached != null) {
 			videos = (List<Video>)cached;
 			LOG.info("CACHE HIT: Video List");
 		} else {
-			LOG.info("CACHE MISS: Video List");
 			videos = videoDao.findByUserId(email);
-			memcachedClient.set(email + "-videos", 3600, videos);
+			if(cachingEnabled()) {
+				LOG.info("CACHE MISS: Video List");
+				memcachedClient.set(getVideoListKey(email), 3600, videos);
+			}
 		}
 		return videos;
 	}
@@ -250,5 +263,12 @@ public class VideoServiceImpl implements VideoService {
 				+ ".s3.amazonaws.com/"
 				+ config.getProperty(ConfigurationSettings.ConfigProps.DEFAULT_VIDEO_POSTER_KEY);
 	}
+	
+	private String getVideoListKey(String ownerId) {
+		return ownerId + "-videos";
+	}
 
+	private Boolean cachingEnabled() {
+		return Boolean.parseBoolean(config.getProperty(ConfigurationSettings.ConfigProps.CACHE_ENABLED));
+	}
 }
