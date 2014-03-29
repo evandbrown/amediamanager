@@ -1,0 +1,10 @@
+[
+  {
+    "ParameterKey": "KeyName",
+    "ParameterValue": "YOUR_EC2_KEY_PAIR"
+  },
+  {
+    "ParameterKey": "InstanceType",
+    "ParameterValue": "t1.micro"
+  }
+]
