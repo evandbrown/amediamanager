@@ -12,12 +12,10 @@
  * License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.amediamanager.exceptions;
+package com.amediamanager.config;
 
-/**
- * Exception that is raised when a User with an existing e-mail
- * address is added to the data store.
- */
-public class UserDoesNotExistException extends RuntimeException { 
-	private static final long serialVersionUID = 1L;
+public abstract class ToggleableConfigurationProperty extends EditableConfigurationProperty {
+	public Boolean getBooleanPropertyValue() {
+		return this.getPropertyValue().equalsIgnoreCase("true");
+	}
 }
