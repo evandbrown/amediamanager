@@ -51,14 +51,13 @@
     },
     "KeyName": {
       "Description": "The Key Pair to launch instances with",
-      "Type": "String",
-      "Default" : "No Key"
+      "Type": "String"
     },
     "InstanceType": {
       "Description": "The Key Pair to launch instances with",
       "Type": "String",
       "Default": "t1.micro",
-      "AllowedValues": ["t1.micro", "m1.small", "m1.medium", "m1.large"]
+      "AllowedValues": ["t1.micro", "m1.small", "m1.medium", "m1.large", "c3.large"]
     },
     "ApplicationName": {
       "Description": "The name of the Elastic Beanstalk Application",
@@ -152,8 +151,7 @@
       "Type": "AWS::RDS::DBSecurityGroup",
       "Properties": {
         "DBSecurityGroupIngress": [
-          {"EC2SecurityGroupName": { "Ref": "InstanceSecurityGroup" }},
-          { "CIDRIP" : { "Ref" : "RemoteDBAccessSource" } }
+          {"EC2SecurityGroupName": { "Ref": "InstanceSecurityGroup" }}
         ],
         "GroupDescription": "Database access"
       }
