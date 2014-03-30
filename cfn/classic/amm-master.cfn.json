@@ -110,6 +110,30 @@
           "ApplicationName"        : { "Ref" : "ApplicationName" }
         }
       }
+    },
+    "LucyApp" : {
+      "Type" : "AWS::CloudFormation::Stack",
+      "Properties" : {
+        "TemplateURL" : { "Fn::Join" : ["", [ "http://", { "Ref" : "AssetsBucketPrefix" }, { "Ref" : "AWS::Region" }, ".s3.amazonaws.com/", { "Ref" : "AppTemplateKey" }]]},
+        "Parameters" : {
+          "RdsDbId"                : { "Fn::GetAtt" : [ "AppResources", "Outputs.RdsDbId" ]},
+          "CacheEndpoint"          : { "Fn::GetAtt" : [ "AppResources", "Outputs.CacheEndpoint" ]},
+          "CachePort"              : { "Fn::GetAtt" : [ "AppResources", "Outputs.CachePort" ]},
+          "AppBucket"              : { "Fn::GetAtt" : [ "AppResources", "Outputs.AppBucket" ]},
+          "TranscodeTopic"         : { "Fn::GetAtt" : [ "AppResources", "Outputs.TranscodeTopic" ]},
+          "TranscodeQueue"         : { "Fn::GetAtt" : [ "AppResources", "Outputs.TranscodeQueue" ]},
+          "TranscodeRoleArn"       : { "Fn::GetAtt" : [ "AppResources", "Outputs.TranscodeRoleArn" ]},
+          "UsersTable"             : { "Fn::GetAtt" : [ "AppResources", "Outputs.UsersTable" ]},
+          "InstanceSecurityGroup"  : { "Fn::GetAtt" : [ "AppResources", "Outputs.InstanceSecurityGroup" ]},
+          "DatabaseUser"           : { "Ref" : "DatabaseUser"},
+          "DatabasePassword"       : { "Ref" : "DatabasePassword" },
+          "AssetsBucketPrefix"     : { "Ref" : "AssetsBucketPrefix" },
+          "WarKey"                 : { "Ref" : "WarKey"},
+          "KeyName"                : { "Ref" : "KeyName" },
+          "InstanceType"           : { "Ref" : "InstanceType"},
+          "ApplicationName"        : { "Fn::Join" : ["", [{ "Ref" : "ApplicationName" }, "-Lucy"]] }
+        }
+      }
     }
   },
   "Outputs": {
