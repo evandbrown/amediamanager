@@ -59,6 +59,12 @@
       "Default": "t1.micro",
       "AllowedValues": ["t1.micro", "m1.small", "m1.medium", "m1.large", "c3.large"]
     },
+    "DBInstanceType": {
+      "Description": "The Key Pair to launch instances with",
+      "Type": "String",
+      "Default": "db.t1.micro",
+      "AllowedValues": ["db.t1.micro", "db.m1.small", "db.m1.medium", "db.m1.large"]
+    },
     "ApplicationName": {
       "Description": "The name of the Elastic Beanstalk Application",
       "Type": "String",
@@ -115,7 +121,7 @@
           }
         },
         "ProvisionedThroughput": {
-          "WriteCapacityUnits": 10,
+          "WriteCapacityUnits": 5,
           "ReadCapacityUnits": 10
         }
       }
@@ -176,7 +182,7 @@
         "MasterUsername": {
           "Ref": "DatabaseUser"
         },
-        "DBInstanceClass": "db.m1.small",
+        "DBInstanceClass": { "Ref": "DBInstanceType" },
         "DBSecurityGroups": [{
           "Ref": "DBSecurityGroup"
         }],
@@ -322,6 +328,14 @@
         "InsufficientDataActions": [{
           "Ref": "AlarmTopic"
         }]
+      }
+    }
+  },
+  "Outputs": {
+    "URL": {
+      "Description": "URL of the AWS Elastic Beanstalk Environment",
+      "Value": {
+        "Fn::GetAtt": ["App1", "Outputs.URL"]
       }
     }
   }
