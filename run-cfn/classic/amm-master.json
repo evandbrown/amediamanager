@@ -35,19 +35,19 @@
       "Type": "String",
       "Default": "public/amediamanager.war"
     },
-    "SSHFrom": {
-      "Description": "CIDR range from which SSH access will be allowed (default can be accessed from anywhere)",
+    "RemoteDBAccessSource": {
+      "Description": "CIDR range from which remote database connections will be allows (for local dev)",
       "Type": "String",
       "MinLength": "9",
       "MaxLength": "18",
-      "Default": "0.0.0.0/0",
+      "Default": "999.999.999.999/99",
       "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
       "ConstraintDescription": "must be a valid CIDR range of the form x.x.x.x/x."
     },
     "AppTemplateKey": {
       "Description": "The key of the template for the EB app/env substack",
       "Type": "String",
-      "Default": "public/classic/amm-elasticbeanstalk.json"
+      "Default": "public/classic/amm-elasticbeanstalk.cfn.json"
     },
     "KeyName": {
       "Description": "The Key Pair to launch instances with",
@@ -66,7 +66,9 @@
       "Default": " amediamanager"
     }
   },
-
+  "Conditions" : {
+          "RemoteDBAccess" : { "Fn::Not" : [{ "Fn::Equals" : [ { "Ref" : "RemoteDBAccessSource" }, "999.999.999.999/99" ]}]}
+      },
   "Resources": {
     "App1" : {
       "Type" : "AWS::CloudFormation::Stack",
@@ -151,9 +153,18 @@
       "Properties": {
         "DBSecurityGroupIngress": [
           {"EC2SecurityGroupName": { "Ref": "InstanceSecurityGroup" }},
-          { "CIDRIP" : { "Ref" : "SSHFrom" } }
+          { "CIDRIP" : { "Ref" : "RemoteDBAccessSource" } }
         ],
         "GroupDescription": "Database access"
+      }
+    },
+
+    "DBSecurityGroupRemoteAccess" : {
+      "Type": "AWS::RDS::DBSecurityGroupIngress", 
+      "Condition": "RemoteDBAccess",
+      "Properties": {
+        "DBSecurityGroupName": {"Ref": "DBSecurityGroup"},
+        "CIDRIP": "RemoteDBAccessSource"
       }
     },
 
