@@ -53,6 +53,14 @@
     },
     "InstanceSecurityGroup": {
       "Type": "String"
+    },
+    "DeveloperName": {
+      "Type": "String",
+      "Default": "Default"
+    },
+    "EnvironmentName": {
+      "Type": "String",
+      "Default": "Development"
     }
   },
 
@@ -63,7 +71,7 @@
         "Description": {
           "Ref": "ApplicationName"
         },
-        "ApplicationName" : {"Ref": "ApplicationName"},
+        "ApplicationName" : { "Fn::Join" : ["-", [{ "Ref": "ApplicationName" }, {"Ref": "DeveloperName"}]] },
         "ConfigurationTemplates": [{
           "TemplateName": "DefaultConfiguration",
           "Description": "Default Configuration Version 1.0 - with SSH access",
@@ -135,10 +143,8 @@
     "Environment": {
       "Type": "AWS::ElasticBeanstalk::Environment",
       "Properties": {
-        "ApplicationName": {
-          "Ref": "Application"
-        },
-        "EnvironmentName" : "Development",
+        "ApplicationName": { "Ref": "Application"},
+        "EnvironmentName" : { "Fn::Join" : ["-", [ { "Ref": "EnvironmentName" }, {"Ref": "DeveloperName"}]] },
         "Description": "Default Environment",
         "VersionLabel": "Initial Version",
         "TemplateName": "DefaultConfiguration",
