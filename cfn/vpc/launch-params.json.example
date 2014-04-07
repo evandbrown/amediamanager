@@ -4,10 +4,6 @@
     "ParameterValue": "YOUR_EC2_KEY_PAIR"
   },
   {
-    "ParameterKey": "InstanceType",
-    "ParameterValue": "t1.micro"
-  },
-  {
     "ParameterKey": "VPCAvailabilityZone1",
     "ParameterValue": "us-east-1a"
   },

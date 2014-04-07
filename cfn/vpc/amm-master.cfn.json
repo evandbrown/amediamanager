@@ -17,7 +17,7 @@
     "AppTemplateKey": {
       "Description": "The key of the template for that contains the EB app and env embedded in ResourcesTemplateKey",
       "Type": "String",
-      "Default": "public/vpc/amm-eb-app.cfn.json"
+      "Default": "public/vpc/amm-elasticbeanstalk.cfn.json"
     },
     "KeyName": {
       "Description": "Name of an existing EC2 KeyPair to enable SSH access to the Elastic Beanstalk and Bastion hosts",
@@ -39,12 +39,12 @@
     "BastionInstanceType": {
       "Description": "Bastion Host EC2 instance type",
       "Type": "String",
-      "Default": "m1.small",
+      "Default": "t1.micro",
       "AllowedValues": ["t1.micro", "m1.small", "m1.medium", "m1.large", "m1.xlarge", "m2.xlarge", "m2.2xlarge", "m2.4xlarge", "m3.xlarge", "m3.2xlarge", "c1.medium", "c1.xlarge", "cc1.4xlarge", "cc2.8xlarge", "cg1.4xlarge"],
       "ConstraintDescription": "must be a valid EC2 instance type."
     },
     "NATInstanceType": {
-      "Description": "NET Device EC2 instance type",
+      "Description": "NAT Device EC2 instance type",
       "Type": "String",
       "Default": "m1.small",
       "AllowedValues": ["t1.micro", "m1.small", "m1.medium", "m1.large", "m1.xlarge", "m2.xlarge", "m2.2xlarge", "m2.4xlarge", "m3.xlarge", "m3.2xlarge", "c1.medium", "c1.xlarge", "cc1.4xlarge", "cc2.8xlarge", "cg1.4xlarge"],
@@ -101,7 +101,7 @@
     "ApplicationName": {
       "Description": "The name of the Elastic Beanstalk Application",
       "Type": "String",
-      "Default": " amediamanager"
+      "Default": "aMediaManager-VPC"
     }
   },
 
@@ -120,25 +120,48 @@
         }
       }
     },
-    "EBResourcesAndApp" : {
+    "AppResources" : {
       "Type" : "AWS::CloudFormation::Stack",
       "Properties" : {
         "TemplateURL" : { "Fn::Join" : ["", [ "http://", { "Ref" : "AssetsBucketPrefix" }, { "Ref" : "AWS::Region" }, ".s3.amazonaws.com/", { "Ref" : "ResourcesTemplateKey" }]]},
         "Parameters" : {
           "DatabaseUser": { "Ref" : "DatabaseUser" },
           "DatabasePassword": { "Ref" : "DatabasePassword" },
-          "AssetsBucketPrefix": { "Ref" : "AssetsBucketPrefix" },
-          "WarKey": { "Ref" : "WarKey" },
-          "AppTemplateKey": { "Ref" : "AppTemplateKey" },
-          "KeyName": { "Ref" : "KeyName" },
-          "InstanceType": { "Ref" : "InstanceType" },
-          "ApplicationName": { "Ref" : "ApplicationName" },
           "InstanceSecurityGroup" : { "Fn::GetAtt" : ["VPCScaffold", "Outputs.InstanceSecurityGroup"] },
           "VPCId" : { "Fn::GetAtt" : ["VPCScaffold", "Outputs.VPCId"] },
           "PrivateSubnet1" : { "Fn::GetAtt" : ["VPCScaffold", "Outputs.PrivateSubnet1"] },
-          "PrivateSubnet2" : { "Fn::GetAtt" : ["VPCScaffold", "Outputs.PrivateSubnet2"] },
-          "PublicSubnet1" : { "Fn::GetAtt" : ["VPCScaffold", "Outputs.PublicSubnet1"] },
-          "PublicSubnet2" : { "Fn::GetAtt" : ["VPCScaffold", "Outputs.PublicSubnet2"] }
+          "PrivateSubnet2" : { "Fn::GetAtt" : ["VPCScaffold", "Outputs.PrivateSubnet2"] }
+        }
+      }
+    },
+    "App1" : {
+      "Type" : "AWS::CloudFormation::Stack",
+      "Properties" : {
+        "TemplateURL" : { "Fn::Join" : ["", [ "http://", { "Ref" : "AssetsBucketPrefix" }, { "Ref" : "AWS::Region" }, ".s3.amazonaws.com/", { "Ref" : "AppTemplateKey" }]]},
+        "Parameters" : {
+          "RdsDbId"                : { "Fn::GetAtt" : [ "AppResources", "Outputs.RdsDbId" ]},
+          "CacheEndpoint"          : { "Fn::GetAtt" : [ "AppResources", "Outputs.CacheEndpoint" ]},
+          "CachePort"              : { "Fn::GetAtt" : [ "AppResources", "Outputs.CachePort" ]},
+          "AppBucket"              : { "Fn::GetAtt" : [ "AppResources", "Outputs.AppBucket" ]},
+          "TranscodeTopic"         : { "Fn::GetAtt" : [ "AppResources", "Outputs.TranscodeTopic" ]},
+          "TranscodeQueue"         : { "Fn::GetAtt" : [ "AppResources", "Outputs.TranscodeQueue" ]},
+          "TranscodeRoleArn"       : { "Fn::GetAtt" : [ "AppResources", "Outputs.TranscodeRoleArn" ]},
+          "UsersTable"             : { "Fn::GetAtt" : [ "AppResources", "Outputs.UsersTable" ]},
+          "DatabaseUser"     : { "Ref" : "DatabaseUser"},
+          "DatabasePassword" : { "Ref" : "DatabasePassword" },
+          "AssetsBucketPrefix"  : { "Ref" : "AssetsBucketPrefix" },
+          "WarKey"           : { "Ref" : "WarKey"},
+          "KeyName"          : { "Ref" : "KeyName" },
+          "InstanceType"     : { "Ref" : "InstanceType"},
+          "ApplicationName"  : { "Ref" : "ApplicationName" },
+          "InstanceSecurityGroup" : { "Fn::GetAtt" : ["VPCScaffold", "Outputs.InstanceSecurityGroup"] },
+          "VPCId" : { "Fn::GetAtt" : ["VPCScaffold", "Outputs.VPCId"] },
+          "PrivateSubnets" : {
+            "Fn::Join": [",", [{ "Fn::GetAtt" : ["VPCScaffold", "Outputs.PrivateSubnet1"] }, { "Fn::GetAtt" : ["VPCScaffold", "Outputs.PrivateSubnet2"] }]]
+          },
+          "PublicSubnets" : {
+            "Fn::Join": [",", [{ "Fn::GetAtt" : ["VPCScaffold", "Outputs.PublicSubnet1"] }, { "Fn::GetAtt" : ["VPCScaffold", "Outputs.PublicSubnet2"] }]]
+          }
         }
       }
     }
@@ -147,7 +170,7 @@
     "URL": {
       "Description": "URL of the AWS Elastic Beanstalk Environment",
       "Value": {
-        "Fn::GetAtt": ["EBResourcesAndApp", "Outputs.URL"]
+        "Fn::GetAtt": ["App1", "Outputs.URL"]
       }
     }
   }
